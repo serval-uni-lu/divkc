@@ -1,5 +1,5 @@
-override CXXFLAGS += -std=c++14 -fopenmp -pthread
-override LDFLAGS  += -std=c++14 -fopenmp -pthread
+override CXXFLAGS += -std=c++14 -fopenmp -pthread -static
+override LDFLAGS  += -std=c++14 -fopenmp -pthread -static
 
 EXEC = modularity
 
