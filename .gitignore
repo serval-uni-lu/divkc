@@ -168,3 +168,4 @@ objs/
 singularity/d4/d4
 singularity/wrapper/wrap
 smp/smp
+lpa/modularity

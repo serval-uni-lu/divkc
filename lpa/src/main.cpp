@@ -34,6 +34,9 @@ struct Community {
         }
     }
 
+    Community() : c(0) {
+    }
+
     Community(Community const& cms) : c(cms.c) {}
 
     std::set<int> get_communities() const {
@@ -376,8 +379,13 @@ void gfa(CNF const& cnf) {
     std::cout << "s " << L1.nb_communities() << "\n";
 }
 
-double lpa(CNF const& cnf) {
-    auto m = cnf.get_reduced_mapping();
+struct LPA_res {
+    Community L;
+    double mod;
+};
+
+LPA_res lpa(CNF const& cnf, std::map<Variable, std::size_t> const& m) {
+    // auto m = cnf.get_reduced_mapping();
     Graph g = build_graph(cnf, m);
     Community L(g.size());
     std::vector<int> freq(g.size(), 0);
@@ -413,73 +421,76 @@ double lpa(CNF const& cnf) {
 
     L.reassign();
 
-    auto tmp = L.max_comm_id();
-    std::set<Variable> vars;
+    // auto tmp = L.max_comm_id();
+    // std::set<Variable> vars;
 
-    for(auto const& e : m) {
-        if(L.c[e.second] == tmp) {
-            vars.insert(Variable(e.first));
-        }
-    }
+    // for(auto const& e : m) {
+    //     if(L.c[e.second] == tmp) {
+    //         vars.insert(Variable(e.first));
+    //     }
+    // }
 
-    auto cl_by_vars = cnf.get_clauses_by_vars(vars, 3);
-    auto cl_by_vars_w = cnf.get_clauses_by_vars_wide(vars, 3);
+    // auto cl_by_vars = cnf.get_clauses_by_vars(vars, 3);
+    // auto cl_by_vars_w = cnf.get_clauses_by_vars_wide(vars, 3);
 
     double const modul_q = modularity(g, L);
 
-    std::cout << "i " << count << "\n";
-    std::cout << "q " << modul_q << "\n";
-    std::cout << "nb comm " << L.nb_communities() << "\n";
-    std::cout << "smallest comm size " << L.min_comm_size() << "\n";
-    std::cout << "biggest comm size " << L.max_comm_size() << "\n";
-    std::cout << "average comm size " << L.avg_comm_size() << "\n";
-    std::cout << "biggest comm #c (narrow) " << cl_by_vars.size() << "\n";
-    std::cout << "biggest comm #c (wide) " << cl_by_vars_w.size() << "\n";
-    std::cout << "biggest comm #v " << vars.size() << "\n";
+    // std::cout << "i " << count << "\n";
+    // std::cout << "q " << modul_q << "\n";
+    // std::cout << "nb comm " << L.nb_communities() << "\n";
+    // std::cout << "smallest comm size " << L.min_comm_size() << "\n";
+    // std::cout << "biggest comm size " << L.max_comm_size() << "\n";
+    // std::cout << "average comm size " << L.avg_comm_size() << "\n";
+    // std::cout << "biggest comm #c (narrow) " << cl_by_vars.size() << "\n";
+    // std::cout << "biggest comm #c (wide) " << cl_by_vars_w.size() << "\n";
+    // std::cout << "biggest comm #v " << vars.size() << "\n";
 
-    std::cout << "\n";
+    // std::cout << "\n";
 
 
-    std::cout << "c id, #v, #c, #cw\n";
-    for(auto i = 0; i < L.nb_communities(); i++) {
-        vars.clear();
+    // std::cout << "c id, #v, #c, #cw\n";
+    // for(auto i = 0; i < L.nb_communities(); i++) {
+    //     vars.clear();
 
-        for(auto const& e : m) {
-            if(L.c[e.second] == i) {
-                vars.insert(Variable(e.first));
-            }
-        }
-        double const X1 = 500;
-        double const Y1 = 0;
-        double const X2 = 510;
-        double const Y2 = 0.01;
+    //     for(auto const& e : m) {
+    //         if(L.c[e.second] == i) {
+    //             vars.insert(Variable(e.first));
+    //         }
+    //     }
+    //     double const X1 = 500;
+    //     double const Y1 = 0;
+    //     double const X2 = 510;
+    //     double const Y2 = 0.01;
 
-        double const a = (Y1 - Y2) / (X1 - X2);
-        double const b = Y1 - a * X1;
+    //     double const a = (Y1 - Y2) / (X1 - X2);
+    //     double const b = Y1 - a * X1;
 
-        double const tol = std::max(0.0, std::min(1.0, (vars.size() * a) + b));
-        double const rt = 2;
+    //     double const tol = std::max(0.0, std::min(1.0, (vars.size() * a) + b));
+    //     double const rt = 2;
 
-        cl_by_vars = cnf.get_clauses_by_vars(vars, 3);
-        cl_by_vars_w = cnf.get_clauses_by_vars_wide(vars, 3);
+    //     cl_by_vars = cnf.get_clauses_by_vars(vars, 3);
+    //     cl_by_vars_w = cnf.get_clauses_by_vars_wide(vars, 3);
 
-        double const r = cl_by_vars.size() / (double)vars.size();
+    //     double const r = cl_by_vars.size() / (double)vars.size();
 
-        std::cout << "c " << i;
-        std::cout << ", " << vars.size();
-        std::cout << ", " << cl_by_vars.size();
-        std::cout << ", " << cl_by_vars_w.size();
-        std::cout << "\n";
+    //     // std::cout << "c " << i;
+    //     // std::cout << ", " << vars.size();
+    //     // std::cout << ", " << cl_by_vars.size();
+    //     // std::cout << ", " << cl_by_vars_w.size();
+    //     // std::cout << "\n";
 
-        if(vars.size() >= 150 && r <= rt + tol && rt - tol <= r) {
-            std::cout << "s " << i;
-            std::cout << ", " << vars.size();
-            std::cout << ", " << cl_by_vars.size();
-            std::cout << "\n";
-        }
-    }
-
-    return modul_q;
+    //     // if(vars.size() >= 150 && r <= rt + tol && rt - tol <= r) {
+    //     //     std::cout << "s " << i;
+    //     //     std::cout << ", " << vars.size();
+    //     //     std::cout << ", " << cl_by_vars.size();
+    //     //     std::cout << "\n";
+    //     // }
+    // }
+    //return modul_q;
+    LPA_res f_res;
+    f_res.mod = modul_q;
+    f_res.L = L;
+    return f_res;
 }
 
 int main(int argc, char const** argv) {
@@ -487,19 +498,38 @@ int main(int argc, char const** argv) {
 
     std::string const path(argv[1]);
     CNF cnf(path.c_str());
-    cnf.simplify();
-    cnf.subsumption();
+    //cnf.simplify();
+    //cnf.subsumption();
 
     const int nb = std::stoi(argv[2]);
 
+    auto m = cnf.get_reduced_mapping();
+
     //std::cout << "GFA\n";
     //gfa(cnf);
-    std::cout << "LPA\n";
-    double res = lpa(cnf);
+    LPA_res res = lpa(cnf, m);
     for(int i = 1; i < nb; i++) {
-        res = std::max(res, lpa(cnf));
+        auto tmp = lpa(cnf, m);
+
+        if(tmp.mod > res.mod) {
+            res = tmp;
+        }
     }
 
-    std::cout << "s q " << res << "\n";
+    std::cout << "c q " << res.mod << "\n";
+    std::cout << "c c " << res.L.nb_communities() << "\n";
+
+    for(std::size_t i = 0; i < cnf.nb_clauses(); i++) {
+        if(cnf.is_active(i)) {
+            auto const& cls = cnf.clause(i);
+
+            std::set<int> cs;
+            for(auto const& l : cls) {
+                cs.insert(res.L.c[m.at(Variable(l))]);
+            }
+            std::cout << "c w " << cs.size() << " ; " << cls << "\n";
+        }
+    }
+
     return 0;
 }
