@@ -359,6 +359,36 @@ Graph build_graph(CNF const& cnf, std::map<Variable, std::size_t> const& m) {
     return g;
 }
 
+void remove_clause_from_graph(Graph & g, Clause const& cls, std::map<Variable, std::size_t> const& m) {
+    if(cls.size() >= 2) {
+        double const cw = 2.0 / (cls.size() * (cls.size() - 1));
+
+        for(int i = 0; i < cls.size(); i++) {
+            std::size_t ii = m.at(Variable(cls[i]));
+            for(int j = i + 1; j < cls.size(); j++) {
+                std::size_t ij = m.at(Variable(cls[j]));
+                double const tmp = g.get_edge(ii, ij) - cw;
+                g.add_edge(ii, ij, tmp);
+            }
+        }
+    }
+}
+
+void add_clause_to_graph(Graph & g, Clause const& cls, std::map<Variable, std::size_t> const& m) {
+    if(cls.size() >= 2) {
+        double const cw = 2.0 / (cls.size() * (cls.size() - 1));
+
+        for(int i = 0; i < cls.size(); i++) {
+            std::size_t ii = m.at(Variable(cls[i]));
+            for(int j = i + 1; j < cls.size(); j++) {
+                std::size_t ij = m.at(Variable(cls[j]));
+                double const tmp = g.get_edge(ii, ij) + cw;
+                g.add_edge(ii, ij, tmp);
+            }
+        }
+    }
+}
+
 void gfa(CNF const& cnf) {
     auto m = cnf.get_reduced_mapping();
     Graph g1 = build_graph(cnf, m);
@@ -384,9 +414,9 @@ struct LPA_res {
     double mod;
 };
 
-LPA_res lpa(CNF const& cnf, std::map<Variable, std::size_t> const& m) {
+LPA_res lpa(CNF const& cnf, std::map<Variable, std::size_t> const& m, Graph const& g) {
     // auto m = cnf.get_reduced_mapping();
-    Graph g = build_graph(cnf, m);
+    // Graph g = build_graph(cnf, m);
     Community L(g.size());
     std::vector<int> freq(g.size(), 0);
 
@@ -504,12 +534,13 @@ int main(int argc, char const** argv) {
     const int nb = std::stoi(argv[2]);
 
     auto m = cnf.get_reduced_mapping();
+    Graph g = build_graph(cnf, m);
 
     //std::cout << "GFA\n";
     //gfa(cnf);
-    LPA_res res = lpa(cnf, m);
+    LPA_res res = lpa(cnf, m, g);
     for(int i = 1; i < nb; i++) {
-        auto tmp = lpa(cnf, m);
+        auto tmp = lpa(cnf, m, g);
 
         if(tmp.mod > res.mod) {
             res = tmp;
@@ -524,17 +555,23 @@ int main(int argc, char const** argv) {
         std::cout << "c v " << i.first << " " << res.L.c[i.second] << "\n";
     }
 
-    // for(std::size_t i = 0; i < cnf.nb_clauses(); i++) {
-    //     if(cnf.is_active(i)) {
-    //         auto const& cls = cnf.clause(i);
+    std::cout << "c #c q dq ; cls\n";
+    for(std::size_t i = 0; i < cnf.nb_clauses(); i++) {
+        if(cnf.is_active(i)) {
+            auto const& cls = cnf.clause(i);
 
-    //         std::set<int> cs;
-    //         for(auto const& l : cls) {
-    //             cs.insert(res.L.c[m.at(Variable(l))]);
-    //         }
-    //         std::cout << "c w " << cs.size() << " ; " << cls << "\n";
-    //     }
-    // }
+            std::set<int> cs;
+            for(auto const& l : cls) {
+                cs.insert(res.L.c[m.at(Variable(l))]);
+            }
+
+            remove_clause_from_graph(g, cls, m);
+            double q = modularity(g, res.L);
+            add_clause_to_graph(g, cls, m);
+
+            std::cout << "c w " << cs.size() << " " << q << " " << q - res.mod << " ; " << cls << "\n";
+        }
+    }
 
     return 0;
 }
