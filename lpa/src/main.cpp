@@ -519,17 +519,22 @@ int main(int argc, char const** argv) {
     std::cout << "c q " << res.mod << "\n";
     std::cout << "c c " << res.L.nb_communities() << "\n";
 
-    for(std::size_t i = 0; i < cnf.nb_clauses(); i++) {
-        if(cnf.is_active(i)) {
-            auto const& cls = cnf.clause(i);
-
-            std::set<int> cs;
-            for(auto const& l : cls) {
-                cs.insert(res.L.c[m.at(Variable(l))]);
-            }
-            std::cout << "c w " << cs.size() << " ; " << cls << "\n";
-        }
+    std::cout << "c var comm:\n";
+    for(auto const& i : m) {
+        std::cout << "c v " << i.first << " " << res.L.c[i.second] << "\n";
     }
+
+    // for(std::size_t i = 0; i < cnf.nb_clauses(); i++) {
+    //     if(cnf.is_active(i)) {
+    //         auto const& cls = cnf.clause(i);
+
+    //         std::set<int> cs;
+    //         for(auto const& l : cls) {
+    //             cs.insert(res.L.c[m.at(Variable(l))]);
+    //         }
+    //         std::cout << "c w " << cs.size() << " ; " << cls << "\n";
+    //     }
+    // }
 
     return 0;
 }
