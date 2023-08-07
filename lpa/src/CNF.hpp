@@ -156,6 +156,15 @@ class CNF {
         std::vector<std::set<Variable> > get_vars_by_clause_len() const;
 
         inline bool is_active(std::size_t i) const { return active[i]; }
+        inline void set_active(std::size_t i, bool v) { 
+            if(active[i] && !v) {
+                nb_active--;
+            }
+            else if(!active[i] && v) {
+                nb_active++;
+            }
+            active[i] = v;
+        }
         inline Clause const& clause(std::size_t i) const { return clauses[i]; }
 
         inline std::size_t nb_vars() const { return vars.size(); }

@@ -13,6 +13,11 @@
 #include "CNF.hpp"
 #include "graph.hpp"
 
+#define SPLIT
+#define SPLIT_R 2
+//#define VARCOMM
+//#define DERIV
+
 unsigned int b_rand(unsigned int b) {
     unsigned int thresh = -b % b;
 
@@ -523,6 +528,18 @@ LPA_res lpa(CNF const& cnf, std::map<Variable, std::size_t> const& m, Graph cons
     return f_res;
 }
 
+#ifdef SPLIT
+    struct CLS_stat {
+        std::size_t id;
+        std::size_t nb_c;
+        std::size_t size;
+    };
+
+    bool compare_cls_stat(CLS_stat const& i1, CLS_stat const& i2) {
+        return  i1.size < i2.size || ((i1.size == i2.size) && i1.nb_c < i2.nb_c);
+    }
+#endif
+
 int main(int argc, char const** argv) {
     srand(time(0));
 
@@ -550,12 +567,15 @@ int main(int argc, char const** argv) {
     std::cout << "c q " << res.mod << "\n";
     std::cout << "c c " << res.L.nb_communities() << "\n";
 
+#ifdef VARCOMM
     std::cout << "c var comm:\n";
     for(auto const& i : m) {
         std::cout << "c v " << i.first << " " << res.L.c[i.second] << "\n";
     }
+#endif
 
-    std::cout << "c #c q dq ; cls\n";
+#ifdef DERIV
+    std::cout << "c deriv\nc #c q dq ; cls\n";
     for(std::size_t i = 0; i < cnf.nb_clauses(); i++) {
         if(cnf.is_active(i)) {
             auto const& cls = cnf.clause(i);
@@ -572,6 +592,65 @@ int main(int argc, char const** argv) {
             std::cout << "c w " << cs.size() << " " << q << " " << q - res.mod << " ; " << cls << "\n";
         }
     }
+#endif
+
+#ifdef SPLIT
+    std::cout << "c split\n";
+
+    std::vector<CLS_stat> stats;
+
+    for(std::size_t i = 0; i < cnf.nb_clauses(); i++) {
+        if(cnf.is_active(i)) {
+            auto const& cls = cnf.clause(i);
+
+            std::set<int> cs;
+            for(auto const& l : cls) {
+                cs.insert(res.L.c[m.at(Variable(l))]);
+            }
+
+            CLS_stat tmp;
+            tmp.id = i;
+            tmp.nb_c = cs.size();
+            tmp.size = cls.size();
+
+            stats.push_back(tmp);
+        }
+    }
+
+    std::sort(stats.begin(), stats.end(), compare_cls_stat);
+
+    //for(auto const& i : stats) {
+    //    std::cout << i.size << ", " << i.nb_c << "\n";
+    //}
+    
+    std::size_t const nb_cls = SPLIT_R * cnf.nb_vars();
+
+    for(std::size_t i = 0; i < stats.size(); i++) {
+        if(i < nb_cls) {
+            cnf.set_active(stats[i].id, true);
+        }
+        else {
+            cnf.set_active(stats[i].id, false);
+        }
+    }
+
+    std::ofstream base(path + ".base");
+    base << cnf;
+    base.close();
+
+    for(std::size_t i = 0; i < cnf.nb_clauses(); i++) {
+        if(i < nb_cls) {
+            cnf.set_active(stats[i].id, false);
+        }
+        else {
+            cnf.set_active(stats[i].id, true);
+        }
+    }
+
+    std::ofstream rem(path + ".rem");
+    rem << cnf;
+    rem.close();
+#endif
 
     return 0;
 }
