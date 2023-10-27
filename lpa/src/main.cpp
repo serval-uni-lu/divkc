@@ -557,11 +557,18 @@ int main(int argc, char const** argv) {
     //std::cout << "GFA\n";
     //gfa(cnf);
     LPA_res res = lpa(cnf, m, g);
+
+#pragma omp parallel for
     for(int i = 1; i < nb; i++) {
         auto tmp = lpa(cnf, m, g);
 
         if(tmp.mod > res.mod) {
-            res = tmp;
+#pragma omp critical
+            {
+                if(tmp.mod > res.mod) {
+                    res = tmp;
+                }
+            }
         }
     }
 
