@@ -13,10 +13,11 @@
 #include "CNF.hpp"
 #include "graph.hpp"
 
-#define SPLIT
-#define SPLIT_R 2
-//#define VARCOMM
+//#define SPLIT
+//#define SPLIT_R 2.2
+#define VARCOMM
 //#define DERIV
+#define COMM_SPLIT
 
 unsigned int b_rand(unsigned int b) {
     unsigned int thresh = -b % b;
@@ -657,6 +658,37 @@ int main(int argc, char const** argv) {
     std::ofstream rem(path + ".rem");
     rem << cnf;
     rem.close();
+#endif
+
+#ifdef COMM_SPLIT
+    for(int i = 0; i < res.L.nb_communities(); i++) {
+        std::vector<int> ids;
+
+        for(int j = 0; j < cnf.nb_clauses(); j++) {
+            if(cnf.is_active(j)) {
+                auto const& cls = cnf.clause(j);
+
+                bool toggle = std::any_of(cls.begin(), cls.end(), [&](auto const& l) {
+                        return res.L.c[m.at(Variable(l))] != i;
+                        });
+
+                if(toggle) {
+                    cnf.set_active(j, false);
+                    ids.push_back(j);
+                }
+            }
+        }
+
+        std::cout << "c c" << i << " : " << cnf.nb_active_clauses() << "\n";
+
+        std::ofstream out(path + "." + std::to_string(i));
+        out << cnf;
+        out.close();
+
+        for(int j : ids) {
+            cnf.set_active(j, true);
+        }
+    }
 #endif
 
     return 0;
