@@ -3,6 +3,16 @@
 #include<iostream>
 #include<algorithm>
 
+void Community::merge(int c1, int c2) {
+    int ma = std::max(c1, c2);
+    int mi = std::min(c1, c2);
+    for(int i = 0; i < c.size(); i++) {
+        if(c[i] == ma) {
+            c[i] = mi;
+        }
+    }
+}
+
 std::set<int> Community::get_communities() const {
     std::set<int> r;
     for(auto const& i : c) {
@@ -452,4 +462,24 @@ LPA_res lpa(CNF const& cnf, std::map<Variable, std::size_t> const& m, Graph cons
     f_res.mod = modul_q;
     f_res.L = L;
     return f_res;
+}
+
+int community_clause_count(std::map<Variable, std::size_t> const& m, CNF const& cnf, Community const& cms, std::set<int> const& c) {
+    int nb = 0;
+
+    for(int i = 0; i < cnf.nb_clauses(); i++) {
+        if(cnf.is_active(i)) {
+            auto const& cls = cnf.clause(i);
+
+            bool ok = std::all_of(cls.begin(), cls.end(), [&](auto const& l) {
+                    return c.find(cms.c[m.at(Variable(l))]) != c.end();
+                    });
+
+            if(ok) {
+                nb += 1;
+            }
+        }
+    }
+
+    return nb;
 }

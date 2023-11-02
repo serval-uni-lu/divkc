@@ -23,6 +23,8 @@ struct Community {
 
     Community(Community const& cms) : c(cms.c) {}
 
+    void merge(int c1, int c2);
+
     std::set<int> get_communities() const;
 
     inline int nb_communities() const {
@@ -93,3 +95,5 @@ struct LPA_res {
 };
 
 LPA_res lpa(CNF const& cnf, std::map<Variable, std::size_t> const& m, Graph const& g);
+
+int community_clause_count(std::map<Variable, std::size_t> const& m, CNF const& cnf, Community const& cms, std::set<int> const& c);
