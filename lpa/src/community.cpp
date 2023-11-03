@@ -483,3 +483,54 @@ int community_clause_count(std::map<Variable, std::size_t> const& m, CNF const& 
 
     return nb;
 }
+
+void merge_commuities_by_level(std::map<Variable, std::size_t> const& m, CNF const& cnf, Community & cms, int const lvl, int const min_c_count) {
+
+    using PR = std::pair<int, int>;
+    std::map<PR, int> ben;
+    std::vector<PR> vben;
+
+    std::map<int, std::size_t> c_sizes = cms.community_sizes();
+    int c_count = cms.nb_communities();
+
+    for(int i = 0; i < cms.nb_communities() - 1; i++) {
+        if(c_sizes[i] <= lvl) {
+            for(int j = i + 1; j < cms.nb_communities(); j++) {
+                if(c_sizes[j] <= lvl) {
+                    auto tmp = std::make_pair(i, j);
+                    auto si = community_clause_count(m, cnf, cms, {i});
+                    auto sj = community_clause_count(m, cnf, cms, {j});
+                    auto sm = community_clause_count(m, cnf, cms, {i, j});
+
+                    ben[tmp] = sm - si - sj;
+                    vben.push_back(tmp);
+                }
+            }
+        }
+    }
+
+    /*
+     * sorts vben such that a < b in vben if ben[a] < ben[b]
+     * thus the highest scores are last in vben
+     */
+    std::sort(vben.begin(), vben.end(), [&](PR const& a, PR const& b) {
+                return ben[a] < ben[b];
+                });
+
+
+    while(vben.size() > 0 && c_count >= min_c_count) {
+        auto item = vben[vben.size() - 1];
+
+        cms.merge(item.first, item.second);
+        c_count -= 1;
+
+        auto it = std::remove_if(vben.begin(), vben.end(), [&](PR const& p) {
+                return p.first == item.first
+                    || p.first == item.second
+                    || p.second == item.first
+                    || p.second == item.second;
+                });
+
+        vben.erase(it, vben.end());
+    }
+}

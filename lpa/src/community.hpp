@@ -97,3 +97,5 @@ struct LPA_res {
 LPA_res lpa(CNF const& cnf, std::map<Variable, std::size_t> const& m, Graph const& g);
 
 int community_clause_count(std::map<Variable, std::size_t> const& m, CNF const& cnf, Community const& cms, std::set<int> const& c);
+
+void merge_commuities_by_level(std::map<Variable, std::size_t> const& m, CNF const& cnf, Community & cms, int const lvl, int const min_c_count);
