@@ -484,7 +484,7 @@ int community_clause_count(std::map<Variable, std::size_t> const& m, CNF const& 
     return nb;
 }
 
-void merge_commuities_by_level(std::map<Variable, std::size_t> const& m, CNF const& cnf, Community & cms, int const lvl, int const min_c_count) {
+bool merge_commuities_by_level(std::map<Variable, std::size_t> const& m, CNF const& cnf, Community & cms, int const lvl, int const min_c_count) {
 
     using PR = std::pair<int, int>;
     std::map<PR, int> ben;
@@ -533,4 +533,6 @@ void merge_commuities_by_level(std::map<Variable, std::size_t> const& m, CNF con
 
         vben.erase(it, vben.end());
     }
+
+    return c_count > min_c_count;
 }

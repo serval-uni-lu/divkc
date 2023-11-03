@@ -82,6 +82,14 @@ int main(int argc, char const** argv) {
 #endif
 
 #ifdef COMM_SPLIT
+    const int min_c_count = std::stoi(argv[3]);
+
+    int lvl = 1;
+    while(merge_commuities_by_level(m, cnf, res.L, lvl, min_c_count)) {
+        lvl += 1;
+        res.L.reassign();
+    }
+
     for(int i = 0; i < res.L.nb_communities(); i++) {
         std::vector<int> ids;
 
