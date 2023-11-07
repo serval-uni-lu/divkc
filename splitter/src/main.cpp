@@ -68,8 +68,8 @@ void compute_var_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vecto
 std::vector<int> split(CNF const& cnf, int const nb_part, int & cost) {
     PaToH_Parameters pargs;
     // D4 does QUALITY if nb hyperedges >= 200
-    //PaToH_Initialize_Parameters(&pargs, PATOH_CUTPART, PATOH_SUGPARAM_QUALITY);
-    PaToH_Initialize_Parameters(&pargs, PATOH_CONPART, PATOH_SUGPARAM_DEFAULT);
+    PaToH_Initialize_Parameters(&pargs, PATOH_CUTPART, PATOH_SUGPARAM_QUALITY);
+    // PaToH_Initialize_Parameters(&pargs, PATOH_CONPART, PATOH_SUGPARAM_DEFAULT);
     pargs._k = nb_part;
 
     std::vector<int> xpins;
