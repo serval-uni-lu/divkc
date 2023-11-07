@@ -2,14 +2,14 @@ BootStrap: docker
 From: ubuntu:22.04
 
 %files
-    ./ /modularity
+    ./ /splitter
 
 %post
     echo "setup start"
     apt-get -y update
     apt-get -y install make g++
 
-    cd modularity
+    cd splitter
     make clean
     make -j8
 
@@ -17,4 +17,4 @@ From: ubuntu:22.04
     echo "setup done"
 
 %runscript
-    /modularity/modularity "$@"
+    /splitter/splitter "$@"
