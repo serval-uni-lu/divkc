@@ -3,6 +3,7 @@
 #include <vector>
 #include <utility>
 #include <stack>
+#include <algorithm>
 
 #include <cmath>
 
@@ -231,12 +232,11 @@ int main(int argc, char *argv[]) {
 //    cnf.simplify();
 
     auto partvec = split(cnf, nb_part, cost);
-    std::cout << "s " << cost << "\n";
 
     std::vector<int> part_sizes(nb_part, 0);
 
     for(int i = 0; i < partvec.size(); i++) {
-        std::cout << (i + 1) << " : " << partvec[i] << "\n";
+        std::cout << "v " << (i + 1) << " : " << partvec[i] << "\n";
         part_sizes[partvec[i]] += 1;
     }
 
@@ -260,6 +260,35 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    for(int p = 0; p < nb_part; p++) {
+        std::set<int> clsi;
+
+        for(int j = 0; j < cnf.nb_clauses(); j++) {
+            if(cnf.is_active(j)) {
+                auto const& cl = cnf.clause(j);
+
+                bool tmp = std::any_of(cl.begin(), cl.end(), [&](Literal const& l) {
+                        return partvec[Variable(l).get()] != p;
+                        });
+
+                if(tmp) {
+                    cnf.set_active(j, false);
+                    clsi.insert(j);
+                }
+            }
+        }
+        std::string tmp_path = path + "." + std::to_string(p);
+        std::ofstream out(tmp_path);
+        out << cnf;
+        out.close();
+        std::cout << "p " << tmp_path << "\n";
+
+        for(int j : clsi) {
+            cnf.set_active(j, true);
+        }
+    }
+
+    std::cout << "s " << cost << "\n";
     std::cout << "s2 " << nb_c << "\n";
 
     // auto part = apply_partition(cnf, partvec, nb_part);
