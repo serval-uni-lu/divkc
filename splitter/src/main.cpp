@@ -236,12 +236,12 @@ int main(int argc, char *argv[]) {
     std::vector<int> part_sizes(nb_part, 0);
 
     for(int i = 0; i < partvec.size(); i++) {
-        std::cout << "v " << (i + 1) << " : " << partvec[i] << "\n";
+        std::cout << "v " << (i + 1) << " " << partvec[i] << "\n";
         part_sizes[partvec[i]] += 1;
     }
 
     for(int i = 0; i < part_sizes.size(); i++) {
-        std::cout << "c p " << i << " : " << part_sizes[i] << "\n";
+        std::cout << "c p " << i << " " << part_sizes[i] << "\n";
     }
 
     int nb_c = 0;
@@ -281,7 +281,7 @@ int main(int argc, char *argv[]) {
         std::ofstream out(tmp_path);
         out << cnf;
         out.close();
-        std::cout << "p " << tmp_path << "\n";
+        std::cout << "p " << p << " " << tmp_path << "\n";
 
         for(int j : clsi) {
             cnf.set_active(j, true);
