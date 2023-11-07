@@ -277,7 +277,7 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
-        std::string tmp_path = path + "." + std::to_string(p);
+        std::string tmp_path = path + ".split" + std::to_string(p);
         std::ofstream out(tmp_path);
         out << cnf;
         out.close();
