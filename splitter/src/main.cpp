@@ -7,55 +7,58 @@
 #include <cmath>
 
 #include "patoh.h"
-#include "cnf.hpp"
+#include "CNF.hpp"
 
-void compute_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vector<int> & pins) {
-    std::vector<std::set<std::size_t> > hg(cnf.get_nb_vars());
-
-    for(std::size_t j = 0; j < cnf.get_nb_clauses(); j++) {
-        for(int i : cnf[j]) {
-            i = std::abs(i) - 1;
-            hg[i].insert(j);
-        }
-    }
-
-    //for(int i : cnf.get_vars()) {
-    //    bool exists = false;
-    //    int pos = pins.size();
-    //    for(int j = 0; j < static_cast<int>(cnf.get_nb_clauses()); j++) {
-    //        if(cnf[j].find(i) != cnf[j].end() || cnf[j].find(-i) != cnf[j].end()) {
-    //            exists = true;
-    //            pins.push_back(j);
-    //        }
-    //    }
-    //    if(exists) {
-    //        xpins.push_back(pos);
-    //    }
-    //}
-    //xpins.push_back(pins.size());
-
-    for(auto const& s : hg) {
-        if(!s.empty()) {
-            int pos = pins.size();
-            for(auto p : s) {
-                pins.push_back(static_cast<int>(p));
-            }
-            xpins.push_back(pos);
-        }
-    }
-    xpins.push_back(pins.size());
-}
+// void compute_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vector<int> & pins) {
+//     std::vector<std::set<std::size_t> > hg(cnf.get_nb_vars());
+// 
+//     for(std::size_t j = 0; j < cnf.get_nb_clauses(); j++) {
+//         for(int i : cnf[j]) {
+//             i = std::abs(i) - 1;
+//             hg[i].insert(j);
+//         }
+//     }
+// 
+//     //for(int i : cnf.get_vars()) {
+//     //    bool exists = false;
+//     //    int pos = pins.size();
+//     //    for(int j = 0; j < static_cast<int>(cnf.get_nb_clauses()); j++) {
+//     //        if(cnf[j].find(i) != cnf[j].end() || cnf[j].find(-i) != cnf[j].end()) {
+//     //            exists = true;
+//     //            pins.push_back(j);
+//     //        }
+//     //    }
+//     //    if(exists) {
+//     //        xpins.push_back(pos);
+//     //    }
+//     //}
+//     //xpins.push_back(pins.size());
+// 
+//     for(auto const& s : hg) {
+//         if(!s.empty()) {
+//             int pos = pins.size();
+//             for(auto p : s) {
+//                 pins.push_back(static_cast<int>(p));
+//             }
+//             xpins.push_back(pos);
+//         }
+//     }
+//     xpins.push_back(pins.size());
+// }
 
 void compute_var_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vector<int> & pins) {
-    for(std::size_t j = 0; j < cnf.get_nb_clauses(); j++) {
-        if(cnf[j].size() > 1) {
-            int pos = pins.size();
+    for(std::size_t j = 0; j < cnf.nb_clauses(); j++) {
+        if(cnf.is_active(j)) {
+            auto const& cl = cnf.clause(j);
 
-            for(int i : cnf[j]) {
-                i = std::abs(i) - 1;
-                pins.push_back(i);
+            if(cl.size() > 1) {
+                int pos = pins.size();
+
+                for(auto const& i : cl) {
+                    pins.push_back(Variable(i).get());
+                }
+                xpins.push_back(pos);
             }
-            xpins.push_back(pos);
         }
     }
 
@@ -72,7 +75,7 @@ std::vector<int> split(CNF const& cnf, int const nb_part, int & cost) {
     std::vector<int> xpins;
     std::vector<int> pins;
     compute_var_hypergraph(cnf, xpins, pins);
-    const int _c = cnf.get_nb_vars();
+    const int _c = cnf.nb_vars();
     const int _n = xpins.size() - 1;
     const int _nconst = 1;
 
@@ -223,7 +226,7 @@ int main(int argc, char *argv[]) {
     //int const s_size = std::stoi(argv[2]);
     int const nb_part = std::stoi(argv[2]);
     int cost;
-    CNF cnf(path);
+    CNF cnf(path.c_str());
     //int const nb_part = ceil(cnf.get_nb_vars() / (double)s_size);
 //    cnf.simplify();
 
