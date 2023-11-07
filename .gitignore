@@ -169,3 +169,6 @@ singularity/d4/d4
 singularity/wrapper/wrap
 smp/smp
 lpa/modularity
+lpa/modularity_d
+splitter/splitter
+splitter/splitter_d

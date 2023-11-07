@@ -16,7 +16,7 @@
 #include "common.hpp"
 #include "community.hpp"
 
-#define VARCOMM
+//#define VARCOMM
 //#define DERIV
 #define COMM_SPLIT
 
@@ -88,6 +88,11 @@ int main(int argc, char const** argv) {
     while(merge_commuities_by_level(m, cnf, res.L, lvl, min_c_count)) {
         lvl += 1;
         res.L.reassign();
+    }
+
+    std::cout << "c var comm:\n";
+    for(auto const& i : m) {
+        std::cout << "c v " << i.first << " " << res.L.c[i.second] << "\n";
     }
 
     for(int i = 0; i < res.L.nb_communities(); i++) {
