@@ -233,9 +233,34 @@ int main(int argc, char *argv[]) {
     auto partvec = split(cnf, nb_part, cost);
     std::cout << "s " << cost << "\n";
 
+    std::vector<int> part_sizes(nb_part, 0);
+
     for(int i = 0; i < partvec.size(); i++) {
         std::cout << (i + 1) << " : " << partvec[i] << "\n";
+        part_sizes[partvec[i]] += 1;
     }
+
+    for(int i = 0; i < part_sizes.size(); i++) {
+        std::cout << "c p " << i << " : " << part_sizes[i] << "\n";
+    }
+
+    int nb_c = 0;
+    for(int i = 0; i < cnf.nb_clauses(); i++) {
+        if(cnf.is_active(i)) {
+            auto const& cl = cnf.clause(i);
+
+            std::set<int> tmp;
+            for(auto const& l : cl) {
+                tmp.insert(partvec[Variable(l).get()]);
+            }
+
+            if(tmp.size() > 1) {
+                nb_c += 1;
+            }
+        }
+    }
+
+    std::cout << "s2 " << nb_c << "\n";
 
     // auto part = apply_partition(cnf, partvec, nb_part);
     // auto v = get_conflicts(cnf, partvec, nb_part);
