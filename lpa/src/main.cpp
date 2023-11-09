@@ -133,7 +133,7 @@ int main(int argc, char const** argv) {
         std::ofstream out(tmp_path);
         out << cnf;
         out.close();
-        std::cout << "p " << i << " " << tmp_path << "\n";
+        std::cout << "p " << i << " " << "split" << i << "\n";
 
         for(int j : ids) {
             cnf.set_active(j, true);

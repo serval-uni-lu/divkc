@@ -281,7 +281,7 @@ int main(int argc, char *argv[]) {
         std::ofstream out(tmp_path);
         out << cnf;
         out.close();
-        std::cout << "p " << p << " " << tmp_path << "\n";
+        std::cout << "p " << p << " " << "split" << p << "\n";
 
         for(int j : clsi) {
             cnf.set_active(j, true);
