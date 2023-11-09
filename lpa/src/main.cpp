@@ -55,9 +55,15 @@ int main(int argc, char const** argv) {
     std::cout << "c c " << res.L.nb_communities() << "\n";
 
 #ifdef VARCOMM
-    std::cout << "c var comm:\n";
+    std::vector<int> part_sizes(res.L.c.nb_communities(), 0);
+
     for(auto const& i : m) {
-        std::cout << "c v " << i.first << " " << res.L.c[i.second] << "\n";
+        std::cout << "v " << i.first << " " << res.L.c[i.second] << "\n";
+        part_sizes[res.L.c[i.second]] += 1;
+    }
+
+    for(int i = 0; i < part_sizes.size(); i++) {
+        std::cout << "c p " << i << " " << part_sizes[i] << "\n";
     }
 #endif
 
@@ -90,9 +96,17 @@ int main(int argc, char const** argv) {
         res.L.reassign();
     }
 
-    std::cout << "c var comm:\n";
+    res.L.reassign();
+
+    std::vector<int> part_sizes(res.L.nb_communities(), 0);
+
     for(auto const& i : m) {
-        std::cout << "c v " << i.first << " " << res.L.c[i.second] << "\n";
+        std::cout << "v " << i.first << " " << res.L.c[i.second] << "\n";
+        part_sizes[res.L.c[i.second]] += 1;
+    }
+
+    for(int i = 0; i < part_sizes.size(); i++) {
+        std::cout << "c p " << i << " " << part_sizes[i] << "\n";
     }
 
     for(int i = 0; i < res.L.nb_communities(); i++) {
@@ -113,16 +127,37 @@ int main(int argc, char const** argv) {
             }
         }
 
-        std::cout << "c c" << i << " : " << cnf.nb_active_clauses() << "\n";
+        //std::cout << "c c" << i << " : " << cnf.nb_active_clauses() << "\n";
 
-        std::ofstream out(path + "." + std::to_string(i));
+        std::string tmp_path = path + ".split" + std::to_string(i);
+        std::ofstream out(tmp_path);
         out << cnf;
         out.close();
+        std::cout << "p " << i << " " << tmp_path << "\n";
 
         for(int j : ids) {
             cnf.set_active(j, true);
         }
     }
+
+    int nb_c = 0;
+    for(int i = 0; i < cnf.nb_clauses(); i++) {
+        if(cnf.is_active(i)) {
+            auto const& cl = cnf.clause(i);
+
+            std::set<int> tmp;
+            for(auto const& l : cl) {
+                //tmp.insert(partvec[Variable(l).get()]);
+                tmp.insert(res.L.c[m.at(Variable(l))]);
+            }
+
+            if(tmp.size() > 1) {
+                nb_c += 1;
+            }
+        }
+    }
+
+    std::cout << "s " << nb_c << "\n";
 #endif
 
     return 0;
