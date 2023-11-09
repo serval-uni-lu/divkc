@@ -59,6 +59,21 @@ args = parser.parse_args()
 cnf_file = args.cnf
 
 res = PartitionInfo.from_file(cnf_file + ".log")
-print(res.part)
-print(res.part_sizes)
-print(res.files)
+
+nb_vars = 0
+for i in res.part_sizes:
+    nb_vars += res.part_sizes[i]
+
+emc = 1
+res.nnf = dict()
+for i in res.part:
+    pnnf = cnf_file + "." + res.files[i] + ".nnf"
+    nnf = dDNNF.from_file(pnnf)
+    nnf.annotate_mc()
+
+    res.nnf[i] = nnf
+
+    lmc = nnf.get_node(1).mc / 2**(nb_vars - res.part_sizes[i])
+    emc *= lmc
+
+print(emc)
