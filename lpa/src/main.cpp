@@ -93,7 +93,7 @@ int main(int argc, char const** argv) {
     int lvl = 1;
     while(merge_commuities_by_level(m, cnf, res.L, lvl, min_c_count)) {
         lvl += 1;
-        res.L.reassign();
+        //res.L.reassign();
     }
 
     res.L.reassign();

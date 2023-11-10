@@ -497,34 +497,39 @@ bool merge_commuities_by_level(std::map<Variable, std::size_t> const& m, CNF con
 
     std::map<int, int> c_count_cache;
 
-    for(int i = 0; i < cms.nb_communities() - 1; i++) {
+    auto max_i = c_sizes.end();
+    max_i--;
+
+    for(auto i = c_sizes.begin(); i != max_i; i++) {
         int si;
         {
-            auto it = c_count_cache.find(i);
+            auto it = c_count_cache.find(i->first);
             if(it != c_count_cache.end()) {
                 si = it->second;
             }
             else {
-                si = community_clause_count(m, cnf, cms, {i});
-                c_count_cache[i] = si;
+                si = community_clause_count(m, cnf, cms, {i->first});
+                c_count_cache[i->first] = si;
             }
         }
-        if(c_sizes[i] <= lvl) {
-            for(int j = i + 1; j < cms.nb_communities(); j++) {
-                if(c_sizes[j] <= lvl) {
-                    auto tmp = std::make_pair(i, j);
+        if(i->second <= lvl) {
+            auto j = i;
+            j++;
+            for(; j != c_sizes.end(); j++) {
+                if(j->second <= lvl) {
+                    auto tmp = std::make_pair(i->first, j->first);
                     //auto sj = community_clause_count(m, cnf, cms, {j});
-                    auto sm = community_clause_count(m, cnf, cms, {i, j});
+                    auto sm = community_clause_count(m, cnf, cms, {i->first, j->first});
 
                     int sj;
                     {
-                        auto it = c_count_cache.find(j);
+                        auto it = c_count_cache.find(j->first);
                         if(it != c_count_cache.end()) {
                             sj = it->second;
                         }
                         else {
-                            sj = community_clause_count(m, cnf, cms, {j});
-                            c_count_cache[j] = sj;
+                            sj = community_clause_count(m, cnf, cms, {j->first});
+                            c_count_cache[j->first] = sj;
                         }
                     }
 
@@ -534,6 +539,44 @@ bool merge_commuities_by_level(std::map<Variable, std::size_t> const& m, CNF con
             }
         }
     }
+
+    //for(int i = 0; i < cms.nb_communities() - 1; i++) {
+    //    int si;
+    //    {
+    //        auto it = c_count_cache.find(i);
+    //        if(it != c_count_cache.end()) {
+    //            si = it->second;
+    //        }
+    //        else {
+    //            si = community_clause_count(m, cnf, cms, {i});
+    //            c_count_cache[i] = si;
+    //        }
+    //    }
+    //    if(c_sizes[i] <= lvl) {
+    //        for(int j = i + 1; j < cms.nb_communities(); j++) {
+    //            if(c_sizes[j] <= lvl) {
+    //                auto tmp = std::make_pair(i, j);
+    //                //auto sj = community_clause_count(m, cnf, cms, {j});
+    //                auto sm = community_clause_count(m, cnf, cms, {i, j});
+
+    //                int sj;
+    //                {
+    //                    auto it = c_count_cache.find(j);
+    //                    if(it != c_count_cache.end()) {
+    //                        sj = it->second;
+    //                    }
+    //                    else {
+    //                        sj = community_clause_count(m, cnf, cms, {j});
+    //                        c_count_cache[j] = sj;
+    //                    }
+    //                }
+
+    //                ben[tmp] = sm - si - sj;
+    //                vben.push_back(tmp);
+    //            }
+    //        }
+    //    }
+    //}
 
     /*
      * sorts vben such that a < b in vben if ben[a] < ben[b]
