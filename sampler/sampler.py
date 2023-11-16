@@ -99,7 +99,7 @@ for i in res.part:
     lmc = nnf.get_node(1).mc
     emc *= lmc
 
-print(emc)
+print(f'c umc {emc}')
 
 nb_samples = 0
 nb_tries = 0
@@ -118,8 +118,8 @@ while nb_samples < args.n:
 
     if pres != "UNSAT":
         cs.sort(key=abs)
-        print(' '.join(map(str, cs)))
+        print(f's {" ".join(map(str, cs))}')
         nb_samples += 1
 
-print(nb_samples / nb_tries)
-print(emc * nb_samples / nb_tries)
+print(f'c r {nb_samples / nb_tries}')
+print(f'c emc {emc * nb_samples / nb_tries}')
