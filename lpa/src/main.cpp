@@ -7,6 +7,7 @@
 #include<utility>
 #include<omp.h>
 #include<algorithm>
+#include<chrono>
 
 #include<ctime>
 
@@ -21,6 +22,8 @@
 #define COMM_SPLIT
 
 int main(int argc, char const** argv) {
+    auto ts = std::chrono::steady_clock::now();
+
     srand(time(0));
 
     std::string const path(argv[1]);
@@ -159,6 +162,9 @@ int main(int argc, char const** argv) {
 
     std::cout << "s " << nb_c << "\n";
 #endif
+
+    std::chrono::duration<double> dur = std::chrono::steady_clock::now() - ts;
+    std::cout << "c t " << dur.count() << "\n";
 
     return 0;
 }
