@@ -252,7 +252,17 @@ inline int64_t get_node_num(std::string const& l) {
     return num;
 }
 
+
 DDNNF::DDNNF(std::string const& path) {
+    std::vector<bool> tmp;
+    parse(path, false, tmp);
+}
+
+DDNNF::DDNNF(std::string const& path, std::vector<bool> const& c) {
+    parse(path, true, c);
+}
+
+void DDNNF::parse(std::string const& path, bool const project, std::vector<bool> const& c) {
     std::ifstream f(path);
 
     std::string line;
@@ -295,8 +305,13 @@ DDNNF::DDNNF(std::string const& path) {
             for(int i = 2; i < strs1.size(); i++) {
                 if(!strs1[i].empty()) {
                     int64_t t = std::stoi(strs1[i]);
-                    if(t != 0)
-                        units.emplace_back(t);
+                    if(t != 0) {
+                        Variable v(t);
+
+                        if(!project || c[v.get()]) {
+                            units.push_back(v);
+                        }
+                    }
                 }
             }
 
@@ -304,8 +319,9 @@ DDNNF::DDNNF(std::string const& path) {
             for(int i = 0; i < strs2.size(); i++) {
                 if(!strs2[i].empty()) {
                     int64_t t = std::stoi(strs2[i]);
-                    if(t != 0)
+                    if(t != 0 && (!project || c[Variable(t).get()])) {
                         f.emplace_back(t);
+                    }
                 }
             }
 

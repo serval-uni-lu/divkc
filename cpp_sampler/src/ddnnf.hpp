@@ -104,6 +104,7 @@ struct DDNNF {
     DDNNF() = default;
 
     DDNNF(std::string const& path);
+    DDNNF(std::string const& path, std::vector<bool> const& c);
 
     ~DDNNF() {
         for(auto const* n : nodes) {
@@ -128,4 +129,7 @@ struct DDNNF {
             get_node(i)->annotate_mc();
         }
     }
+
+    private:
+        void parse(std::string const& path, bool const project, std::vector<bool> const& c);
 };
