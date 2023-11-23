@@ -52,6 +52,8 @@ void Edge::free() {
 }
 
 void Edge::resizeFreeVars(int64_t nc) {
+    nc = (((nc - capFreeVars) / FreeVars_BS) + 1) * FreeVars_BS + capFreeVars;
+
     if(nc > capFreeVars) {
         auto tmp = static_cast<Variable*>(realloc(freeVars, sizeof(Variable) * nc));
 
@@ -68,6 +70,8 @@ void Edge::resizeFreeVars(int64_t nc) {
 }
 
 void Edge::resizeUnitLits(int64_t nc) {
+    nc = (((nc - capUnitLits) / UnitLits_BS) + 1) * UnitLits_BS + capUnitLits;
+
     if(nc > capUnitLits) {
         auto tmp = static_cast<Literal*>(realloc(unitLits, sizeof(Literal) * nc));
 
@@ -87,8 +91,8 @@ int64_t Edge::save(std::vector<Variable> const& v) {
     int64_t sid = szFreeVars;
     szFreeVars += v.size();
 
-    while(szFreeVars > capFreeVars) {
-        resizeFreeVars(capFreeVars + FreeVars_BS);
+    if(szFreeVars > capFreeVars) {
+        resizeFreeVars(capFreeVars + v.size());
     }
 
     //for(auto i = 0; i < v.size(); i++) {
@@ -103,8 +107,8 @@ int64_t Edge::save(std::vector<Literal> const& l) {
     int64_t sid = szUnitLits;
     szUnitLits += l.size();
 
-    while(szUnitLits > capUnitLits) {
-        resizeUnitLits(capUnitLits + UnitLits_BS);
+    if(szUnitLits > capUnitLits) {
+        resizeUnitLits(capUnitLits + l.size());
     }
 
     //for(auto i = 0; i < l.size(); i++) {
