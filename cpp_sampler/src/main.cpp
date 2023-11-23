@@ -118,15 +118,43 @@ void sample(DDNNF const& nnf, std::vector<bool> & sample, mt19937 & mt) {
         Node const* n = stack[stack.size() - 1];
         stack.pop_back();
 
-        if(n->get_type() == Node::Type::OrNode) {
-            uniform_int_distribution<mpz_int> ui(1, n->mc);
+        switch(n->get_type()) {
+            case Node::Type::OrNode:
+                {
+                    uniform_int_distribution<mpz_int> ui(1, n->mc);
 
-            mpz_int key = ui(mt);
+                    mpz_int key = ui(mt);
 
-            for(auto const& c : n->children) {
-                mpz_int tmc = c.target->mc * (mpz_int(1) << c.nb_free());
+                    for(auto const& c : n->children) {
+                        mpz_int tmc = c.target->mc * (mpz_int(1) << c.nb_free());
 
-                if(key <= tmc) {
+                        if(key <= tmc) {
+                            for(int64_t i = c.b_free; i < c.e_free; i++) {
+                                sample[(2 * Edge::freeVars[i].get()) + bin_ui(mt)] = true;
+                            }
+
+                            for(int64_t i = c.b_cnst; i < c.e_cnst; i++) {
+                                sample[Edge::unitLits[i].get()] = true;
+                            }
+
+                            stack.push_back(c.target);
+                            break;
+                        }
+                        else {
+                            key -= tmc;
+                        }
+                    }
+                }
+                break;
+            case Node::Type::AndNode:
+                for(auto const& c : n->children) {
+                    stack.push_back(c.target);
+                }
+                break;
+            case Node::Type::UnaryNode:
+                {
+                    auto const& c = n->children[0];
+
                     for(int64_t i = c.b_free; i < c.e_free; i++) {
                         sample[(2 * Edge::freeVars[i].get()) + bin_ui(mt)] = true;
                     }
@@ -136,41 +164,18 @@ void sample(DDNNF const& nnf, std::vector<bool> & sample, mt19937 & mt) {
                     }
 
                     stack.push_back(c.target);
-                    break;
                 }
-                else {
-                    key -= tmc;
-                }
-            }
-        }
-        else if(n->get_type() == Node::Type::AndNode) {
-            for(auto const& c : n->children) {
-                stack.push_back(c.target);
-            }
-        }
-        else if(n->get_type() == Node::Type::UnaryNode) {
-            auto const& c = n->children[0];
-
-            for(int64_t i = c.b_free; i < c.e_free; i++) {
-                sample[(2 * Edge::freeVars[i].get()) + bin_ui(mt)] = true;
-            }
-
-            for(int64_t i = c.b_cnst; i < c.e_cnst; i++) {
-                sample[Edge::unitLits[i].get()] = true;
-            }
-
-            stack.push_back(c.target);
-        }
-        else if(n->get_type() == Node::Type::TrueNode) {
-            //nothing to do here
-        }
-        else if(n->get_type() == Node::Type::FalseNode) {
-            std::cerr << "Error, sampling from FalseNode, exiting\n";
-            std::exit(EXIT_FAILURE);
-        }
-        else {
-            std::cerr << "Error, unknown Node type during sampling, exiting\n";
-            std::exit(EXIT_FAILURE);
+                break;
+            case Node::Type::TrueNode:
+                break;
+            case Node::Type::FalseNode:
+                std::cerr << "Error, sampling from FalseNode, exiting\n";
+                std::exit(EXIT_FAILURE);
+                break;
+            default:
+                std::cerr << "Error, unknown Node type during sampling, exiting\n";
+                std::exit(EXIT_FAILURE);
+                break;
         }
     }
 }
