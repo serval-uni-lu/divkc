@@ -173,3 +173,5 @@ lpa/modularity_d
 splitter/splitter
 splitter/splitter_d
 cpp_sampler/sampler
+
+*.sif
