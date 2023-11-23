@@ -241,15 +241,17 @@ int main(int argc, char** argv) {
 
             if(is_valid_sample(cs) && cnf.is_model(cs)) {
 #pragma omp critical
-                std::cout << "s";
-                for(int64_t i = 0; i < cs.size(); i++) {
-                    if(cs[i]) {
-                        std::cout << " " << (i & 1 ? -1 : 1) * ((i >> 1) + 1);
+                {
+                    std::cout << "s";
+                    for(int64_t i = 0; i < cs.size(); i++) {
+                        if(cs[i]) {
+                            std::cout << " " << (i & 1 ? -1 : 1) * ((i >> 1) + 1);
+                        }
                     }
-                }
-                std::cout << "\n";
+                    std::cout << "\n";
 
-                samples += 1;
+                    samples += 1;
+                }
             }
         }
     }
