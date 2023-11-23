@@ -309,7 +309,7 @@ void DDNNF::parse(std::string const& path, bool const project, std::vector<bool>
                         Variable v(t);
 
                         if(!project || c[v.get()]) {
-                            units.push_back(v);
+                            units.push_back(t);
                         }
                     }
                 }

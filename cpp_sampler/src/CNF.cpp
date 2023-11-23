@@ -365,3 +365,18 @@ std::vector<Clause> CNF::get_clauses_by_vars_wide(std::set<Variable> const& v, s
 
     return res;
 }
+
+bool Clause::is_model(std::vector<bool> const& m) const {
+    return std::any_of(c.begin(), c.end(), [&](Literal const& l) {
+            return m[l.get()];
+            });
+}
+
+bool CNF::is_model(std::vector<bool> const& m) const {
+    for(int64_t i = 0; i < clauses.size(); i++) {
+        if(active[i] && !clauses[i].is_model(m)) {
+            return false;
+        }
+    }
+    return true;
+}

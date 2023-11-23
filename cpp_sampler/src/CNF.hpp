@@ -96,6 +96,8 @@ struct Clause {
     bool contains(Literal const& l) const;
     bool contains(Clause const& cls) const;
 
+    bool is_model(std::vector<bool> const& m) const;
+
     inline auto begin() const {
         return c.begin();
     }
@@ -149,6 +151,8 @@ class CNF {
         void compute_free_vars();
         void simplify();
         void subsumption();
+
+        bool is_model(std::vector<bool> const& m) const;
 
         std::map<Variable, std::size_t> get_reduced_mapping() const;
 

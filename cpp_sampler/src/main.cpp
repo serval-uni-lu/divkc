@@ -7,6 +7,7 @@
 #include<sstream>
 
 #include <boost/random.hpp>
+#include <boost/random/random_device.hpp>
 
 #include "CNF.hpp"
 #include "ddnnf.hpp"
@@ -124,12 +125,15 @@ void sample(DDNNF const& nnf, std::vector<bool> & sample, mt19937 & mt) {
 
                 if(key <= tmc) {
                     for(int64_t i = c.b_free; i < c.e_free; i++) {
-                        sample[2 * Edge::freeVars[i].get() + bin_ui(mt)] = true;
+                        sample[(2 * Edge::freeVars[i].get()) + bin_ui(mt)] = true;
                     }
 
                     for(int64_t i = c.b_cnst; i < c.e_cnst; i++) {
-                        sample[Edge::unitLits[i].get()];
+                        sample[Edge::unitLits[i].get()] = true;
                     }
+
+                    stack.push_back(c.target);
+                    break;
                 }
                 else {
                     key -= tmc;
@@ -142,6 +146,17 @@ void sample(DDNNF const& nnf, std::vector<bool> & sample, mt19937 & mt) {
             }
         }
         else if(n->get_type() == Node::Type::UnaryNode) {
+            auto const& c = n->children[0];
+
+            for(int64_t i = c.b_free; i < c.e_free; i++) {
+                sample[(2 * Edge::freeVars[i].get()) + bin_ui(mt)] = true;
+            }
+
+            for(int64_t i = c.b_cnst; i < c.e_cnst; i++) {
+                sample[Edge::unitLits[i].get()] = true;
+            }
+
+            stack.push_back(c.target);
         }
         else if(n->get_type() == Node::Type::TrueNode) {
             //nothing to do here
@@ -155,6 +170,16 @@ void sample(DDNNF const& nnf, std::vector<bool> & sample, mt19937 & mt) {
             std::exit(EXIT_FAILURE);
         }
     }
+}
+
+bool is_valid_sample(std::vector<bool> const& s) {
+    for(int i = 0; i < s.size(); i += 2) {
+        if(s[i] == s[i + 1]) {
+            std::cerr << "c e invalid sample\n";
+            return false;
+        }
+    }
+    return true;
 }
 
 int main(int argc, char** argv) {
@@ -187,7 +212,8 @@ int main(int argc, char** argv) {
     int64_t samples = 0;
     int64_t nb_tries = 0;
 
-    mt19937 mt;
+    random_device rd;
+    mt19937 mt(rd);
 
     while(samples < nb_sampels) {
         nb_tries += 1;
@@ -197,15 +223,25 @@ int main(int argc, char** argv) {
         for(auto const& nnf : nnfs) {
             sample(nnf, cs, mt);
         }
+
+        if(is_valid_sample(cs) && cnf.is_model(cs)) {
+            std::cout << "s";
+            for(int64_t i = 0; i < cs.size(); i++) {
+                if(cs[i]) {
+                    std::cout << " " << (i & 1 ? -1 : 1) * ((i >> 1) + 1);
+                }
+            }
+            std::cout << "\n";
+
+            samples += 1;
+        }
     }
 
-    //DDNNF nnf(path);
-    //nnf.compute_ordering();
-    //nnf.annotate_mc();
-
-    //std::cout << nnf.get_node(1)->mc << "\n";
-
     Edge::free();
+
+    mpf_float r = (double)samples / nb_tries;
+    std::cout << "c r " << r << "\n";
+    std::cout << "c emc " << emc * r << "\n";
 
     return 0;
 }
