@@ -6,8 +6,12 @@
 #include<fstream>
 #include<sstream>
 
+#include <boost/random.hpp>
+
 #include "CNF.hpp"
 #include "ddnnf.hpp"
+
+using namespace boost::random;
 
 struct PartitionInfo {
     std::vector<std::vector<bool> > part;
@@ -98,17 +102,39 @@ std::ostream& operator<<(std::ostream & out, PartitionInfo const& pi) {
     return out;
 }
 
-void sample(DDNNF const& nnf, std::vector<bool> & sample) {
+void sample(DDNNF const& nnf, std::vector<bool> & sample, mt19937 & mt) {
     std::vector<Node const*> stack;
     stack.reserve(nnf.nodes.size());
 
     stack.push_back(nnf.get_node(1));
+
+    uniform_int_distribution<int64_t> bin_ui(0, 1);
 
     while(!stack.empty()) {
         Node const* n = stack[stack.size() - 1];
         stack.pop_back();
 
         if(n->get_type() == Node::Type::OrNode) {
+            uniform_int_distribution<mpz_int> ui(1, n->mc);
+
+            mpz_int key = ui(mt);
+
+            for(auto const& c : n->children) {
+                mpz_int tmc = c.target->mc * (mpz_int(1) << c.nb_free());
+
+                if(key <= tmc) {
+                    for(int64_t i = c.b_free; i < c.e_free; i++) {
+                        sample[2 * Edge::freeVars[i].get() + bin_ui(mt)] = true;
+                    }
+
+                    for(int64_t i = c.b_cnst; i < c.e_cnst; i++) {
+                        sample[Edge::unitLits[i].get()];
+                    }
+                }
+                else {
+                    key -= tmc;
+                }
+            }
         }
         else if(n->get_type() == Node::Type::AndNode) {
             for(auto const& c : n->children) {
@@ -161,13 +187,15 @@ int main(int argc, char** argv) {
     int64_t samples = 0;
     int64_t nb_tries = 0;
 
+    mt19937 mt;
+
     while(samples < nb_sampels) {
         nb_tries += 1;
 
         std::vector<bool> cs(cnf.nb_vars() * 2, false);
 
         for(auto const& nnf : nnfs) {
-            sample(nnf, cs);
+            sample(nnf, cs, mt);
         }
     }
 
