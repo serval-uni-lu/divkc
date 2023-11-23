@@ -45,6 +45,10 @@ class Edge {
 using namespace boost::multiprecision;
 
 struct Node {
+    enum class Type {
+        AndNode, OrNode, UnaryNode, TrueNode, FalseNode
+    };
+
     int64_t num;
     mpz_int mc;
 
@@ -55,6 +59,8 @@ struct Node {
     virtual void add_child(Node const* target, std::vector<Literal> const& consts, std::vector<Variable> const& f) = 0;
 
     virtual void annotate_mc() = 0;
+
+    constexpr inline virtual Type get_type() const = 0;
 };
 
 struct AndNode : Node {
@@ -63,6 +69,10 @@ struct AndNode : Node {
     void add_child(Node const* target, std::vector<Literal> const& consts, std::vector<Variable> const& f);
 
     void annotate_mc();
+
+    constexpr inline Type get_type() const {
+        return Type::AndNode;
+    }
 };
 
 struct OrNode : Node {
@@ -71,6 +81,10 @@ struct OrNode : Node {
     void add_child(Node const* target, std::vector<Literal> const& consts, std::vector<Variable> const& f);
 
     void annotate_mc();
+
+    constexpr inline Type get_type() const {
+        return Type::OrNode;
+    }
 };
 
 struct UnaryNode : Node {
@@ -79,6 +93,10 @@ struct UnaryNode : Node {
     void add_child(Node const* target, std::vector<Literal> const& consts, std::vector<Variable> const& f);
 
     void annotate_mc();
+
+    constexpr inline Type get_type() const {
+        return Type::UnaryNode;
+    }
 };
 
 struct TrueNode : Node {
@@ -87,6 +105,10 @@ struct TrueNode : Node {
     void add_child(Node const* target, std::vector<Literal> const& consts, std::vector<Variable> const& f);
 
     void annotate_mc();
+
+    constexpr inline Type get_type() const {
+        return Type::TrueNode;
+    }
 };
 
 struct FalseNode : Node {
@@ -95,6 +117,10 @@ struct FalseNode : Node {
     void add_child(Node const* target, std::vector<Literal> const& consts, std::vector<Variable> const& f);
 
     void annotate_mc();
+
+    constexpr inline Type get_type() const {
+        return Type::FalseNode;
+    }
 };
 
 struct DDNNF {
@@ -105,6 +131,9 @@ struct DDNNF {
 
     DDNNF(std::string const& path);
     DDNNF(std::string const& path, std::vector<bool> const& c);
+
+    DDNNF(DDNNF const& d) = delete;
+    DDNNF(DDNNF && d) = default;
 
     ~DDNNF() {
         for(auto const* n : nodes) {
@@ -119,6 +148,10 @@ struct DDNNF {
     }
 
     inline Node* get_node(int64_t const id) {
+        return nodes[id - 1];
+    }
+
+    inline Node const * get_node(int64_t const id) const {
         return nodes[id - 1];
     }
 
