@@ -87,7 +87,7 @@ int64_t Edge::save(std::vector<Variable> const& v) {
     int64_t sid = szFreeVars;
     szFreeVars += v.size();
 
-    if(szFreeVars > capFreeVars) {
+    while(szFreeVars > capFreeVars) {
         resizeFreeVars(capFreeVars + FreeVars_BS);
     }
 
@@ -103,8 +103,8 @@ int64_t Edge::save(std::vector<Literal> const& l) {
     int64_t sid = szUnitLits;
     szUnitLits += l.size();
 
-    if(szUnitLits > capUnitLits) {
-        resizeFreeVars(capUnitLits + UnitLits_BS);
+    while(szUnitLits > capUnitLits) {
+        resizeUnitLits(capUnitLits + UnitLits_BS);
     }
 
     //for(auto i = 0; i < l.size(); i++) {
