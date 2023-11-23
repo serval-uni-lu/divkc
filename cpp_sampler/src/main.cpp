@@ -7,6 +7,8 @@
 #include<sstream>
 #include<chrono>
 
+#include<omp.h>
+
 #include <boost/random.hpp>
 #include <boost/random/random_device.hpp>
 
@@ -211,32 +213,44 @@ int main(int argc, char** argv) {
     }
 
     std::cout << "c umc " << emc << "\n";
+    std::cout << std::flush;
 
     int64_t samples = 0;
     int64_t nb_tries = 0;
 
     random_device rd;
-    mt19937 mt(rd);
+    //mt19937 mt(rd);
 
-    while(samples < nb_sampels) {
-        nb_tries += 1;
+    std::vector<mt19937> rngs;
+    rngs.reserve(omp_get_max_threads());
+    for(int i = 0; i < omp_get_max_threads(); i++) {
+        rngs.emplace_back(rd);
+    }
 
-        std::vector<bool> cs(cnf.nb_vars() * 2, false);
+#pragma omp parallel for
+    for(int i = 0; i < omp_get_max_threads(); i++) {
+        while(samples < nb_sampels) {
+#pragma omp atomic
+            nb_tries++;
 
-        for(auto const& nnf : nnfs) {
-            sample(nnf, cs, mt);
-        }
+            std::vector<bool> cs(cnf.nb_vars() * 2, false);
 
-        if(is_valid_sample(cs) && cnf.is_model(cs)) {
-            std::cout << "s";
-            for(int64_t i = 0; i < cs.size(); i++) {
-                if(cs[i]) {
-                    std::cout << " " << (i & 1 ? -1 : 1) * ((i >> 1) + 1);
-                }
+            for(auto const& nnf : nnfs) {
+                sample(nnf, cs, rngs[i]);
             }
-            std::cout << "\n";
 
-            samples += 1;
+            if(is_valid_sample(cs) && cnf.is_model(cs)) {
+#pragma omp critical
+                std::cout << "s";
+                for(int64_t i = 0; i < cs.size(); i++) {
+                    if(cs[i]) {
+                        std::cout << " " << (i & 1 ? -1 : 1) * ((i >> 1) + 1);
+                    }
+                }
+                std::cout << "\n";
+
+                samples += 1;
+            }
         }
     }
 

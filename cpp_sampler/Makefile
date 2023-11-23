@@ -1,5 +1,5 @@
-override CXXFLAGS += -std=c++14
-override LDFLAGS  += -std=c++14 -lgmp -lboost_random
+override CXXFLAGS += -std=c++14 -fopenmp
+override LDFLAGS  += -std=c++14 -lgmp -lboost_random -fopenmp
 
 EXEC = sampler
 
