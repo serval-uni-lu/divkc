@@ -7,6 +7,7 @@
 #include<sstream>
 
 #include "CNF.hpp"
+#include "ddnnf.hpp"
 
 struct PartitionInfo {
     std::vector<std::set<Variable> > part;
@@ -87,11 +88,22 @@ std::ostream& operator<<(std::ostream & out, PartitionInfo const& pi) {
 }
 
 int main(int argc, char** argv) {
+    Edge::freeVars = nullptr;
+    Edge::init();
+
     std::string path(argv[1]);
 
-    PartitionInfo pi(path + ".log");
+    //PartitionInfo pi(path + ".log");
 
-    std::cout << pi;
+    //std::cout << pi;
+
+    DDNNF nnf(path);
+    nnf.compute_ordering();
+    nnf.annotate_mc();
+
+    std::cout << nnf.get_node(1)->mc << "\n";
+
+    Edge::free();
 
     return 0;
 }
