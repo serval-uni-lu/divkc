@@ -5,6 +5,7 @@
 #include<vector>
 #include<fstream>
 #include<sstream>
+#include<chrono>
 
 #include <boost/random.hpp>
 #include <boost/random/random_device.hpp>
@@ -183,6 +184,8 @@ bool is_valid_sample(std::vector<bool> const& s) {
 }
 
 int main(int argc, char** argv) {
+    auto ts = std::chrono::steady_clock::now();
+
     Edge::freeVars = nullptr;
     Edge::init();
 
@@ -242,6 +245,9 @@ int main(int argc, char** argv) {
     mpf_float r = (double)samples / nb_tries;
     std::cout << "c r " << r << "\n";
     std::cout << "c emc " << emc * r << "\n";
+
+    std::chrono::duration<double> dur = std::chrono::steady_clock::now() - ts;
+    std::cout << "c t " << dur.count() << "\n";
 
     return 0;
 }
