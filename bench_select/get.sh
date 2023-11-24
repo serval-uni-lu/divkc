@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function run {
-    cp --parents "$HOME/Documents/Work/experiments/$1" "./f/"
+    cp --parents "$HOME/Documents/Work/experiments/$1" "./fd/"
 }
 export -f run
 

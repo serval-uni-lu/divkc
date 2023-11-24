@@ -14,3 +14,4 @@ print("max mem on success: " + str(done.mem.max() / 1000000))
 print("max time on success: " + str(done.time.max() / 3600))
 
 fail.to_csv(f"{sampler}_fail.csv")
+done.to_csv(f"{sampler}_done.csv")
