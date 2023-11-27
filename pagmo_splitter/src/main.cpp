@@ -69,10 +69,10 @@ int main(int argc, char** argv) {
 
     problem p{prob};
 
-    //algorithm algo{sga(1000)};
+    algorithm algo{sga(1000)};
 
-    auto g = gaco{1000};
-    algorithm algo{g};
+    //auto g = gaco{1000};
+    //algorithm algo{g};
 
     population pop{p, 100000};
 
