@@ -1,5 +1,5 @@
 override CXXFLAGS += -std=c++14 -Ipatoh
-override LDFLAGS  += -std=c++14 -Lpatoh -lpatoh
+override LDFLAGS  += -std=c++14 -L./patoh -lpatoh
 
 EXEC = splitter
 
