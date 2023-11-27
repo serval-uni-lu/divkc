@@ -13,5 +13,8 @@ time = data[data['state'] == 'timeout']
 print("max mem on success: " + str(done.mem.max() / 1000000))
 print("max time on success: " + str(done.time.max() / 3600))
 
+# done = done[done.time >= (5 * 60)]
+done = done[done.mem >= (1_000_000)]
+
 fail.to_csv(f"{sampler}_fail.csv")
 done.to_csv(f"{sampler}_done.csv")

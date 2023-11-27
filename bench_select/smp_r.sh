@@ -6,4 +6,4 @@ function run {
 }
 export -f run
 
-find "$1" -name "*.cnf" | parallel -n 1 -P 1 run
+find "$1" -name "*.cnf" | parallel -n 1 -P 4 run
