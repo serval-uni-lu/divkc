@@ -6,6 +6,8 @@
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/sga.hpp>
 #include <pagmo/algorithms/gaco.hpp>
+#include <pagmo/bfe.hpp>
+#include <pagmo/batch_evaluators/default_bfe.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/problem.hpp>
 
@@ -66,9 +68,13 @@ int main(int argc, char** argv) {
     prob.cnf = cnf;
 
     problem p{prob};
+
     //algorithm algo{sga(1000)};
-    algorithm algo{gaco{1000}};
-    population pop{p, 1000};
+
+    auto g = gaco{1000};
+    algorithm algo{g};
+
+    population pop{p, 100000};
 
     pop = algo.evolve(pop);
 
