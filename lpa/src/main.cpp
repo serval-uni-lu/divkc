@@ -10,6 +10,7 @@
 #include<chrono>
 
 #include<ctime>
+#include<cmath>
 
 #include "CNF.hpp"
 #include "graph.hpp"
@@ -144,6 +145,7 @@ int main(int argc, char const** argv) {
     }
 
     int nb_c = 0;
+    int w_c = 0;
     for(int i = 0; i < cnf.nb_clauses(); i++) {
         if(cnf.is_active(i)) {
             auto const& cl = cnf.clause(i);
@@ -156,11 +158,13 @@ int main(int argc, char const** argv) {
 
             if(tmp.size() > 1) {
                 nb_c += 1;
+                w_c += static_cast<int>(pow(2, 4 - cl.size()));
             }
         }
     }
 
     std::cout << "s " << nb_c << "\n";
+    std::cout << "s2 " << w_c << "\n";
 #endif
 
     std::chrono::duration<double> dur = std::chrono::steady_clock::now() - ts;

@@ -1,5 +1,7 @@
 #include "community.hpp"
 
+#include<cmath>
+
 #include<iostream>
 #include<algorithm>
 
@@ -472,13 +474,56 @@ int community_clause_count(std::map<Variable, std::size_t> const& m, CNF const& 
         if(cnf.is_active(i)) {
             auto const& cls = cnf.clause(i);
 
-            bool ok = std::all_of(cls.begin(), cls.end(), [&](auto const& l) {
-                    return c.find(cms.c[m.at(Variable(l))]) != c.end();
-                    });
+            bool ok = true;
+            std::set<int> tmp;
+            for(auto const& l : cls) {
+                int lc = cms.c[m.at(Variable(l))];
 
-            if(ok) {
+                if(c.find(lc) == c.end()) {
+                    ok = false;
+                    break;
+                }
+                else {
+                    tmp.insert(lc);
+                }
+            }
+
+            if(ok && tmp.size() == c.size()) {
 #pragma omp critical
                 nb += 1;
+            }
+        }
+    }
+
+    return nb;
+}
+
+int community_clause_weight(std::map<Variable, std::size_t> const& m, CNF const& cnf, Community const& cms, std::set<int> const& c) {
+    int nb = 0;
+
+#pragma omp parallel for
+    for(int i = 0; i < cnf.nb_clauses(); i++) {
+        if(cnf.is_active(i)) {
+            auto const& cls = cnf.clause(i);
+
+            bool ok = true;
+            std::set<int> tmp;
+            for(auto const& l : cls) {
+                int lc = cms.c[m.at(Variable(l))];
+
+                if(c.find(lc) == c.end()) {
+                    ok = false;
+                    break;
+                }
+                else {
+                    tmp.insert(lc);
+                }
+            }
+
+            if(ok && tmp.size() == c.size()) {
+#pragma omp critical
+                //nb += 1;
+                nb += static_cast<int>(pow(2, 4 - cls.size()));
             }
         }
     }
@@ -495,23 +540,10 @@ bool merge_commuities_by_level(std::map<Variable, std::size_t> const& m, CNF con
     std::map<int, std::size_t> c_sizes = cms.community_sizes();
     int c_count = cms.nb_communities();
 
-    std::map<int, int> c_count_cache;
-
     auto max_i = c_sizes.end();
     max_i--;
 
     for(auto i = c_sizes.begin(); i != max_i; i++) {
-        int si;
-        {
-            auto it = c_count_cache.find(i->first);
-            if(it != c_count_cache.end()) {
-                si = it->second;
-            }
-            else {
-                si = community_clause_count(m, cnf, cms, {i->first});
-                c_count_cache[i->first] = si;
-            }
-        }
         if(i->second <= lvl) {
             auto j = i;
             j++;
@@ -519,21 +551,9 @@ bool merge_commuities_by_level(std::map<Variable, std::size_t> const& m, CNF con
                 if(j->second <= lvl) {
                     auto tmp = std::make_pair(i->first, j->first);
                     //auto sj = community_clause_count(m, cnf, cms, {j});
-                    auto sm = community_clause_count(m, cnf, cms, {i->first, j->first});
+                    auto sm = community_clause_weight(m, cnf, cms, {i->first, j->first});
 
-                    int sj;
-                    {
-                        auto it = c_count_cache.find(j->first);
-                        if(it != c_count_cache.end()) {
-                            sj = it->second;
-                        }
-                        else {
-                            sj = community_clause_count(m, cnf, cms, {j->first});
-                            c_count_cache[j->first] = sj;
-                        }
-                    }
-
-                    ben[tmp] = sm - si - sj;
+                    ben[tmp] = sm;
                     vben.push_back(tmp);
                 }
             }
