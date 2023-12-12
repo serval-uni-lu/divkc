@@ -1,5 +1,5 @@
 BootStrap: docker
-From: ubuntu:22.04
+From: debian:12
 
 %files
     ./ /splitter
