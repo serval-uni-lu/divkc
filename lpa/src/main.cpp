@@ -20,7 +20,8 @@
 
 //#define VARCOMM
 //#define DERIV
-#define COMM_SPLIT
+//#define COMM_SPLIT
+#define COMM_SUB
 
 int main(int argc, char const** argv) {
     auto ts = std::chrono::steady_clock::now();
@@ -165,6 +166,70 @@ int main(int argc, char const** argv) {
 
     std::cout << "s " << nb_c << "\n";
     std::cout << "s2 " << w_c << "\n";
+#endif
+
+#ifdef COMM_SUB
+    double const min_prob = 1.5878347497057898e-06;
+    double current_prob = 1.0;
+
+    std::map<int, std::vector<int> > smap;
+
+    for(int i = 0; i < cnf.nb_clauses(); i++) {
+        if(cnf.is_active(i)) {
+            auto const& cl = cnf.clause(i);
+
+            std::set<int> tmp;
+            for(auto const& l : cl) {
+                //tmp.insert(partvec[Variable(l).get()]);
+                tmp.insert(res.L.c[m.at(Variable(l))]);
+            }
+
+            if(tmp.size() > 1) {
+                auto it = smap.find(tmp.size());
+
+                if(it == smap.end()) {
+                    std::vector<int> v;
+                    v.push_back(i);
+
+                    smap[tmp.size()] = v;
+                }
+                else {
+                    it->second.push_back(i);
+                }
+            }
+        }
+    }
+
+    for(auto & e : smap) {
+        std::sort(e.second.begin(), e.second.end(), [&](int a, int b) {
+                    return cnf.clause(a).size() > cnf.clause(b).size();
+                });
+    }
+
+    for(int i = res.L.nb_communities(); i > 0 && current_prob > min_prob; i--) {
+        auto it = smap.find(i);
+
+        if(it != smap.end()) {
+            for(int j : it->second) {
+                double tpow = pow(2, cnf.clause(j).size());
+                tpow = (tpow - 1) / tpow;
+                tpow *= current_prob;
+
+                if(tpow >= min_prob) {
+                    cnf.set_active(j, false);
+                    current_prob = tpow;
+                }
+                else {
+                    break;
+                }
+            }
+        }
+    }
+
+    std::string tmp_path = path + ".sub";
+    std::ofstream out(tmp_path);
+    out << cnf;
+    out.close();
 #endif
 
     std::chrono::duration<double> dur = std::chrono::steady_clock::now() - ts;
