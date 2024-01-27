@@ -169,8 +169,8 @@ int main(int argc, char const** argv) {
 #endif
 
 #ifdef COMM_SUB
-    double const min_prob = 1.5878347497057898e-06;
-    double current_prob = 1.0;
+    long double const min_prob = 1.5878347497057898e-06;
+    long double current_prob = 1.0;
 
     std::map<int, std::vector<int> > smap;
 
@@ -205,19 +205,21 @@ int main(int argc, char const** argv) {
                     return cnf.clause(a).size() > cnf.clause(b).size();
                 });
     }
+    int nb_rm = 0;
 
     for(int i = res.L.nb_communities(); i > 0 && current_prob > min_prob; i--) {
         auto it = smap.find(i);
 
         if(it != smap.end()) {
             for(int j : it->second) {
-                double tpow = pow(2, cnf.clause(j).size());
+                long double tpow = pow(2, cnf.clause(j).size());
                 tpow = (tpow - 1) / tpow;
                 tpow *= current_prob;
 
                 if(tpow >= min_prob) {
                     cnf.set_active(j, false);
                     current_prob = tpow;
+                    nb_rm += 1;
                 }
                 else {
                     break;
@@ -230,6 +232,8 @@ int main(int argc, char const** argv) {
     std::ofstream out(tmp_path);
     out << cnf;
     out.close();
+
+    std::cout << "c rm " << nb_rm << "\n";
 #endif
 
     std::chrono::duration<double> dur = std::chrono::steady_clock::now() - ts;
