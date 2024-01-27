@@ -20,8 +20,8 @@
 
 //#define VARCOMM
 //#define DERIV
-//#define COMM_SPLIT
-#define COMM_SUB
+#define COMM_SPLIT
+//#define COMM_SUB
 
 int main(int argc, char const** argv) {
     auto ts = std::chrono::steady_clock::now();
@@ -145,6 +145,9 @@ int main(int argc, char const** argv) {
         }
     }
 
+    std::set<Variable> v_overlap;
+    std::set<int> c_rev;
+
     int nb_c = 0;
     int w_c = 0;
     for(int i = 0; i < cnf.nb_clauses(); i++) {
@@ -160,8 +163,31 @@ int main(int argc, char const** argv) {
             if(tmp.size() > 1) {
                 nb_c += 1;
                 w_c += static_cast<int>(pow(2, 4 - cl.size()));
+
+                for(auto const& l : cl) {
+                    v_overlap.emplace(l);
+                }
+            }
+            else {
+                c_rev.insert(i);
+                cnf.set_active(i, false);
             }
         }
+    }
+
+    for(auto const& vi : v_overlap) {
+        std::cout << "v cross " << vi << "\n";
+    }
+
+    std::cout << "c cross " << v_overlap.size() << "\n";
+
+    std::string tmp_path = path + ".rem";
+    std::ofstream out(tmp_path);
+    out << cnf;
+    out.close();
+
+    for(auto const& i : c_rev) {
+        cnf.set_active(i, true);
     }
 
     std::cout << "s " << nb_c << "\n";
