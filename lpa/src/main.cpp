@@ -21,6 +21,7 @@
 //#define VARCOMM
 //#define DERIV
 #define COMM_SPLIT
+//#define COMM_SUB
 
 int main(int argc, char const** argv) {
     auto ts = std::chrono::steady_clock::now();
@@ -144,6 +145,9 @@ int main(int argc, char const** argv) {
         }
     }
 
+    std::set<Variable> v_overlap;
+    std::set<int> c_rev;
+
     int nb_c = 0;
     int w_c = 0;
     for(int i = 0; i < cnf.nb_clauses(); i++) {
@@ -159,12 +163,103 @@ int main(int argc, char const** argv) {
             if(tmp.size() > 1) {
                 nb_c += 1;
                 w_c += static_cast<int>(pow(2, 4 - cl.size()));
+
+                for(auto const& l : cl) {
+                    v_overlap.emplace(l);
+                }
+            }
+            else {
+                c_rev.insert(i);
+                cnf.set_active(i, false);
             }
         }
     }
 
+    for(auto const& vi : v_overlap) {
+        std::cout << "v cross " << vi << "\n";
+    }
+
+    std::cout << "c cross " << v_overlap.size() << "\n";
+
+    std::string tmp_path = path + ".rem";
+    std::ofstream out(tmp_path);
+    out << cnf;
+    out.close();
+
+    for(auto const& i : c_rev) {
+        cnf.set_active(i, true);
+    }
+
     std::cout << "s " << nb_c << "\n";
     std::cout << "s2 " << w_c << "\n";
+#endif
+
+#ifdef COMM_SUB
+    long double const min_prob = 1.5878347497057898e-06;
+    long double current_prob = 1.0;
+
+    std::map<int, std::vector<int> > smap;
+
+    for(int i = 0; i < cnf.nb_clauses(); i++) {
+        if(cnf.is_active(i)) {
+            auto const& cl = cnf.clause(i);
+
+            std::set<int> tmp;
+            for(auto const& l : cl) {
+                //tmp.insert(partvec[Variable(l).get()]);
+                tmp.insert(res.L.c[m.at(Variable(l))]);
+            }
+
+            if(tmp.size() > 1) {
+                auto it = smap.find(tmp.size());
+
+                if(it == smap.end()) {
+                    std::vector<int> v;
+                    v.push_back(i);
+
+                    smap[tmp.size()] = v;
+                }
+                else {
+                    it->second.push_back(i);
+                }
+            }
+        }
+    }
+
+    for(auto & e : smap) {
+        std::sort(e.second.begin(), e.second.end(), [&](int a, int b) {
+                    return cnf.clause(a).size() > cnf.clause(b).size();
+                });
+    }
+    int nb_rm = 0;
+
+    for(int i = res.L.nb_communities(); i > 0 && current_prob > min_prob; i--) {
+        auto it = smap.find(i);
+
+        if(it != smap.end()) {
+            for(int j : it->second) {
+                long double tpow = pow(2, cnf.clause(j).size());
+                tpow = (tpow - 1) / tpow;
+                tpow *= current_prob;
+
+                if(tpow >= min_prob) {
+                    cnf.set_active(j, false);
+                    current_prob = tpow;
+                    nb_rm += 1;
+                }
+                else {
+                    break;
+                }
+            }
+        }
+    }
+
+    std::string tmp_path = path + ".sub";
+    std::ofstream out(tmp_path);
+    out << cnf;
+    out.close();
+
+    std::cout << "c rm " << nb_rm << "\n";
 #endif
 
     std::chrono::duration<double> dur = std::chrono::steady_clock::now() - ts;
