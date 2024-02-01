@@ -66,6 +66,31 @@ void compute_var_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vecto
     xpins.push_back(pins.size());
 }
 
+void compute_clause_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vector<int> & pins) {
+    for(int i = 1; i < cnf.nb_vars() + 1; i++) {
+        std::set<int> ids;
+        for(int id : cnf.get_idx(Literal(i))) {
+            ids.insert(id);
+        }
+
+        for(int id : cnf.get_idx(Literal(-1 * i))) {
+            ids.insert(id);
+        }
+
+        if(ids.size() > 1) {
+            int pos = pins.size();
+
+            for(auto const& id : ids) {
+                pins.push_back(id);
+            }
+
+            xpins.push_back(pos);
+        }
+    }
+
+    xpins.push_back(pins.size());
+}
+
 std::vector<int> split(CNF const& cnf, int const nb_part, int & cost) {
     PaToH_Parameters pargs;
     // D4 does QUALITY if nb hyperedges >= 200
