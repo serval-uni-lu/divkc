@@ -166,7 +166,7 @@ class CNF {
             active[i] = v;
         }
         inline Clause const& clause(std::size_t i) const { return clauses[i]; }
-        inline std::set<std::size_t> const& get_idx(Variable v) const { return idx[v.get()]; }
+        inline std::set<std::size_t> const& get_idx(Literal l) const { return idx[l.get()]; }
 
         inline std::size_t nb_vars() const { return vars.size(); }
         inline std::size_t nb_free_vars() const { return free.size(); }

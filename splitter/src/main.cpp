@@ -10,42 +10,8 @@
 #include "patoh.h"
 #include "CNF.hpp"
 
-// void compute_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vector<int> & pins) {
-//     std::vector<std::set<std::size_t> > hg(cnf.get_nb_vars());
-// 
-//     for(std::size_t j = 0; j < cnf.get_nb_clauses(); j++) {
-//         for(int i : cnf[j]) {
-//             i = std::abs(i) - 1;
-//             hg[i].insert(j);
-//         }
-//     }
-// 
-//     //for(int i : cnf.get_vars()) {
-//     //    bool exists = false;
-//     //    int pos = pins.size();
-//     //    for(int j = 0; j < static_cast<int>(cnf.get_nb_clauses()); j++) {
-//     //        if(cnf[j].find(i) != cnf[j].end() || cnf[j].find(-i) != cnf[j].end()) {
-//     //            exists = true;
-//     //            pins.push_back(j);
-//     //        }
-//     //    }
-//     //    if(exists) {
-//     //        xpins.push_back(pos);
-//     //    }
-//     //}
-//     //xpins.push_back(pins.size());
-// 
-//     for(auto const& s : hg) {
-//         if(!s.empty()) {
-//             int pos = pins.size();
-//             for(auto p : s) {
-//                 pins.push_back(static_cast<int>(p));
-//             }
-//             xpins.push_back(pos);
-//         }
-//     }
-//     xpins.push_back(pins.size());
-// }
+#define VIG
+//#define CIG
 
 void compute_var_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vector<int> & pins) {
     for(std::size_t j = 0; j < cnf.nb_clauses(); j++) {
@@ -70,11 +36,15 @@ void compute_clause_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::ve
     for(int i = 1; i < cnf.nb_vars() + 1; i++) {
         std::set<int> ids;
         for(int id : cnf.get_idx(Literal(i))) {
-            ids.insert(id);
+            //if(cnf.is_active(id)) {
+                ids.insert(id);
+            //}
         }
 
         for(int id : cnf.get_idx(Literal(-1 * i))) {
-            ids.insert(id);
+            //if(cnf.is_active(id)) {
+                ids.insert(id);
+            //}
         }
 
         if(ids.size() > 1) {
@@ -100,8 +70,14 @@ std::vector<int> split(CNF const& cnf, int const nb_part, int & cost) {
 
     std::vector<int> xpins;
     std::vector<int> pins;
+#ifdef VIG
     compute_var_hypergraph(cnf, xpins, pins);
     const int _c = cnf.nb_vars();
+#endif
+#ifdef CIG
+    compute_clause_hypergraph(cnf, xpins, pins);
+    const int _c = cnf.nb_clauses();
+#endif
     const int _n = xpins.size() - 1;
     const int _nconst = 1;
 
@@ -122,127 +98,6 @@ std::vector<int> split(CNF const& cnf, int const nb_part, int & cost) {
     return partvec;
 }
 
-//std::vector<CNF> apply_partition(CNF const& cnf, std::vector<int> const& part, int const nb_part) {
-//    std::vector<CNF> res(nb_part, CNF());
-//
-//    for(int i = 0; i < static_cast<int>(part.size()); i++) {
-//        int const partition = part[i];
-//        res[partition].add_clause(cnf[i]);
-//    }
-//
-//    return res;
-//}
-//
-//std::set<int> get_conflicts(CNF const& cnf, std::vector<int> const& part, int const nb_part) {
-//    std::set<int> res;
-//    std::vector<std::set<int> > vars(nb_part);
-//
-//    for(int i = 0; i < static_cast<int>(part.size()); i++) {
-//        int const partition = part[i];
-//        for(int l : cnf[i]) {
-//            l = std::abs(l);
-//            vars[partition].insert(l);
-//        }
-//    }
-//
-//    for(std::size_t i = 0; i < vars.size() - 1; i++) {
-//        for(std::size_t j = i + 1; j < vars.size(); j++) {
-//            for(int l : vars[i]) {
-//                if(vars[j].find(l) != vars[j].end()) {
-//                    res.insert(l);
-//                }
-//            }
-//        }
-//    }
-//
-//    return res;
-//}
-//
-//std::ostream& print_map(std::ostream & out, std::vector<int> const& map) {
-//    out << "c map";
-//    for(std::size_t i = 1; i < map.size(); i++) {
-//        out << " " << map[i];
-//    }
-//    out << " 0\n";
-//
-//    return out;
-//}
-//
-//std::size_t nb_occ(CNF const& cnf, int v) {
-//    std::size_t res = 0;
-//
-//    for(auto const& s : cnf) {
-//        if(s.find(v) != s.end() || s.find(-v) != s.end()) {
-//            res ++;
-//        }
-//    }
-//
-//    return res;
-//}
-//
-//int select_var(CNF const& cnf) {
-//    int const nb_part = 2;
-//    int cost;
-//    auto partvec = split(cnf, nb_part, cost);
-//    auto v = get_conflicts(cnf, partvec, nb_part);
-//
-//    int var = -1;
-//    std::size_t score = 0;
-//
-//    for(int i : v) {
-//        std::size_t tmp = nb_occ(cnf, i);
-//        if(tmp > score) {
-//            var = i;
-//            score = tmp;
-//        }
-//    }
-//
-//    return var;
-//}
-//
-//std::set<int> select_vars(CNF const& cnf, int nb) {
-//    int const nb_part = 2;
-//    int cost;
-//    auto partvec = split(cnf, nb_part, cost);
-//    auto v = get_conflicts(cnf, partvec, nb_part);
-//
-//    std::set<int> res;
-//    int var = -1;
-//    std::size_t score = 0;
-//
-//    for(int k = 0; k < nb; k++) {
-//        for(int i : v) {
-//            std::size_t tmp = nb_occ(cnf, i);
-//            if(tmp > score) {
-//                var = i;
-//                score = tmp;
-//            }
-//        }
-//        v.erase(var);
-//        res.insert(var);
-//        var = -1;
-//        score = 0;
-//    }
-//
-//    return res;
-//}
-//
-//std::set<CNF::Clause> instanciations(std::set<int> const& atoms) {
-//    std::set<CNF::Clause> res;
-//
-//    for(int i = 0; i < (1 << atoms.size()); i++) {
-//        int tmp = i;
-//        CNF::Clause c;
-//        for(int l : atoms) {
-//            c.insert(tmp & 1 ? l : -l);
-//            tmp = tmp >> 1;
-//        }
-//        res.insert(c);
-//    }
-//
-//    return res;
-//}
-
 int main(int argc, char *argv[]) {
     if(argc != 3) {
         std::cerr << "usage: splitter <path to DIMACS cnf> <split size>\n";
@@ -257,9 +112,9 @@ int main(int argc, char *argv[]) {
 //    cnf.simplify();
 
     auto partvec = split(cnf, nb_part, cost);
-
     std::vector<int> part_sizes(nb_part, 0);
 
+#ifdef VIG
     for(int i = 0; i < partvec.size(); i++) {
         std::cout << "v " << (i + 1) << " " << partvec[i] << "\n";
         part_sizes[partvec[i]] += 1;
@@ -315,22 +170,49 @@ int main(int argc, char *argv[]) {
 
     std::cout << "s " << cost << "\n";
     std::cout << "s2 " << nb_c << "\n";
+#endif
 
-    // auto part = apply_partition(cnf, partvec, nb_part);
-    // auto v = get_conflicts(cnf, partvec, nb_part);
+#ifdef CIG
+    std::map<int, std::set<Variable> > svmap;
+    for(int i = 0; i < nb_part; i++) {
+        std::set<Variable> sv;
 
-    // std::cout << "split cost: " << cost << std::endl;
-    // std::cout << "split cost: " << v.size() << std::endl << std::endl;
-    // for(std::size_t ipart = 0; ipart < part.size(); ipart++) {
-    //     auto & icnf = part[ipart];
-    //     auto r_path = path + std::to_string(ipart);
-    //     std::cout << r_path << std::endl;
-    //     std::ofstream out(r_path);
+        for(int j = 0; j < cnf.nb_clauses(); j++) {
+            if(partvec[j] == i) {
+                for(auto const& l : cnf.clause(j)) {
+                    sv.insert(Variable(l));
+                }
+            }
+        }
+        //svmap[i] = sv;
 
-    //     auto map = icnf.rename_vars();
-    //     print_map(out, map) << icnf;
-    //     out.close();
-    // }
+        for(auto const& v : sv) {
+            std::cout << "v " << v << " " << i << "\n";
+        }
+
+        std::cout << "c p " << i << " " << sv.size() << "\n";
+    }
+
+    for(int i = 0; i < nb_part; i++) {
+        for(int j = 0; j < cnf.nb_clauses(); j++) {
+            if(partvec[j] == i) {
+                cnf.set_active(j, true);
+            }
+            else {
+                cnf.set_active(j, false);
+            }
+        }
+
+        std::string tmp_path = path + ".split" + std::to_string(i);
+        std::ofstream out(tmp_path);
+        out << cnf;
+        out.close();
+        std::cout << "p " << i << " " << "split" << i << "\n";
+    }
+
+    std::cout << "s " << cost << "\n";
+    std::cout << "s2 " << cost << "\n";
+#endif
 
     return 0;
 }
