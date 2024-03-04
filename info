@@ -1,0 +1,5 @@
+mem , f/Blasted_Real/blasted_case_1_4_b14_even.cnf
+mem , f/Blasted_Real/blasted_case_3_4_b14_even.cnf
+mem , f/FMEasy/freetz.cnf
+timeout , f/V3/s5378a_3_2.cnf
+timeout , f/V7/s5378a_7_4.cnf
