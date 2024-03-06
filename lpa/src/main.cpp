@@ -94,11 +94,19 @@ int main(int argc, char const** argv) {
 
 #ifdef COMM_SPLIT
     const int min_c_count = std::stoi(argv[3]);
+    const int timeout = std::stoi(argv[4]);
 
     int lvl = 1;
     while(merge_commuities_by_level(m, cnf, res.L, lvl, min_c_count) && lvl <= cnf.nb_vars()) {
         lvl += 1;
         //res.L.reassign();
+
+        std::chrono::duration<double> dur = std::chrono::steady_clock::now() - ts;
+        if(dur.count() >= timeout) {
+            std::cout << "c timeout\n";
+            std::cout << "c t " << dur.count() << "\n";
+            exit(0);
+        }
     }
 
     res.L.reassign();
