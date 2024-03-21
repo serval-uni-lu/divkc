@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 
     algorithm algo{sga(nb_gen)};
 
-    // auto g = gaco{10000};
+    // auto g = gaco{nb_gen};
     // algorithm algo{g};
 
     population pop{p, pop_size};
