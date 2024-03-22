@@ -140,6 +140,21 @@ int main(int argc, char** argv) {
     // out.close();
     // std::cout << "p 1 split1\n";
     // }
+    {
+        std::string tmp_path = path + ".prj";
+        std::ofstream out(tmp_path);
+
+        out << "c ind ";
+        for(int i = 0; i < cnf.nb_vars(); i++) {
+            if(pop.champion_x()[i] == 1) {
+                out << (i + 1) << " ";
+            }
+        }
+        out << "0\n";
+        out << cnf;
+        out.close();
+        std::cout << "p 1 split1\n";
+    }
 
     // for(int j : ids) {
     //     cnf.set_active(j, true);
