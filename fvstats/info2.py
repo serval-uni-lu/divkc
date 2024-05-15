@@ -1,7 +1,7 @@
 import argparse
 
-import PartitionInfo
 import dDNNF
+import DIMACS
 
 def sample(nnf):
     stack = [nnf.get_node(1)]
@@ -70,43 +70,22 @@ parser.add_argument("-c", "--cnf", type=str, help="path to the cnf formula")
 args = parser.parse_args()
 cnf_file = args.cnf
 
-res = PartitionInfo.from_file(cnf_file + ".log")
+dimacs = DIMACS.from_file(cnf_file)
+nb_vars = dimacs.nb_vars
 
-nb_vars = 0
-for i in res.part_sizes:
-    nb_vars += res.part_sizes[i]
-
-emc = 1
-
-res.nnf = dict()
-for i in res.part:
-    pnnf = cnf_file + "." + res.files[i] + ".nnf"
-    nnf = dDNNF.from_file(pnnf)
-    project_nnf(nnf, res.part[i])
-    nnf.annotate_mc()
-
-    res.nnf[i] = nnf
-
-    # lmc = nnf.get_node(1).mc / 2**(nb_vars - res.part_sizes[i])
-    lmc = nnf.get_node(1).mc
-    emc *= lmc
-
-# print(f'c umc {emc}')
+res = dDNNF.from_file(cnf_file + ".up.nnf")
+res.annotate_mc()
 
 tmp = ", ".join([str(i) for i in range(1, nb_vars + 1)])
 print("file, f, mc, " + tmp)
 
-print(f"{cnf_file}, up, {emc}", end = '')
+print(f"{cnf_file}, up, {res.get_node(1).mc}", end = '')
 
 for v in range(1, nb_vars + 1):
-    tmc = 0
-    m = 1
-    for i in res.nnf:
-        if v in res.nnf[i].get_node(1).mc_by_var:
-            tmc = res.nnf[i].get_node(1).mc_by_var[v]
-        else:
-            m *= res.nnf[i].get_node(1).mc
-    print(f", {m * tmc}", end = '')
+    tmc = res.get_node(1).mc
+    if v in res.get_node(1).mc_by_var:
+        tmc = res.get_node(1).mc_by_var[v]
+    print(f", {tmc}", end = '')
 
 
 print("")
