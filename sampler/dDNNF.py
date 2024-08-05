@@ -34,20 +34,6 @@ def prod(l1, l2):
             add(res, tmp)
     return res
 
-# def prod(l):
-#     res = l[0]
-# 
-#     for l2 in l[1:]:
-#         l1 = res
-#         res = []
-#         for i in range(0, len(l2)):
-#             if l2[i] != 0:
-#                 tmp = deep_cp(l1)
-#                 right_shift(tmp, i)
-#                 mult(tmp, l2[i])
-#                 add(res, tmp)
-#     return res
-
 
 
 class Edge:
@@ -55,6 +41,7 @@ class Edge:
         self.target = target
         self.consts = consts
         self.free = free
+        self.mc = 0
 
 class Node:
     def __init__(self, num):
@@ -66,7 +53,7 @@ class Node:
     def add_child(self, target, consts, free):
         pass
 
-    def annotate_mc(self):
+    def annotate_mc(self, assumps):
         pass
 
     def get_childrend_ids(self):
@@ -89,26 +76,15 @@ class AndNode(Node):
 
         self.children.append(Edge(target, consts, free))
 
-    def annotate_mc(self):
+    def annotate_mc(self, assumps):
         self.mc = 1
-        # self.mc_by_var = {0: 1}
-        # self.mc_by_nb_vars = [1]
 
         if len(self.children) == 0:
             self.mc = 0
 
         for i in self.children:
             self.mc *= i.target.mc
-
-        # for i in self.children:
-        #     # if i.target.mc != 0:
-        #     for j in i.target.mc_by_var:
-        #         # if not (j in self.mc_by_var):
-        #         self.mc_by_var[j] = self.mc * i.target.mc_by_var[j] // i.target.mc
-
-        # ## var by nb features
-        # for i in self.children:
-        #     self.mc_by_nb_vars = prod(self.mc_by_nb_vars, i.target.mc_by_nb_vars)
+            i.mc = i.target.mc
 
         if len(self.children) == 0:
             self.mc = 0
@@ -143,45 +119,24 @@ class OrNode(Node):
     def add_child(self, target, consts, free):
         self.children.append(Edge(target, consts, free))
 
-    def annotate_mc(self):
+    def annotate_mc(self, assumps):
         self.mc = 0
         # self.mc_by_nb_vars = [0]
 
         for i in self.children:
-            self.mc += i.target.mc * (2**len(i.free))
+            lmc = i.target.mc
 
-        # buf = []
-        # for i in self.children:
-        #     if i.target.mc != 0:
-        #         tmp = {}
-        #         for j in i.target.mc_by_var:
-        #             tmp[j] = i.target.mc_by_var[j] * (2**len(i.free))
+            for l in i.consts:
+                if -1 * l in assumps:
+                    lmc = 0
 
-        #         for j in i.free:
-        #             tmp[j] = i.target.mc * (2**(len(i.free) - 1))
+            for v in i.free:
+                if v not in assumps and -1 * v not in assumps:
+                    lmc *= 2
 
-        #         for j in i.consts:
-        #             if j > 0:
-        #                 tmp[abs(j)] = i.target.mc * (2**len(i.free))
-        #             else:
-        #                 tmp[abs(j)] = 0
-        #         buf.append(tmp)
-
-        #         ## var by nb features
-        #         tmp = deep_cp(i.target.mc_by_nb_vars)
-        #         for j in i.free:
-        #             t = deep_cp(tmp)
-        #             right_shift(t, 1)
-        #             add(tmp, t)
-
-        #         for j in i.consts:
-        #             if j > 0:
-        #                 right_shift(tmp, 1)
-        #         add(self.mc_by_nb_vars, tmp)
-
-        # for i in range(1, len(buf)):
-        #     for j in buf[i]:
-        #         buf[0][j] += buf[i][j]
+            self.mc += lmc
+            i.mc = lmc
+            # self.mc += i.target.mc * (2**len(i.free))
 
         if len(self.children) == 0:
             self.mc = 1
@@ -213,27 +168,20 @@ class UnaryNode(Node):
     def add_child(self, target, consts, free):
         self.child = Edge(target, consts, free)
 
-    def annotate_mc(self):
-        self.mc = self.child.target.mc * (2**len(self.child.free))
-        # self.mc_by_nb_vars = deep_cp(self.child.target.mc_by_nb_vars)
+    def annotate_mc(self, assumps):
+        # self.mc = self.child.target.mc * (2**len(self.child.free))
+        lmc = self.child.target.mc
 
-        # c_mc = self.child.target.mc_by_var
-        # for i in c_mc:
-        #     self.mc_by_var[i] = c_mc[i] * (2**len(self.child.free))
+        for l in self.child.consts:
+            if -1 * l in assumps:
+                lmc = 0
 
-        # for i in self.child.free:
-        #     self.mc_by_var[i] = self.mc // 2
+        for v in self.child.free:
+            if v not in assumps and -1 * v not in assumps:
+                lmc *= 2
 
-        #     tmp = deep_cp(self.mc_by_nb_vars)
-        #     right_shift(tmp, 1)
-        #     add(self.mc_by_nb_vars, tmp)
-
-        # for i in self.child.consts:
-        #     if i > 0:
-        #         self.mc_by_var[abs(i)] = self.mc
-        #         right_shift(self.mc_by_nb_vars, 1)
-        #     else:
-        #         self.mc_by_var[abs(i)] = 0
+        self.mc = lmc
+        self.child.mc = lmc
 
     def get_childrend_ids(self):
         return [self.child.target.num]
@@ -254,7 +202,7 @@ class TrueNode(Node):
     def add_child(self, target, consts, free):
         raise ValueError('Cannot add child to TrueNode')
 
-    def annotate_mc(self):
+    def annotate_mc(self, assumps):
         self.mc = 1
         # self.mc_by_var = {0: 1}
         # self.mc_by_nb_vars = [1]
@@ -277,7 +225,7 @@ class FalseNode(Node):
     def add_child(self, target, consts, free):
         raise ValueError('Cannot add child to FalseNode')
 
-    def annotate_mc(self):
+    def annotate_mc(self, assumps):
         self.mc = 0
         # self.mc_by_var = {0: 0}
         # self.mc_by_nb_vars = [0]
@@ -332,9 +280,9 @@ class dDNNF:
                 stack.pop()
                 pass
 
-    def annotate_mc(self):
+    def annotate_mc(self, assumps = set()):
         for i in self.ordering:
-            self.get_node(i).annotate_mc()
+            self.get_node(i).annotate_mc(assumps)
 
     def get_vars(self):
         res = set()
