@@ -53,7 +53,7 @@ inline std::ostream & operator<<(std::ostream & out, Literal const& l) {
 
 struct Variable {
     private:
-    int const v;
+    int v;
 
     public:
     Variable(int i);
@@ -130,6 +130,11 @@ class CNF {
         std::set<Variable> free;
         std::set<Variable> vars;
         std::set<Variable> ind;
+        std::set<Variable> prj;
+        std::set<Variable> ign;
+        std::set<Variable> dign;
+
+        std::vector<std::size_t> available_ids;
 
         std::size_t nb_active = 0;
 
@@ -148,6 +153,13 @@ class CNF {
         void subsumption();
 
         void add_clause(Clause c);
+        void add_clause_nonredundant(Clause c);
+        void rm_clause(std::size_t id);
+
+        void forget(Variable v);
+        void project();
+
+        std::size_t occurence_count(Variable v);
 
         CNF rename_vars();
 

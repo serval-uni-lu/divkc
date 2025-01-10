@@ -8,6 +8,7 @@
 #include<iostream>
 #include<sstream>
 #include<algorithm>
+#include<chrono>
 
 Literal::Literal (Variable v) : l((v.get() << 1)) {
 }
@@ -123,6 +124,19 @@ CNF::CNF(char const* path) {
                 }
             }
         }
+        else if(line.rfind("c p show ", 0) == 0) {
+            std::stringstream iss(line);
+            std::string tmp;
+
+            iss >> tmp >> tmp >> tmp;
+            while(iss) {
+                int v;
+                iss >> v;
+                if(v != 0) {
+                    prj.insert(Variable(v));
+                }
+            }
+        }
         else if(line[0] != 'c' && line[0] != 'p') {
             Clause clause;
             std::stringstream iss(line);
@@ -217,6 +231,18 @@ std::ostream & operator<<(std::ostream & out, CNF const& cnf) {
         out << "\nc " << v;
     }
 
+    out << "\nc forgotten";
+    for(Variable const& v : cnf.dign) {
+        Literal l(v, 1);
+        out << "\n" << l << " 0";
+    }
+
+    out << "\nc p show";
+    for(Variable const& v : cnf.prj) {
+        out << " " << v;
+    }
+    out << " 0";
+
     return out;
 }
 
@@ -262,19 +288,43 @@ void CNF::simplify() {
     }
 }
 
+std::set<std::size_t> intersection(std::set<std::size_t> const& a, std::set<std::size_t> const& b) {
+    std::set<std::size_t> res;
+    for(auto const& i : a) {
+        if(b.find(i) != b.end()) {
+            res.insert(i);
+        }
+    }
+    return res;
+}
+
 void CNF::subsumption() {
     for(std::size_t i = 0; i < clauses.size(); i++) {
         if(active[i]) {
-            for(auto const& j : clauses[i]) {
-                auto ids = idx[j.get()];
+            auto j = *(clauses[i].begin());
+            for(auto const& ji : clauses[i]) {
+                if(idx[j.get()].size() > idx[ji.get()].size()) {
+                    j = ji;
+                }
+            }
+            auto ids = idx[j.get()];
 
-                for(auto const& id : ids) {
-                    if( active[id] && id != i && clauses[id].contains(clauses[i])) {
-                        active[id] = false;
-                        nb_active--;
-                        for(auto const& l : clauses[id]) {
-                            idx[l.get()].erase(id);
-                        }
+            //auto const& j = *(clauses[i].begin());
+            //auto ids = idx[j.get()];
+
+            // auto const& j = *(clauses[i].begin());
+            // std::set<std::size_t> ids = idx[j.get()];
+
+            // for(auto const& ji : clauses[i]) {
+            //     ids = intersection(ids, idx[ji.get()]);
+            // }
+
+            for(auto const& id : ids) {
+                if( active[id] && id != i && clauses[id].contains(clauses[i])) {
+                    active[id] = false;
+                    nb_active--;
+                    for(auto const& l : clauses[id]) {
+                        idx[l.get()].erase(id);
                     }
                 }
             }
@@ -345,13 +395,167 @@ std::vector<std::set<Variable> > CNF::get_vars_by_clause_len() const {
 }
 
 void CNF::add_clause(Clause c) {
-    active.push_back(true);
-    nb_active += 1;
-    auto id = clauses.size();
-    clauses.push_back(c);
+    std::size_t id = clauses.size();
+
+    if(available_ids.size() > 0) {
+        id = available_ids[available_ids.size() - 1];
+        available_ids.pop_back();
+        active[id] = true;
+        clauses[id] = c;
+        nb_active += 1;
+    }
+    else {
+        id = clauses.size();
+        active.push_back(true);
+        clauses.push_back(c);
+        nb_active += 1;
+    }
+
 
     for(auto const& l : c) {
         idx[l.get()].insert(id);
         //std::cout << idx[l.get()].size() << "\n";
+    }
+}
+
+void CNF::add_clause_nonredundant(Clause c) {
+    auto j = *(c.begin());
+    for(auto const& ji : c) {
+        if(idx[j.get()].size() > idx[ji.get()].size()) {
+            j = ji;
+        }
+    }
+    auto ids = idx[j.get()];
+
+    //auto const& j = *(c.begin());
+    //auto ids = idx[j.get()];
+
+    bool add = true;
+    for(auto const& id : ids) {
+        if(active[id] && c.contains(clauses[id])) {
+            // clause c does not need to be added
+            add = false;
+            break;
+        }
+    }
+
+    if(add) {
+        add_clause(c);
+    }
+}
+
+void CNF::rm_clause(std::size_t id) {
+    for(auto const& l : clauses[id]) {
+        idx[l.get()].erase(id);
+    }
+    active[id] = false;
+    available_ids.push_back(id);
+    nb_active -= 1;
+}
+
+/*
+ * fix:
+ * properly handle unit clauses
+ * verify correctness
+ */
+void CNF::forget(Variable v) {
+    auto const& lp = Literal(v, 1);
+    auto const& ln = Literal(v, -1);
+
+    if(units.find(lp) != units.end()) {
+        units.erase(lp);
+
+        for(std::size_t id : idx[ln.get()]) {
+            clauses[id].remove(ln);
+        }
+        idx[(ln).get()].clear();
+    }
+    else if(units.find(ln) != units.end()) {
+        units.erase(ln);
+
+        for(std::size_t id : idx[lp.get()]) {
+            clauses[id].remove(lp);
+        }
+        idx[(lp).get()].clear();
+    }
+    else {
+        for(auto const& ip : idx[lp.get()]) {
+            for(auto const& in : idx[ln.get()]) {
+                Clause p = clauses[ip];
+                p.remove(lp);
+
+                bool trivial = false;
+                for(auto const& l : clauses[in]) {
+                    if(ln != l && lp != l) {
+                        if(p.contains(~l)) {
+                            trivial = true;
+                            break;
+                        }
+
+                        p.push(l);
+                    }
+                }
+
+                if(!trivial) {
+                    // add_clause(p);
+                    add_clause_nonredundant(p);
+                }
+            }
+        }
+    }
+
+    auto ids = idx[lp.get()];
+    for(auto const& ip : ids) {
+        rm_clause(ip);
+    }
+
+    ids = idx[ln.get()];
+    for(auto const& in : ids) {
+        rm_clause(in);
+    }
+
+}
+
+std::size_t CNF::occurence_count(Variable v) {
+    auto const& lp = Literal(v, 1);
+    auto const& ln = Literal(v, -1);
+
+    return idx[lp.get()].size() + idx[ln.get()].size();
+}
+
+void CNF::project() {
+    //auto const ina = nb_active;
+
+    std::set<Variable> frgt = vars;
+    for(auto const& v : prj) {
+        frgt.erase(v);
+    }
+    ign = frgt;
+
+    int nbf = 0;
+    while(frgt.size() > 0) {
+        Variable v = *(frgt.begin());
+        for(auto const& vi : frgt) {
+            if(occurence_count(v) > occurence_count(vi)) {
+                v = vi;
+            }
+        }
+
+        auto const st = std::chrono::steady_clock::now();
+        forget(v);
+        frgt.erase(v);
+        nbf += 1;
+        auto const ed = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(ed - st);
+
+        dign.insert(v);
+
+        std::cerr << "c nf " << nbf << " ; nba " << nb_active << "\n";
+
+        //if(nb_active >= 10 * ina) {
+        if(elapsed.count() > 60) {
+            std::cerr << "c break\n";
+            break;
+        }
     }
 }

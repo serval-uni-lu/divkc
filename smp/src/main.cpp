@@ -43,6 +43,7 @@ int main(int argc, char const** argv) {
     CNF cnf(path.c_str());
     cnf.simplify();
     cnf.subsumption();
+    cnf.project();
 
 
 #ifdef RENAME
