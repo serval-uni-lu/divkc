@@ -203,9 +203,67 @@ function annotate_mc(nnf :: DDNNF, n :: AndNode)
     end
 end
 
+function compute_free_var(nnf :: DDNNF)
+    fv = Vector{Set{Var}}()
+    for i in 1:length(nnf.nodes)
+        push!(fv, Set{Var}())
+    end
+
+    for i in nnf.ordering
+        for c in get_children(nnf, i)
+            for l in nnf.literals[c.b_lit : c.e_lit]
+                push!(fv[i], mkVar(l))
+            end
+
+            for v in fv[c.child]
+                push!(fv[i], v)
+            end
+        end
+    end
+
+    for i in nnf.ordering
+        if isa(nnf.nodes[i], UnaryNode)
+            for c in get_children(nnf, i)
+                println("error")
+            end
+        elseif isa(nnf.nodes[i], OrNode)
+            for c in get_children(nnf, i)
+                t2 = setdiff(fv[i], map(mkVar, nnf.literals[c.b_lit : c.e_lit]))
+                setdiff!(t2, fv[c.child])
+                t3 = Set(nnf.freev[c.b_free : c.e_free])
+
+                if t2 != t3
+                    print("(", i, " -> ", c.child, ") ")
+                    for i in t2
+                        print(mkReadable(i), " ")
+                    end
+                    print(":")
+                    for i in t3
+                        print(mkReadable(i), " ")
+                    end
+                    print("\n   ")
+                    for i in fv[i]
+                        print(mkReadable(i), " ")
+                    end
+                    print("\n   ")
+                    for i in fv[c.child]
+                        print(mkReadable(i), " ")
+                    end
+                    print("\n   ")
+                    for i in nnf.literals[c.b_lit : c.e_lit]
+                        print(mkReadable(i), " ")
+                    end
+                    println("")
+                end
+            end
+        end
+    end
+end
+
 get_mc(n) = n.mc
 get_mc(nnf :: DDNNF, i :: Int64) = get_mc(nnf.nodes[i])
 
 nnf = parse("res.nnf")
 annotate_mc(nnf)
 println(get_mc(nnf, 1))
+# compute_free_var(nnf)
