@@ -1,3 +1,5 @@
+# using BenchmarkTools
+
 include("var.jl")
 
 struct Edge
@@ -203,7 +205,9 @@ function annotate_mc(nnf :: DDNNF, n :: AndNode)
     end
 end
 
+# incomplete
 function compute_free_var(nnf :: DDNNF)
+    println("WARNING: usage of incomplete function compute_free_var")
     fv = Vector{Set{Var}}()
     for i in 1:length(nnf.nodes)
         push!(fv, Set{Var}())
@@ -267,3 +271,6 @@ nnf = parse("res.nnf")
 annotate_mc(nnf)
 println(get_mc(nnf, 1))
 # compute_free_var(nnf)
+#
+# @btime nnf = parse("res.nnf")
+# @btime annotate_mc(nnf)
