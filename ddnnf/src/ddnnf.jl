@@ -21,7 +21,7 @@ end
 
 mutable struct UnaryNode
     mc :: BigInt
-    child :: Edge
+    child :: Union{Nothing, Edge}
 end
 
 struct TrueNode
@@ -108,7 +108,7 @@ function parse(path :: String)
         elseif startswith(line, "a ")
             push!(res.nodes, AndNode(0, []))
         elseif startswith(line, "u ")
-            push!(res.nodes, UnaryNode(0, 0))
+            push!(res.nodes, UnaryNode(0, nothing))
         elseif startswith(line, "t ")
             push!(res.nodes, TrueNode())
         elseif startswith(line, "f ")
@@ -168,6 +168,10 @@ function compute_ordering(nnf :: DDNNF)
     end
 end
 
+get_mc(n) = n.mc
+get_mc(nnf :: DDNNF, i :: Int64) = get_mc(nnf.nodes[i])
+get_mc(nnf :: DDNNF, i :: Edge) = get_mc(nnf, i.child) * 2^(i.e_free - i.b_free + 1)
+
 function annotate_mc(nnf :: DDNNF)
     for i in nnf.ordering
         annotate_mc(nnf, nnf.nodes[i])
@@ -181,16 +185,14 @@ function annotate_mc(nnf :: DDNNF, n :: TrueNode)
 end
 
 function annotate_mc(nnf :: DDNNF, n :: UnaryNode)
-    cmc = get_mc(nnf, c.child.child)
-    n.mc = 2^(n.child.e_free - n.child.b_free + 1) * cmc
+    n.mc = get_mc(nnf, n.child)
 end
 
 function annotate_mc(nnf :: DDNNF, n :: OrNode)
     n.mc = BigInt(0)
 
     for c in n.children
-        cmc = get_mc(nnf, c.child)
-        n.mc += 2^(c.e_free - c.b_free + 1) * cmc
+        n.mc += get_mc(nnf, c)
     end
 end
 
@@ -198,8 +200,7 @@ function annotate_mc(nnf :: DDNNF, n :: AndNode)
     n.mc = BigInt(1)
 
     for c in n.children
-        cmc = get_mc(nnf, c.child)
-        n.mc *= 2^(c.e_free - c.b_free + 1) * cmc
+        n.mc *= get_mc(nnf, c)
     end
 end
 

@@ -2,10 +2,7 @@
 
 include("ddnnf.jl")
 
-get_mc(n) = n.mc
-get_mc(nnf :: DDNNF, i :: Int64) = get_mc(nnf.nodes[i])
-
-nnf = parse("res.nnf")
+nnf = parse(ARGS[1])
 annotate_mc(nnf)
 println(get_mc(nnf, 1))
 # compute_free_var(nnf)
