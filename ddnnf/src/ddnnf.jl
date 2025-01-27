@@ -226,6 +226,7 @@ function compute_free_var(nnf :: DDNNF)
         end
     end
 
+    m = 0
     for i in nnf.ordering
         if isa(nnf.nodes[i], UnaryNode)
             for c in get_children(nnf, i)
@@ -238,6 +239,7 @@ function compute_free_var(nnf :: DDNNF)
                 t3 = Set(nnf.freev[c.b_free : c.e_free])
 
                 if t2 != t3
+                    m += 1
                     print("(", i, " -> ", c.child, ") ")
                     for i in t2
                         print(mkReadable(i), " ")
@@ -263,4 +265,5 @@ function compute_free_var(nnf :: DDNNF)
             end
         end
     end
+    println("m ", m)
 end
