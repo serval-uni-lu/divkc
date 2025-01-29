@@ -126,11 +126,14 @@ class CNF {
         std::vector<Clause> clauses;
         std::vector<bool> active;
         std::vector<std::set<std::size_t> > idx;
+
         std::set<Literal> units;
         std::set<Variable> free;
+
         std::set<Variable> vars;
         std::set<Variable> ind;
         std::set<Variable> prj;
+
         std::set<Variable> ign;
         std::set<Variable> dign;
 
