@@ -33,16 +33,28 @@ struct Literal {
     inline int to_int() const { return sign() * ((l >> 1) + 1); }
     inline int get() const { return l; }
 
-    bool operator == (Literal p) const;
-    bool operator != (Literal p) const;
-    bool operator <  (Literal p) const; // '<' makes p, ~p adjacent in the ordering.  
-
     friend inline Literal operator ~ (Literal p);
 };
 
 inline Literal operator ~ (Literal p) {
     p.l ^= 1;
     return p;
+}
+
+inline bool operator<(Literal const& a, Literal const& b) {
+    return a.get() < b.get();
+}
+
+inline bool operator>(Literal const& a, Literal const& b) {
+    return a.get() > b.get();
+}
+
+inline bool operator==(Literal const& a, Literal const& b) {
+    return a.get() == b.get();
+}
+
+inline bool operator!=(Literal const& a, Literal const& b) {
+    return a.get() != b.get();
 }
 
 inline std::ostream & operator<<(std::ostream & out, Literal const& l) {
@@ -80,7 +92,7 @@ inline std::ostream & operator<<(std::ostream & out, Variable const& v) {
 
 struct Clause {
     private:
-    std::vector<Literal> c;
+    std::set<Literal> c;
 
     public:
     Clause();
@@ -108,8 +120,14 @@ struct Clause {
         return c.size();
     }
 
-    inline auto operator[](std::size_t const& i) {
-        return c[i];
+    inline auto const& operator[](std::size_t i) const {
+        for(auto const& l : c){
+            if(i == 0) {
+                return l;
+            }
+            i--;
+        }
+        throw std::out_of_range ("Clause[i] i is out of range");
     }
 };
 
@@ -162,7 +180,8 @@ class CNF {
         void forget(Variable v);
         void project();
 
-        std::size_t occurence_count(Variable v);
+        std::size_t occurrence_count(Variable v);
+        std::size_t occurrence_product(Variable v);
 
         CNF rename_vars();
 

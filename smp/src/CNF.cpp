@@ -19,19 +19,6 @@ Literal::Literal (Variable v, int sign) : l((v.get() << 1) | (sign < 0 ? 1 : 0))
 Literal::Literal (int i) : l(((std::abs(i) - 1) << 1) ^ (i < 0 ? 1 : 0)) {
 }
 
-bool Literal::operator == (Literal p) const {
-    return l == p.get();
-}
-
-bool Literal::operator != (Literal p) const {
-    return l != p.get();
-}
-
-// '<' makes p, ~p adjacent in the ordering.
-bool Literal::operator <  (Literal p) const {
-    return l < p.get();
-}  
-
 Variable::Variable(int i) : v(std::abs(i) - 1) {
 }
 
@@ -54,34 +41,43 @@ Clause::Clause() {
 }
 
 void Clause::push(Literal const& l) {
-    for(auto const& i : c) {
-        if(i == l)
-            return;
-    }
-    c.push_back(l);
+    c.insert(l);
 }
 
 void Clause::remove(Literal const& l) {
-    auto it = std::remove(c.begin(), c.end(), l);
-    c.erase(it, c.end());
+    c.erase(l);
 }
 
 void Clause::remove(Variable const& v) {
-    auto it = std::remove_if(c.begin(), c.end()
-            , [v] (Literal const& li) {
-                return Variable(li) == v;
-            });
-    c.erase(it, c.end());
+    Literal l(v);
+    c.erase(l);
+    c.erase(~l);
 }
 
 bool Clause::contains(Literal const& l) const {
-    return std::find(c.begin(), c.end(), l) != c.end();
+    return c.find(l) != c.end();
 }
 
 bool Clause::contains(Clause const& cls) const {
-    return std::all_of(cls.c.begin(), cls.c.end(), [this](auto const& l) {
-        return contains(l);
-    });
+    // return std::all_of(cls.c.begin(), cls.c.end(), [this](auto const& l) {
+    //     return contains(l);
+    // });
+    auto itl = begin();
+    auto itcls = cls.begin();
+
+    while(itl != end() && itcls != cls.end()) {
+        if(*itl == *itcls) {
+            itl++;
+            itcls++;
+        }
+        else if(*itcls < *itl) {
+            return false;
+        }
+        else {
+            itl++;
+        }
+    }
+    return itcls == cls.end();
 }
 
 CNF::CNF(char const* path) {
@@ -516,15 +512,22 @@ void CNF::forget(Variable v) {
 
 }
 
-std::size_t CNF::occurence_count(Variable v) {
+std::size_t CNF::occurrence_count(Variable v) {
     auto const& lp = Literal(v, 1);
     auto const& ln = Literal(v, -1);
 
     return idx[lp.get()].size() + idx[ln.get()].size();
 }
 
+std::size_t CNF::occurrence_product(Variable v) {
+    auto const& lp = Literal(v, 1);
+    auto const& ln = Literal(v, -1);
+
+    return idx[lp.get()].size() * idx[ln.get()].size();
+}
+
 void CNF::project() {
-    //auto const ina = nb_active;
+    auto const ina = nb_active;
 
     std::set<Variable> frgt = vars;
     for(auto const& v : prj) {
@@ -536,7 +539,7 @@ void CNF::project() {
     while(frgt.size() > 0) {
         Variable v = *(frgt.begin());
         for(auto const& vi : frgt) {
-            if(occurence_count(v) > occurence_count(vi)) {
+            if(occurrence_product(v) > occurrence_product(vi)) {
                 v = vi;
             }
         }
@@ -552,8 +555,8 @@ void CNF::project() {
 
         std::cerr << "c nf " << nbf << " ; nba " << nb_active << "\n";
 
-        //if(nb_active >= 10 * ina) {
-        if(elapsed.count() > 60) {
+        if(nb_active >= 2 * ina) {
+        // if(elapsed.count() > 60) {
             std::cerr << "c break\n";
             break;
         }
