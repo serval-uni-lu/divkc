@@ -41,21 +41,46 @@ Clause::Clause() {
 }
 
 void Clause::push(Literal const& l) {
-    c.insert(l);
+    //c.insert(l);
+    for(auto it = c.begin(); it != c.end(); it++) {
+        if(*it == l) {
+            return;
+        }
+        else if(*it > l) {
+            c.insert(it, l);
+            return;
+        }
+    }
+    c.push_back(l);
 }
 
 void Clause::remove(Literal const& l) {
-    c.erase(l);
+    // c.erase(l);
+    auto it = std::remove(c.begin(), c.end(), l);
+    c.erase(it, c.end());
 }
 
 void Clause::remove(Variable const& v) {
-    Literal l(v);
-    c.erase(l);
-    c.erase(~l);
+    //Literal l(v);
+    //c.erase(l);
+    //c.erase(~l);
+    auto it = std::remove_if(c.begin(), c.end(), [&](auto const& l) {
+            return Variable(l) == v;
+            });
+    c.erase(it, c.end());
 }
 
 bool Clause::contains(Literal const& l) const {
-    return c.find(l) != c.end();
+    for(std::size_t i = 0; i < c.size(); i++) {
+        if(l == c[i]) {
+            return true;
+        }
+        else if(l < c[i]) {
+            return false;
+        }
+    }
+    return false;
+    // return c.find(l) != c.end();
 }
 
 bool Clause::contains(Clause const& cls) const {
