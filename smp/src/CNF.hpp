@@ -195,7 +195,7 @@ class CNF {
 
         CNF rename_vars();
         std::set<Variable> compute_true_projection() const;
-        void inplace_upper_bound(std::set<Variable> const& v);
+        std::set<Variable> inplace_upper_bound(std::set<Variable> const& v);
         void reset_prj() {
             prj = vars;
             ign.clear();

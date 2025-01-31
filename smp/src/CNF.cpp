@@ -597,7 +597,9 @@ std::set<Variable> CNF::compute_true_projection() const {
 }
 
 
-void CNF::inplace_upper_bound(std::set<Variable> const& v) {
+std::set<Variable> CNF::inplace_upper_bound(std::set<Variable> const& v) {
+    std::set<Variable> res;
+
     for(std::size_t id = 0; id < clauses.size(); id++) {
         bool br = false;
         for(auto const& l : clauses[id]) {
@@ -610,5 +612,12 @@ void CNF::inplace_upper_bound(std::set<Variable> const& v) {
         if(! br) {
             rm_clause(id);
         }
+        else {
+            for(auto const& l : clauses[id]) {
+                res.insert(Variable(l));
+            }
+        }
     }
+
+    return res;
 }

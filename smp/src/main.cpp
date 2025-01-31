@@ -59,11 +59,13 @@ int main(int argc, char const** argv) {
     out.close();
 
     auto tprj = cnf.compute_true_projection();
-    up.inplace_upper_bound(tprj);
+    auto puvar = up.inplace_upper_bound(tprj);
     up.reset_prj();
     std::ofstream upout(path + ".pup");
     upout << up;
     upout.close();
+
+    std::cout << "c v " << puvar.size() << " / " << cnf.nb_vars() << "\n";
 
 #ifdef STATS
     print_stats(path, cnf);
