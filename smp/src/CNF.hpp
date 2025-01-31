@@ -184,6 +184,13 @@ class CNF {
         std::size_t occurrence_product(Variable v);
 
         CNF rename_vars();
+        std::set<Variable> compute_true_projection() const;
+        void inplace_upper_bound(std::set<Variable> const& v);
+        void reset_prj() {
+            prj = vars;
+            ign.clear();
+            dign.clear();
+        }
 
         std::vector<std::size_t> get_nb_by_clause_len() const;
         std::vector<std::set<Variable> > get_vars_by_clause_len() const;

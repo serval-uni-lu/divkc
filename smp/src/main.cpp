@@ -44,6 +44,8 @@ int main(int argc, char const** argv) {
     CNF cnf(path.c_str());
     cnf.simplify();
     cnf.subsumption();
+    CNF up(cnf);
+
     cnf.project();
 
 
@@ -55,6 +57,13 @@ int main(int argc, char const** argv) {
     out << cnf;
 #endif
     out.close();
+
+    auto tprj = cnf.compute_true_projection();
+    up.inplace_upper_bound(tprj);
+    up.reset_prj();
+    std::ofstream upout(path + ".pup");
+    upout << up;
+    upout.close();
 
 #ifdef STATS
     print_stats(path, cnf);

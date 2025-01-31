@@ -562,3 +562,28 @@ void CNF::project() {
         }
     }
 }
+
+std::set<Variable> CNF::compute_true_projection() const {
+    std::set<Variable> res = vars;
+    for(auto const& v : dign) {
+        res.erase(v);
+    }
+    return res;
+}
+
+
+void CNF::inplace_upper_bound(std::set<Variable> const& v) {
+    for(std::size_t id = 0; id < clauses.size(); id++) {
+        bool br = false;
+        for(auto const& l : clauses[id]) {
+            if(v.find(Variable(l)) == v.end()) {
+                br = true;
+                break;
+            }
+        }
+
+        if(! br) {
+            rm_clause(id);
+        }
+    }
+}
