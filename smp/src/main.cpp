@@ -1,4 +1,5 @@
 #include<iostream>
+#include<fstream>
 #include<string>
 
 #include "CNF.hpp"
@@ -46,12 +47,14 @@ int main(int argc, char const** argv) {
     cnf.project();
 
 
+    std::ofstream out(path + ".p");
 #ifdef RENAME
     //cnf.compute_free_vars();
-    std::cout << cnf.rename_vars();
+    out << cnf.rename_vars();
 #else
-    std::cout << cnf;
+    out << cnf;
 #endif
+    out.close();
 
 #ifdef STATS
     print_stats(path, cnf);

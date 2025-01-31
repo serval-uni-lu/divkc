@@ -553,11 +553,11 @@ void CNF::project() {
 
         dign.insert(v);
 
-        std::cerr << "c nf " << nbf << " ; nba " << nb_active << "\n";
+        //std::cerr << "c nf " << nbf << " ; nba " << nb_active << "\n";
 
-        if(nb_active >= 2 * ina) {
+        if(nb_active >= 3 * ina) {
         // if(elapsed.count() > 60) {
-            std::cerr << "c break\n";
+            std::cerr << "c break " << nbf << " / " << ign.size() << "\n";
             break;
         }
     }
