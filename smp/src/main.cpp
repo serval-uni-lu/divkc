@@ -45,6 +45,7 @@ int main(int argc, char const** argv) {
     cnf.simplify();
     cnf.subsumption();
     CNF up(cnf);
+    CNF upp(cnf);
 
     cnf.project();
 
@@ -66,6 +67,12 @@ int main(int argc, char const** argv) {
     upout.close();
 
     std::cout << "c v " << puvar.size() << " / " << cnf.nb_vars() << "\n";
+
+    upp.set_prj(puvar);
+    upp.project();
+    std::ofstream uppout(path + ".pupp");
+    uppout << upp;
+    uppout.close();
 
 #ifdef STATS
     print_stats(path, cnf);

@@ -188,6 +188,7 @@ class CNF {
         void rm_clause(std::size_t id);
 
         void forget(Variable v);
+        void set_prj(std::set<Variable> const& v) { prj = v; }
         void project();
 
         std::size_t occurrence_count(Variable v);
