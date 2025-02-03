@@ -22,20 +22,15 @@ def summarize(data, title):
     cnf = clean(filter(data, ".cnf$"))
     prj = clean(filter(data, ".cnf.prj$"))
     prjp = clean(filter(data, ".cnf.prj.p$"))
-    s0 = clean(filter(data, ".cnf.s0$"))
-    s0p = clean(filter(data, ".cnf.s0.p$"))
-    s1 = clean(filter(data, ".cnf.s1$"))
-    s1p = clean(filter(data, ".cnf.s1.p$"))
+    pup = clean(filter(data, ".cnf.prj.pup$"))
+    pupp = clean(filter(data, ".cnf.prj.pupp$"))
 
     data = cnf
     data = data.join(prj, on = 'file', rsuffix = '_prj')
     data = data.join(prjp, on = 'file', rsuffix = '_prjp')
 
-    data = data.join(s0, on = 'file', rsuffix = '_s0')
-    data = data.join(s0p, on = 'file', rsuffix = '_s0p')
-
-    data = data.join(s1, on = 'file', rsuffix = '_s1')
-    data = data.join(s1p, on = 'file', rsuffix = '_s1p')
+    data = data.join(pup, on = 'file', rsuffix = '_pup')
+    data = data.join(pupp, on = 'file', rsuffix = '_pupp')
 
     print(f"{title} ({len(data)}):")
 
@@ -45,23 +40,43 @@ def summarize(data, title):
 
     x = data
     x = x[x['state_prj'] == 'done']
-    x = x[x['state_s0'] == 'done']
-    x = x[x['state_s1'] == 'done']
-    print(f"   prj + s0 + s1: {len(x)} ({len(x) / len(data)})")
+    x = x[x['state_pup'] == 'done']
+    print(f"   prj + pup: {len(x)} ({len(x) / len(data)})")
+
+    x = data
+    x = x[x['state_prj'] == 'done']
+    x = x[x['state_pupp'] == 'done']
+    print(f"   prj + pupp: {len(x)} ({len(x) / len(data)})")
 
     x = data
     x = x[x['state_prjp'] == 'done']
-    x = x[x['state_s0p'] == 'done']
-    x = x[x['state_s1p'] == 'done']
-    m = x.mem_prjp + x.mem_s0p + x.mem_s1p
-    m /= 1000
-    t = x.time_prjp + x.time_s0p + x.time_s1p
-    print(f"   prjp + s0p + s1p: {len(x)} ({len(x) / len(data)})")
-    print(f"       8GB: {(m <=  8000).sum()}")
-    print(f"      16GB: {(m <= 16000).sum()}")
-    print(f"      32GB: {(m <= 32000).sum()}")
-    print(f"      10m : {(t <= 600).sum()}")
-    print(f"       1h : {(t <= 3600).sum()}")
+    x = x[x['state_pup'] == 'done']
+    print(f"   prjp + pup: {len(x)} ({len(x) / len(data)})")
+
+    x = data
+    x = x[x['state_prjp'] == 'done']
+    x = x[x['state_pupp'] == 'done']
+    print(f"   prjp + pupp: {len(x)} ({len(x) / len(data)})")
+
+    x = data
+    x = x[x['state_prjp'] == 'done']
+    f1 = (x['state_pup'] == 'done') | (x['state_pupp'] == 'done')
+    x = x[f1.to_numpy()]
+    print(f"   prjp + (pupp | pup): {len(x)} ({len(x) / len(data)})")
+
+    # x = data
+    # x = x[x['state_prjp'] == 'done']
+    # x = x[x['state_s0p'] == 'done']
+    # x = x[x['state_s1p'] == 'done']
+    # m = x.mem_prjp + x.mem_s0p + x.mem_s1p
+    # m /= 1000
+    # t = x.time_prjp + x.time_s0p + x.time_s1p
+    # print(f"   prjp + s0p + s1p: {len(x)} ({len(x) / len(data)})")
+    # print(f"       8GB: {(m <=  8000).sum()}")
+    # print(f"      16GB: {(m <= 16000).sum()}")
+    # print(f"      32GB: {(m <= 32000).sum()}")
+    # print(f"      10m : {(t <= 600).sum()}")
+    # print(f"       1h : {(t <= 3600).sum()}")
 
 d4 = pd.read_csv(f"d4.csv", skipinitialspace = True)
 summarize(d4, "D4")
