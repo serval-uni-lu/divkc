@@ -11,7 +11,7 @@
 #include "CNF.hpp"
 
 #define VIG
-//#define CIG
+// #define CIG
 
 void compute_var_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vector<int> & pins) {
     for(std::size_t j = 0; j < cnf.nb_clauses(); j++) {
@@ -36,15 +36,15 @@ void compute_clause_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::ve
     for(int i = 1; i < cnf.nb_vars() + 1; i++) {
         std::set<int> ids;
         for(int id : cnf.get_idx(Literal(i))) {
-            //if(cnf.is_active(id)) {
+            // if(cnf.is_active(id)) {
                 ids.insert(id);
-            //}
+            // }
         }
 
         for(int id : cnf.get_idx(Literal(-1 * i))) {
-            //if(cnf.is_active(id)) {
+            // if(cnf.is_active(id)) {
                 ids.insert(id);
-            //}
+            // }
         }
 
         if(ids.size() > 1) {
@@ -99,17 +99,18 @@ std::vector<int> split(CNF const& cnf, int const nb_part, int & cost) {
 }
 
 int main(int argc, char *argv[]) {
-    if(argc != 3) {
-        std::cerr << "usage: splitter <path to DIMACS cnf> <split size>\n";
+    if(argc != 2) {
+        std::cerr << "usage: splitter <path to DIMACS cnf>\n";
         return 1;
     }
     std::string path(argv[1]);
     //int const s_size = std::stoi(argv[2]);
-    int const nb_part = std::stoi(argv[2]);
+    //int const nb_part = std::stoi(argv[2]);
+    int const nb_part = 2;
     int cost;
     CNF cnf(path.c_str());
     //int const nb_part = ceil(cnf.get_nb_vars() / (double)s_size);
-//    cnf.simplify();
+    cnf.simplify();
 
     auto partvec = split(cnf, nb_part, cost);
     std::vector<int> part_sizes(nb_part, 0);
@@ -152,45 +153,38 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifdef CIG
-    std::map<int, std::set<Variable> > svmap;
-    for(int i = 0; i < nb_part; i++) {
-        std::set<Variable> sv;
+    // std::map<int, std::set<Variable> > svmap;
+    std::set<Variable> pvar;
 
-        for(int j = 0; j < cnf.nb_clauses(); j++) {
-            if(partvec[j] == i) {
-                for(auto const& l : cnf.clause(j)) {
-                    sv.insert(Variable(l));
-                }
-            }
-        }
-        //svmap[i] = sv;
-
-        for(auto const& v : sv) {
-            std::cout << "v " << v << " " << i << "\n";
-        }
-
-        std::cout << "c p " << i << " " << sv.size() << "\n";
+    for(int j = 0; j < cnf.nb_clauses(); j++) {
+        if(partvec[j] == 0
     }
 
-    for(int i = 0; i < nb_part; i++) {
-        for(int j = 0; j < cnf.nb_clauses(); j++) {
-            if(partvec[j] == i) {
-                cnf.set_active(j, true);
-            }
-            else {
-                cnf.set_active(j, false);
-            }
-        }
 
-        std::string tmp_path = path + ".split" + std::to_string(i);
-        std::ofstream out(tmp_path);
-        out << cnf;
-        out.close();
-        std::cout << "p " << i << " " << "split" << i << "\n";
-    }
+    // for(int i = 0; i < nb_part; i++) {
+    //     std::set<Variable> sv;
 
-    std::cout << "s " << cost << "\n";
-    std::cout << "s2 " << cost << "\n";
+    //     for(int j = 0; j < cnf.nb_clauses(); j++) {
+    //         if(partvec[j] == i) {
+    //             for(auto const& l : cnf.clause(j)) {
+    //                 sv.insert(Variable(l));
+    //             }
+    //         }
+    //     }
+    //     svmap[i] = sv;
+
+    //     for(auto const& v : sv) {
+    //         std::cout << "v " << v << " " << i << "\n";
+    //     }
+
+    //     std::cout << "c p " << i << " " << sv.size() << "\n";
+    // }
+    // std::cout << "--\n\n";
+    // for(auto const& v : svmap[0]) {
+    //     if(svmap[1].find(v) != svmap[1].end()) {
+    //         std::cout << v << "\n";
+    //     }
+    // }
 #endif
 
     return 0;
