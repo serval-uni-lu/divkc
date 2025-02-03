@@ -50,11 +50,6 @@ def summarize(data, title):
 
     x = data
     x = x[x['state_prjp'] == 'done']
-    x = x[x['state_pup'] == 'done']
-    print(f"   prjp + pup: {len(x)} ({len(x) / len(data)})")
-
-    x = data
-    x = x[x['state_prjp'] == 'done']
     x = x[x['state_pupp'] == 'done']
     print(f"   prjp + pupp: {len(x)} ({len(x) / len(data)})")
 
@@ -64,19 +59,20 @@ def summarize(data, title):
     x = x[f1.to_numpy()]
     print(f"   prjp + (pupp | pup): {len(x)} ({len(x) / len(data)})")
 
-    # x = data
-    # x = x[x['state_prjp'] == 'done']
-    # x = x[x['state_s0p'] == 'done']
-    # x = x[x['state_s1p'] == 'done']
-    # m = x.mem_prjp + x.mem_s0p + x.mem_s1p
-    # m /= 1000
-    # t = x.time_prjp + x.time_s0p + x.time_s1p
-    # print(f"   prjp + s0p + s1p: {len(x)} ({len(x) / len(data)})")
-    # print(f"       8GB: {(m <=  8000).sum()}")
-    # print(f"      16GB: {(m <= 16000).sum()}")
-    # print(f"      32GB: {(m <= 32000).sum()}")
-    # print(f"      10m : {(t <= 600).sum()}")
-    # print(f"       1h : {(t <= 3600).sum()}")
+    x = data
+    x = x[x['state_prjp'] == 'done']
+    x = x[x['state_pup'] == 'done']
+    m = x.mem_prjp + x.mem_pup
+    m /= 1000
+    t = x.time_prjp + x.time_pup
+    print(f"   prjp + pup: {len(x)} ({len(x) / len(data)})")
+    print(f"       4GB: {(m <=  4000).sum()}")
+    print(f"       8GB: {(m <=  8000).sum()}")
+    print(f"      16GB: {(m <= 16000).sum()}")
+    print(f"      32GB: {(m <= 32000).sum()}")
+    print(f"       1m : {(t <= 60).sum()}")
+    print(f"      10m : {(t <= 600).sum()}")
+    print(f"       1h : {(t <= 3600).sum()}")
 
 d4 = pd.read_csv(f"d4.csv", skipinitialspace = True)
 summarize(d4, "D4")
