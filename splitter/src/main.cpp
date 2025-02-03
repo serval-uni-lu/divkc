@@ -116,15 +116,16 @@ int main(int argc, char *argv[]) {
 
 #ifdef VIG
     for(int i = 0; i < partvec.size(); i++) {
-        std::cout << "v " << (i + 1) << " " << partvec[i] << "\n";
+        // std::cout << "v " << (i + 1) << " " << partvec[i] << "\n";
         part_sizes[partvec[i]] += 1;
     }
 
-    for(int i = 0; i < part_sizes.size(); i++) {
-        std::cout << "c p " << i << " " << part_sizes[i] << "\n";
-    }
+    // for(int i = 0; i < part_sizes.size(); i++) {
+    //     std::cout << "c p " << i << " " << part_sizes[i] << "\n";
+    // }
 
     int nb_c = 0;
+    std::set<Variable> vprj;
     for(int i = 0; i < cnf.nb_clauses(); i++) {
         if(cnf.is_active(i)) {
             auto const& cl = cnf.clause(i);
@@ -136,40 +137,18 @@ int main(int argc, char *argv[]) {
 
             if(tmp.size() > 1) {
                 nb_c += 1;
-            }
-        }
-    }
-
-    for(int p = 0; p < nb_part; p++) {
-        std::set<int> clsi;
-
-        for(int j = 0; j < cnf.nb_clauses(); j++) {
-            if(cnf.is_active(j)) {
-                auto const& cl = cnf.clause(j);
-
-                bool tmp = std::any_of(cl.begin(), cl.end(), [&](Literal const& l) {
-                        return partvec[Variable(l).get()] != p;
-                        });
-
-                if(tmp) {
-                    cnf.set_active(j, false);
-                    clsi.insert(j);
+                for(auto const& l : cl) {
+                    vprj.insert(Variable(l));
                 }
             }
         }
-        std::string tmp_path = path + ".split" + std::to_string(p);
-        std::ofstream out(tmp_path);
-        out << cnf;
-        out.close();
-        std::cout << "p " << p << " " << "split" << p << "\n";
-
-        for(int j : clsi) {
-            cnf.set_active(j, true);
-        }
     }
 
-    std::cout << "s " << cost << "\n";
-    std::cout << "s2 " << nb_c << "\n";
+    std::cout << "c p show";
+    for(auto const& v : vprj) {
+        std::cout << " " << v;
+    }
+    std::cout << " 0\n";
 #endif
 
 #ifdef CIG
