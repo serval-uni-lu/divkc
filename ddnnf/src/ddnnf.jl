@@ -1,5 +1,3 @@
-include("var.jl")
-
 struct Edge
     b_lit :: Int64
     e_lit :: Int64
@@ -99,7 +97,7 @@ function add_child(nnf :: DDNNF, src :: Int64, dst :: Int64, cnst :: AbstractArr
     add_edge(nnf.nodes[src], e)
 end
 
-function parse(path :: String)
+function ddnnf_from_file(path :: String, pvar = Set{Var}())
     res = DDNNF([], [], [], [], [])
 
     for line in eachline(path)
