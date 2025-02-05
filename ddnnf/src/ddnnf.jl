@@ -174,7 +174,7 @@ get_mc(n, assumps :: Set{Lit} = Set{Lit}()) = n.mc
 get_mc(n :: TrueNode, assumps :: Set{Lit} = Set{Lit}()) = BigInt(1)
 get_mc(n :: FalseNode, assumps :: Set{Lit} = Set{Lit}()) = BigInt(0)
 
-get_mc(nnf :: DDNNF, i :: Int64, assumps :: Set{Lit} = Set{Lit}()) = get_mc(nnf.nodes[i])
+get_mc(nnf :: DDNNF, i :: Int64, assumps :: Set{Lit} = Set{Lit}()) = get_mc(nnf.nodes[i], assumps)
 # get_mc(nnf :: DDNNF, i :: Edge) = get_mc(nnf, i.child) * BigInt(2)^(i.e_free - i.b_free + 1)
 function get_mc(nnf :: DDNNF, i :: Edge, assumps :: Set{Lit} = Set{Lit}()) 
     for l in get_literals(nnf, i)
@@ -192,35 +192,35 @@ function get_mc(nnf :: DDNNF, i :: Edge, assumps :: Set{Lit} = Set{Lit}())
     return get_mc(nnf, i.child) * BigInt(2)^(nfree)
 end
 
-function annotate_mc(nnf :: DDNNF)
+function annotate_mc(nnf :: DDNNF, assumps :: Set{Lit} = Set{Lit}())
     for i in nnf.ordering
-        annotate_mc(nnf, nnf.nodes[i])
+        annotate_mc(nnf, nnf.nodes[i], assumps)
     end
 end
 
-function annotate_mc(nnf :: DDNNF, n :: FalseNode)
+function annotate_mc(nnf :: DDNNF, n :: FalseNode, assumps :: Set{Lit} = Set{Lit}())
 end
 
-function annotate_mc(nnf :: DDNNF, n :: TrueNode)
+function annotate_mc(nnf :: DDNNF, n :: TrueNode, assumps :: Set{Lit} = Set{Lit}())
 end
 
-function annotate_mc(nnf :: DDNNF, n :: UnaryNode)
-    n.mc = get_mc(nnf, n.child)
+function annotate_mc(nnf :: DDNNF, n :: UnaryNode, assumps :: Set{Lit} = Set{Lit}())
+    n.mc = get_mc(nnf, n.child, assumps)
 end
 
-function annotate_mc(nnf :: DDNNF, n :: OrNode)
+function annotate_mc(nnf :: DDNNF, n :: OrNode, assumps :: Set{Lit} = Set{Lit}())
     n.mc = BigInt(0)
 
     for c in n.children
-        n.mc += get_mc(nnf, c)
+        n.mc += get_mc(nnf, c, assumps)
     end
 end
 
-function annotate_mc(nnf :: DDNNF, n :: AndNode)
+function annotate_mc(nnf :: DDNNF, n :: AndNode, assumps :: Set{Lit} = Set{Lit}())
     n.mc = BigInt(1)
 
     for c in n.children
-        n.mc *= get_mc(nnf, c)
+        n.mc *= get_mc(nnf, c, assumps)
     end
 end
 
