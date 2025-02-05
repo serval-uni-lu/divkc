@@ -285,3 +285,57 @@ function compute_free_var(nnf :: DDNNF)
     end
     println("m ", m)
 end
+
+function sample(nnf :: DDNNF, s :: Vector{Lit}, n :: TrueNode)
+    return []
+end
+
+function sample(nnf :: DDNNF, s :: Vector{Lit}, n :: UnaryNode)
+    for l in get_literals(nnf, n.child)
+        push!(s, l)
+    end
+    for v in get_free_vars(nnf, n.child)
+        push!(s, mkLit(v, rand((true, false))))
+    end
+    return [n.child.child]
+end
+
+function sample(nnf :: DDNNF, s :: Vector{Lit}, n :: OrNode)
+    x = rand(BigInt(1):get_mc(n))
+    for c in n.children
+        cmc = get_mc(nnf, c)
+
+        if x <= cmc
+            for l in get_literals(nnf, c)
+                push!(s, l)
+            end
+            for v in get_free_vars(nnf, c)
+                push!(s, mkLit(v, rand((true, false))))
+            end
+            return [c.child]
+        else
+            x -= cmc
+        end
+    end
+end
+
+function sample(nnf :: DDNNF, s :: Vector{Lit}, n :: AndNode)
+    f(c) = c.child
+    return map(f, n.children)
+end
+
+# only works if annotate_mc has been calles with assumps an empty set
+function sample(nnf :: DDNNF)
+    stack = [Int64(1)]
+    res = Vector{Lit}()
+
+    while length(stack) > 0
+        x = pop!(stack)
+        y = sample(nnf, res, nnf.nodes[x])
+        for i in y
+            push!(stack, i)
+        end
+    end
+
+    return res
+end

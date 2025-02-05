@@ -30,3 +30,16 @@ function dac_from_file(path :: String)
 
     return DAC(vp, pnnf, unnf)
 end
+
+function appmc(dac :: DAC, N :: Int64)
+    sigma = BigInt(0)
+    for i in 1:N
+        s = Set(sample(dac.pnnf))
+        annotate_mc(dac.unnf, s)
+        ai = get_mc(dac.unnf, 1)
+        sigma += ai
+        println("a ", ai)
+    end
+
+    println("s ", get_mc(dac.pnnf, 1) * sigma / N)
+end
