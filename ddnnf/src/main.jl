@@ -1,4 +1,5 @@
 using BenchmarkTools
+using CairoMakie
 
 include("var.jl")
 include("ddnnf.jl")
@@ -11,7 +12,10 @@ println("su ", get_mc(dac.unnf, 1))
 # Set(sample(dac.pnnf))
 # @btime sample(dac.pnnf)
 
-appmc(dac, 1000)
+vr = appmc(dac, 1000)
+f = Figure()
+hist(f[1, 1], vr, bins = 25)
+save(ARGS[1] * ".png", f)
 
 # nnf = ddnnf_from_file("res.nnf")
 # annotate_mc(nnf)
