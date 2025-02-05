@@ -21,7 +21,14 @@ function dac_from_file(path :: String)
     end
 
     # proj ddnnf
-    # upper bound ddnnf
+    pnnf = ddnnf_from_file(path * ".pnnf", true, vp)
+    annotate_mc(pnnf)
+    println(get_mc(pnnf, 1))
 
-    return vp
+    # upper bound ddnnf
+    unnf = ddnnf_from_file(path * ".unnf")
+    annotate_mc(unnf)
+    println(get_mc(unnf, 1))
+
+    return DAC(vp, pnnf, unnf)
 end

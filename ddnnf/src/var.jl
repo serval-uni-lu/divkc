@@ -8,9 +8,11 @@ end
 
 mkVar(x :: Integer) = Var(Int32(abs(x) - 1))
 mkVar(x :: Lit) = Var(x.x >> 1)
+mkVar(x :: Var) = x
 
 mkLit(x :: Integer) = mkLit(mkVar(x), x < 0)
 mkLit(x :: Var, s :: Bool) = Lit(x.x << 1 | (s ? 1 : 0))
+mkLit(x :: Lit) = x
 
 toIndex(x :: Var) = x.x + 1
 toIndex(x :: Lit) = x.x + 1

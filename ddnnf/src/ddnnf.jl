@@ -97,7 +97,7 @@ function add_child(nnf :: DDNNF, src :: Int64, dst :: Int64, cnst :: AbstractArr
     add_edge(nnf.nodes[src], e)
 end
 
-function ddnnf_from_file(path :: String, pvar = Set{Var}())
+function ddnnf_from_file(path :: String, prj = false, pvar = Set{Var}())
     res = DDNNF([], [], [], [], [])
 
     for line in eachline(path)
@@ -117,15 +117,16 @@ function ddnnf_from_file(path :: String, pvar = Set{Var}())
 
             toint(x) = Base.parse(Int64, x)
             nonzero(x) = x != 0
+            keep(x) = (! prj ) || (mkVar(x) in pvar)
 
             src = toint(p1[1])
             dst = toint(p1[2])
 
-            cnst = map(mkLit, filter(nonzero, map(toint, p1[3:end])))
+            cnst = filter(keep, map(mkLit, filter(nonzero, map(toint, p1[3:end]))))
             free = Vector{Var}()
 
             if length(tmp) == 2
-                free = map(mkVar, filter(nonzero, map(toint, split(tmp[2], " "))))
+                free = filter(keep, map(mkVar, filter(nonzero, map(toint, split(tmp[2], " ")))))
             end
 
             add_child(res, src, dst, cnst, free)
