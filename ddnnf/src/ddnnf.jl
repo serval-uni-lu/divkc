@@ -167,11 +167,30 @@ function compute_ordering(nnf :: DDNNF)
     end
 end
 
-get_mc(n) = n.mc
-get_mc(n :: TrueNode) = BigInt(1)
-get_mc(n :: FalseNode) = BigInt(0)
-get_mc(nnf :: DDNNF, i :: Int64) = get_mc(nnf.nodes[i])
-get_mc(nnf :: DDNNF, i :: Edge) = get_mc(nnf, i.child) * BigInt(2)^(i.e_free - i.b_free + 1)
+get_free_vars(nnf :: DDNNF, i :: Edge) = @view nnf.freev[i.b_free : i.e_free]
+get_literals(nnf :: DDNNF, i :: Edge) = @view nnf.literals[i.b_lit : i.e_lit]
+
+get_mc(n, assumps :: Set{Lit} = Set{Lit}()) = n.mc
+get_mc(n :: TrueNode, assumps :: Set{Lit} = Set{Lit}()) = BigInt(1)
+get_mc(n :: FalseNode, assumps :: Set{Lit} = Set{Lit}()) = BigInt(0)
+
+get_mc(nnf :: DDNNF, i :: Int64, assumps :: Set{Lit} = Set{Lit}()) = get_mc(nnf.nodes[i])
+# get_mc(nnf :: DDNNF, i :: Edge) = get_mc(nnf, i.child) * BigInt(2)^(i.e_free - i.b_free + 1)
+function get_mc(nnf :: DDNNF, i :: Edge, assumps :: Set{Lit} = Set{Lit}()) 
+    for l in get_literals(nnf, i)
+        if (~l) in assumps
+            return 0
+        end
+    end
+    nfree = i.e_free - i.b_free + 1
+    for v in get_free_vars(nnf, i)
+        l = mkLit(v, false)
+        if (l in assumps) || ((~l) in assumps)
+            nfree -= 1
+        end
+    end
+    return get_mc(nnf, i.child) * BigInt(2)^(nfree)
+end
 
 function annotate_mc(nnf :: DDNNF)
     for i in nnf.ordering
