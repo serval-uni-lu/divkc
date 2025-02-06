@@ -73,6 +73,8 @@ def summarize(data, title):
     print(f"       1m : {(t <= 60).sum()}")
     print(f"      10m : {(t <= 600).sum()}")
     print(f"       1h : {(t <= 3600).sum()}")
+    print(f"  max mem : {m.max() / 1000}")
+    print(f" max time : {t.max()}")
 
 d4 = pd.read_csv(f"d4.csv", skipinitialspace = True)
 summarize(d4, "D4")
