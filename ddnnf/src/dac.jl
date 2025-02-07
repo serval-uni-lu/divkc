@@ -21,7 +21,10 @@ function dac_from_file(path :: String)
     end
 
     # proj ddnnf
-    pnnf = ddnnf_from_file(path * ".pnnf", true, vp)
+    # TODO
+    # potential bug in use of projection set
+    # pnnf = ddnnf_from_file(path * ".pnnf", true, vp)
+    pnnf = ddnnf_from_file(path * ".pnnf")
     annotate_mc(pnnf)
 
     # upper bound ddnnf
@@ -36,12 +39,14 @@ function appmc(dac :: DAC, N :: Int64)
     vr = Vector{BigInt}()
     X = Vector{Float64}()
 
+    keep(x) = mkVar(x) in dac.pvar
+
     mc = get_mc(dac.pnnf, 1)
     b = time()
     sigma = BigInt(0)
     n = 0
     for i in 1:N
-        s = Set(sample(dac.pnnf))
+        s = filter(keep, Set(sample(dac.pnnf)))
         annotate_mc(dac.unnf, s)
         ai = get_mc(dac.unnf, 1)
         n += 1
