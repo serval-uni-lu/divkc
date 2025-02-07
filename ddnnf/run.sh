@@ -2,6 +2,14 @@
 
 function run {
     splitter "$1" > "$1.log"
+    r=$(cat "$1.log")
+
+    if [ "$r" = "c p show 0" ] ; then
+        echo "empty split: $1"
+        rm "$1.log"
+        exit 0
+    fi
+
     cat "$1.log" "$1" > "$1.proj"
     r=$(proj "$1.proj")
     pmc=$(d4 -dDNNF "$1.proj.p" -out="$1.pnnf" | grep -E "^s " | sed 's/^s //g')
@@ -10,7 +18,7 @@ function run {
     rm "$1.proj"
     rm "$1.proj.p"
     rm "$1.proj.pup"
-    rm "$1.proj.pupp"
+    # rm "$1.proj.pupp"
 
     # if [ "${#pmc}" -lt 5 ] ; then
     #     echo "skipping $1"
