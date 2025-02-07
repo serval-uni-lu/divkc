@@ -8,7 +8,7 @@ function dac_from_file(path :: String)
     vp = Set{Var}()
 
     # parse log file
-    for line in eachline(path * ".log")
+    for line in eachline(path * ".proj.log")
         if startswith(line, "c p show ")
             tmp = map(strip, split(line[length("c p show "):end]))
 
@@ -23,8 +23,8 @@ function dac_from_file(path :: String)
     # proj ddnnf
     # TODO
     # potential bug in use of projection set
-    # pnnf = ddnnf_from_file(path * ".pnnf", true, vp)
-    pnnf = ddnnf_from_file(path * ".pnnf")
+    pnnf = ddnnf_from_file(path * ".pnnf", true, vp)
+    # pnnf = ddnnf_from_file(path * ".pnnf")
     annotate_mc(pnnf)
 
     # upper bound ddnnf

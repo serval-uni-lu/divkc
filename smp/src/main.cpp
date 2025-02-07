@@ -74,6 +74,13 @@ int main(int argc, char const** argv) {
     uppout << upp;
     uppout.close();
 
+    std::ofstream logout(path + ".log");
+    logout << "c p show ";
+    for(auto const & v : tprj) {
+        logout << v << " ";
+    }
+    logout << "0\n";
+
 #ifdef STATS
     print_stats(path, cnf);
 #endif
