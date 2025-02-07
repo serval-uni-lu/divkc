@@ -12,10 +12,15 @@ println("su ", get_mc(dac.unnf, 1))
 # Set(sample(dac.pnnf))
 # @btime sample(dac.pnnf)
 
-vr = appmc(dac, 1000)
+amc, vr, X, Y = appmc(dac, 10000)
 f = Figure()
-hist(f[1, 1], vr, bins = 25)
+a1 = Axis(f[1, 1])
+a2 = Axis(f[1, 2])
+hist!(a1, vr, bins = 25)
+scatterlines!(a2, X, Y)
 save(ARGS[1] * ".png", f)
+
+println("s ", amc)
 
 # nnf = ddnnf_from_file("res.nnf")
 # annotate_mc(nnf)

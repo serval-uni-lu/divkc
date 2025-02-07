@@ -32,16 +32,26 @@ function dac_from_file(path :: String)
 end
 
 function appmc(dac :: DAC, N :: Int64)
-    sigma = BigInt(0)
+    Y = Vector{BigFloat}()
     vr = Vector{BigInt}()
+    X = Vector{Float64}()
+
+    mc = get_mc(dac.pnnf, 1)
+    b = time()
+    sigma = BigInt(0)
+    n = 0
     for i in 1:N
         s = Set(sample(dac.pnnf))
         annotate_mc(dac.unnf, s)
         ai = get_mc(dac.unnf, 1)
-        push!(vr, ai)
+        n += 1
         sigma += ai
+
+        push!(Y, mc * sigma / n)
+        push!(X, time() - b)
+        push!(vr, ai)
     end
 
-    println("s ", get_mc(dac.pnnf, 1) * sigma / N)
-    return vr
+    # println("s ", get_mc(dac.pnnf, 1) * sigma / N)
+    return (mc * sigma / n, vr, X, Y)
 end
