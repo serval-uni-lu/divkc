@@ -39,6 +39,8 @@ function appmc(dac :: DAC, N :: Int64)
     vr = Vector{BigInt}()
     X = Vector{Float64}()
 
+    smc = Dict{Set{Lit}, BigInt}()
+
     keep(x) = mkVar(x) in dac.pvar
 
     mc = get_mc(dac.pnnf, 1)
@@ -49,6 +51,7 @@ function appmc(dac :: DAC, N :: Int64)
         s = filter(keep, Set(sample(dac.pnnf)))
         lunnf = annotate_mc(dac.unnf.nnf, s)
         ai = get_mc(lunnf, 1)
+        smc[s] = ai
         n += 1
         sigma += ai
 
@@ -56,7 +59,9 @@ function appmc(dac :: DAC, N :: Int64)
         push!(X, time() - b)
         push!(vr, ai)
     end
+    smc = collect(values(smc))
+    sort!(smc)
 
     # println("s ", get_mc(dac.pnnf, 1) * sigma / N)
-    return (mc * sigma / n, vr, X, Y)
+    return (mc * sigma / n, vr, X, Y, smc)
 end

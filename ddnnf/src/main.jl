@@ -13,14 +13,34 @@ println("su ", get_mc(dac.unnf, 1))
 # Set(sample(dac.pnnf))
 # @btime sample(dac.pnnf)
 
-amc, vr, X, Y = appmc(dac, 10000)
-f = Figure(size = (3000, 1500))
+amc, vr, X, Y, smc = appmc(dac, 10000)
+f = Figure(size = (4500, 1500))
 a1 = Axis(f[1, 1])
 a2 = Axis(f[1, 2])
+a3 = Axis(f[1, 3])
+
 hist!(a1, vr, bins = 100)
 scatterlines!(a2, X, Y, marker = :cross, strokewidth = 0, markersize = 5)
-save(ARGS[1] * ".png", f)
 
+smcx = Vector{Int64}()
+smcyl = Vector{BigFloat}()
+smcyh = Vector{BigFloat}()
+
+high = BigInt(0)
+low = BigInt(0)
+for i in 1:length(smc)
+    global high += smc[length(smc) + 1 - i]
+    global low += smc[i]
+
+    push!(smcx, i)
+    push!(smcyl, BigFloat(1) / BigFloat(low))
+    push!(smcyh, BigFloat(1) / BigFloat(high))
+end
+
+scatterlines!(a3, smcx, smcyl, marker = :cross, strokewidth = 0, markersize = 5)
+scatterlines!(a3, smcx, smcyh, marker = :cross, strokewidth = 0, markersize = 5)
+
+save(ARGS[1] * ".png", f)
 println("s ", amc)
 
 # nnf = ddnnf_from_file("res.nnf")

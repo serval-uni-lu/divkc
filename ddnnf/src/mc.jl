@@ -99,7 +99,7 @@ function sample(nnf :: ADDNNF, s :: Vector{Lit}, i :: Int64, n :: AndNode)
     return map(f, n.children)
 end
 
-# only works if annotate_mc has been calles with assumps an empty set
+# only works if annotate_mc has been called with assumps an empty set
 function sample(nnf :: ADDNNF)
     stack = [Int64(1)]
     res = Vector{Lit}()
