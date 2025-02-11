@@ -23,8 +23,7 @@ hist!(a1, vr, bins = 100)
 scatterlines!(a2, X, Y, marker = :cross, strokewidth = 0, markersize = 5)
 
 smcx = Vector{Int64}()
-smcyl = Vector{BigFloat}()
-smcyh = Vector{BigFloat}()
+smcy = Vector{BigFloat}()
 
 high = BigInt(0)
 low = BigInt(0)
@@ -33,12 +32,12 @@ for i in 1:length(smc)
     global low += smc[i]
 
     push!(smcx, i)
-    push!(smcyl, BigFloat(1) / BigFloat(low))
-    push!(smcyh, BigFloat(1) / BigFloat(high))
+    l = BigFloat(1) / BigFloat(low)
+    h = BigFloat(1) / BigFloat(high)
+    push!(smcy, l - h)
 end
 
-scatterlines!(a3, smcx, smcyl, marker = :cross, strokewidth = 0, markersize = 5)
-scatterlines!(a3, smcx, smcyh, marker = :cross, strokewidth = 0, markersize = 5)
+scatterlines!(a3, smcx, smcy, marker = :cross, strokewidth = 0, markersize = 5)
 
 save(ARGS[1] * ".png", f)
 println("s ", amc)
