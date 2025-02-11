@@ -13,7 +13,7 @@ println("su ", get_mc(dac.unnf, 1))
 # Set(sample(dac.pnnf))
 # @btime sample(dac.pnnf)
 
-amc, vr, X, Y, smc = appmc(dac, 10000)
+amc, vr, X, Y, smc = appmc(dac, 100000)
 f = Figure(size = (4500, 1500))
 a1 = Axis(f[1, 1])
 a2 = Axis(f[1, 2])
@@ -27,7 +27,7 @@ smcy = Vector{BigFloat}()
 
 high = BigInt(0)
 low = BigInt(0)
-for i in 1:length(smc)
+for i in 50:length(smc)
     global high += smc[length(smc) + 1 - i]
     global low += smc[i]
 

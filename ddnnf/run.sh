@@ -27,7 +27,7 @@ function run {
     #     exit 0
     # fi
 
-    op=$(julia "src/main.jl" "$1")
+    op=$(julia -t 4 "src/main.jl" "$1")
     jpmc=$(echo "$op" | grep -E "^sp " | sed 's/^sp //g')
     jumc=$(echo "$op" | grep -E "^su " | sed 's/^su //g')
     jamc=$(echo "$op" | grep -E "^s " | sed 's/^s //g')

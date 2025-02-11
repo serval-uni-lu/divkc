@@ -47,17 +47,23 @@ function appmc(dac :: DAC, N :: Int64)
     b = time()
     sigma = BigInt(0)
     n = 0
-    for i in 1:N
+
+    lck = ReentrantLock()
+
+    Threads.@threads for i in 1:N
         s = filter(keep, Set(sample(dac.pnnf)))
         lunnf = annotate_mc(dac.unnf.nnf, s)
         ai = get_mc(lunnf, 1)
-        smc[s] = ai
-        n += 1
-        sigma += ai
 
-        push!(Y, mc * sigma / n)
-        push!(X, time() - b)
-        push!(vr, ai)
+        lock(lck) do
+            smc[s] = ai
+            n += 1
+            sigma += ai
+
+            push!(Y, mc * sigma / n)
+            push!(X, time() - b)
+            push!(vr, ai)
+        end
     end
     smc = collect(values(smc))
     sort!(smc)
