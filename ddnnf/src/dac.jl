@@ -1,7 +1,7 @@
 struct DAC
     pvar :: Set{Var}
-    pnnf :: DDNNF
-    unnf :: DDNNF
+    pnnf :: ADDNNF
+    unnf :: ADDNNF
 end
 
 function dac_from_file(path :: String)
@@ -25,13 +25,13 @@ function dac_from_file(path :: String)
     # potential bug in use of projection set
     pnnf = ddnnf_from_file(path * ".pnnf", true, vp)
     # pnnf = ddnnf_from_file(path * ".pnnf")
-    annotate_mc(pnnf)
+    apnnf = annotate_mc(pnnf)
 
     # upper bound ddnnf
     unnf = ddnnf_from_file(path * ".unnf")
-    annotate_mc(unnf)
+    aunnf = annotate_mc(unnf)
 
-    return DAC(vp, pnnf, unnf)
+    return DAC(vp, apnnf, aunnf)
 end
 
 function appmc(dac :: DAC, N :: Int64)
@@ -47,8 +47,8 @@ function appmc(dac :: DAC, N :: Int64)
     n = 0
     for i in 1:N
         s = filter(keep, Set(sample(dac.pnnf)))
-        annotate_mc(dac.unnf, s)
-        ai = get_mc(dac.unnf, 1)
+        lunnf = annotate_mc(dac.unnf.nnf, s)
+        ai = get_mc(lunnf, 1)
         n += 1
         sigma += ai
 

@@ -3,6 +3,7 @@ using CairoMakie
 
 include("var.jl")
 include("ddnnf.jl")
+include("mc.jl")
 include("dac.jl")
 
 dac = dac_from_file(ARGS[1])

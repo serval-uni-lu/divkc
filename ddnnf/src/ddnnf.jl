@@ -8,30 +8,21 @@ struct Edge
 end
 
 mutable struct AndNode
-    mc :: BigInt
     children :: Vector{Edge}
 end
 
 mutable struct OrNode
-    mc :: BigInt
     children :: Vector{Edge}
 end
 
 mutable struct UnaryNode
-    mc :: BigInt
     child :: Union{Nothing, Edge}
 end
 
 struct TrueNode
-    mc :: BigInt
-
-    TrueNode() = new(1)
 end
 
 struct FalseNode
-    mc :: BigInt
-
-    FalseNode() = new(0)
 end
 
 const Node = Union{AndNode, OrNode, UnaryNode, TrueNode, FalseNode}
@@ -102,11 +93,11 @@ function ddnnf_from_file(path :: String, prj = false, pvar = Set{Var}())
 
     for line in eachline(path)
         if startswith(line, "o ")
-            push!(res.nodes, OrNode(0, []))
+            push!(res.nodes, OrNode([]))
         elseif startswith(line, "a ")
-            push!(res.nodes, AndNode(0, []))
+            push!(res.nodes, AndNode([]))
         elseif startswith(line, "u ")
-            push!(res.nodes, UnaryNode(0, nothing))
+            push!(res.nodes, UnaryNode(nothing))
         elseif startswith(line, "t ")
             push!(res.nodes, TrueNode())
         elseif startswith(line, "f ")
@@ -170,60 +161,6 @@ end
 get_free_vars(nnf :: DDNNF, i :: Edge) = @view nnf.freev[i.b_free : i.e_free]
 get_literals(nnf :: DDNNF, i :: Edge) = @view nnf.literals[i.b_lit : i.e_lit]
 
-get_mc(n, assumps :: Set{Lit} = Set{Lit}()) = n.mc
-get_mc(n :: TrueNode, assumps :: Set{Lit} = Set{Lit}()) = BigInt(1)
-get_mc(n :: FalseNode, assumps :: Set{Lit} = Set{Lit}()) = BigInt(0)
-
-get_mc(nnf :: DDNNF, i :: Int64, assumps :: Set{Lit} = Set{Lit}()) = get_mc(nnf.nodes[i], assumps)
-# get_mc(nnf :: DDNNF, i :: Edge) = get_mc(nnf, i.child) * BigInt(2)^(i.e_free - i.b_free + 1)
-function get_mc(nnf :: DDNNF, i :: Edge, assumps :: Set{Lit} = Set{Lit}()) 
-    for l in get_literals(nnf, i)
-        if (~l) in assumps
-            return 0
-        end
-    end
-    nfree = i.e_free - i.b_free + 1
-    for v in get_free_vars(nnf, i)
-        l = mkLit(v, false)
-        if (l in assumps) || ((~l) in assumps)
-            nfree -= 1
-        end
-    end
-    return get_mc(nnf, i.child) * BigInt(2)^(nfree)
-end
-
-function annotate_mc(nnf :: DDNNF, assumps :: Set{Lit} = Set{Lit}())
-    for i in nnf.ordering
-        annotate_mc(nnf, nnf.nodes[i], assumps)
-    end
-end
-
-function annotate_mc(nnf :: DDNNF, n :: FalseNode, assumps :: Set{Lit} = Set{Lit}())
-end
-
-function annotate_mc(nnf :: DDNNF, n :: TrueNode, assumps :: Set{Lit} = Set{Lit}())
-end
-
-function annotate_mc(nnf :: DDNNF, n :: UnaryNode, assumps :: Set{Lit} = Set{Lit}())
-    n.mc = get_mc(nnf, n.child, assumps)
-end
-
-function annotate_mc(nnf :: DDNNF, n :: OrNode, assumps :: Set{Lit} = Set{Lit}())
-    n.mc = BigInt(0)
-
-    for c in n.children
-        n.mc += get_mc(nnf, c, assumps)
-    end
-end
-
-function annotate_mc(nnf :: DDNNF, n :: AndNode, assumps :: Set{Lit} = Set{Lit}())
-    n.mc = BigInt(1)
-
-    for c in n.children
-        n.mc *= get_mc(nnf, c, assumps)
-    end
-end
-
 # incomplete
 function compute_free_var(nnf :: DDNNF)
     println("WARNING: usage of incomplete function compute_free_var")
@@ -286,56 +223,3 @@ function compute_free_var(nnf :: DDNNF)
     println("m ", m)
 end
 
-function sample(nnf :: DDNNF, s :: Vector{Lit}, n :: TrueNode)
-    return []
-end
-
-function sample(nnf :: DDNNF, s :: Vector{Lit}, n :: UnaryNode)
-    for l in get_literals(nnf, n.child)
-        push!(s, l)
-    end
-    for v in get_free_vars(nnf, n.child)
-        push!(s, mkLit(v, rand((true, false))))
-    end
-    return [n.child.child]
-end
-
-function sample(nnf :: DDNNF, s :: Vector{Lit}, n :: OrNode)
-    x = rand(BigInt(1):get_mc(n))
-    for c in n.children
-        cmc = get_mc(nnf, c)
-
-        if x <= cmc
-            for l in get_literals(nnf, c)
-                push!(s, l)
-            end
-            for v in get_free_vars(nnf, c)
-                push!(s, mkLit(v, rand((true, false))))
-            end
-            return [c.child]
-        else
-            x -= cmc
-        end
-    end
-end
-
-function sample(nnf :: DDNNF, s :: Vector{Lit}, n :: AndNode)
-    f(c) = c.child
-    return map(f, n.children)
-end
-
-# only works if annotate_mc has been calles with assumps an empty set
-function sample(nnf :: DDNNF)
-    stack = [Int64(1)]
-    res = Vector{Lit}()
-
-    while length(stack) > 0
-        x = pop!(stack)
-        y = sample(nnf, res, nnf.nodes[x])
-        for i in y
-            push!(stack, i)
-        end
-    end
-
-    return res
-end
