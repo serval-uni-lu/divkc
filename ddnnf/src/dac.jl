@@ -34,7 +34,19 @@ function dac_from_file(path :: String)
     return DAC(vp, apnnf, aunnf)
 end
 
-function appmc(dac :: DAC, N :: Int64)
+function cleanup(smc :: Dict{Set{Lit}, BigInt}, k :: Int64)
+    f(x) = x[2]
+    y = collect(smc)
+    sort!(y, by = f)
+
+    tl = y[k][2]
+    th = y[end-k][2]
+
+    p(x) = x[2] <= tl || x[2] >= th
+    filter!(p, smc)
+end
+
+function appmc(dac :: DAC, N :: Int64, k :: Int64)
     Y = Vector{BigFloat}()
     vr = Vector{BigInt}()
     X = Vector{Float64}()
@@ -56,13 +68,18 @@ function appmc(dac :: DAC, N :: Int64)
         ai = get_mc(lunnf, 1)
 
         lock(lck) do
-            smc[s] = ai
             n += 1
             sigma += ai
 
             push!(Y, mc * sigma / n)
             push!(X, time() - b)
             push!(vr, ai)
+
+            smc[s] = ai
+
+            if length(smc) >= 4 * k
+                cleanup(smc, k)
+            end
         end
     end
     smc = collect(values(smc))

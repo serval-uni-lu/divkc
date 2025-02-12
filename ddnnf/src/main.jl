@@ -13,7 +13,7 @@ println("su ", get_mc(dac.unnf, 1))
 # Set(sample(dac.pnnf))
 # @btime sample(dac.pnnf)
 
-amc, vr, X, Y, smc = appmc(dac, 100000)
+amc, vr, X, Y, smc = appmc(dac, 10000, 100)
 f = Figure(size = (4500, 1500))
 a1 = Axis(f[1, 1])
 a2 = Axis(f[1, 2])
