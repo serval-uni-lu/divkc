@@ -20,6 +20,8 @@ toIndex(x :: Lit) = x.x + 1
 mkReadable(x :: Var) = x.x + 1
 mkReadable(x :: Lit) = ((x.x >> 1) + 1) * (x.x & 1 == 1 ? -1 : 1)
 
+sign(x :: Lit) = x.x & 1
+
 function Base.:~(l :: Lit)
     return Lit(xor(l.x, 1))
 end

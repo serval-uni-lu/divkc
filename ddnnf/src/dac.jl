@@ -34,7 +34,7 @@ function dac_from_file(path :: String)
     return DAC(vp, apnnf, aunnf)
 end
 
-function cleanup(smc :: Dict{Set{Lit}, BigInt}, k :: Int64)
+function cleanup(smc :: Dict{BigInt, BigInt}, k :: Int64)
     f(x) = x[2]
     y = collect(smc)
     sort!(y, by = f)
@@ -46,12 +46,26 @@ function cleanup(smc :: Dict{Set{Lit}, BigInt}, k :: Int64)
     filter!(p, smc)
 end
 
+function map_model(m :: Set{Lit})
+    m = collect(m)
+    sort!(m, by = toIndex)
+
+    res = BigInt(0)
+    for i in m
+        res <<= 1
+        if sign(i) == 1
+            res += 1
+        end
+    end
+    return res
+end
+
 function appmc(dac :: DAC, N :: Int64, k :: Int64)
     Y = Vector{BigFloat}()
     vr = Vector{BigInt}()
     X = Vector{Float64}()
 
-    smc = Dict{Set{Lit}, BigInt}()
+    smc = Dict{BigInt, BigInt}()
 
     keep(x) = mkVar(x) in dac.pvar
 
@@ -63,7 +77,7 @@ function appmc(dac :: DAC, N :: Int64, k :: Int64)
     lck = ReentrantLock()
 
     Threads.@threads for i in 1:N
-        s = filter(keep, Set(sample(dac.pnnf)))
+        s = Set(sample(dac.pnnf))
         lunnf = annotate_mc(dac.unnf.nnf, s)
         ai = get_mc(lunnf, 1)
 
@@ -75,7 +89,7 @@ function appmc(dac :: DAC, N :: Int64, k :: Int64)
             push!(X, time() - b)
             push!(vr, ai)
 
-            smc[s] = ai
+            smc[map_model(s)] = ai
 
             if length(smc) >= 4 * k
                 cleanup(smc, k)
