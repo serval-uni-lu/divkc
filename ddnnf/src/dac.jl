@@ -91,7 +91,7 @@ function appmc(dac :: DAC, N :: Int64, k :: Int64)
 
             smc[map_model(s)] = ai
 
-            if length(smc) >= 4 * k
+            if length(smc) >= 3 * k
                 cleanup(smc, k)
             end
         end
@@ -100,5 +100,5 @@ function appmc(dac :: DAC, N :: Int64, k :: Int64)
     sort!(smc)
 
     # println("s ", get_mc(dac.pnnf, 1) * sigma / N)
-    return (mc * sigma / n, vr, X, Y, smc)
+    return (mc, mc * sigma / n, vr, X, Y, smc)
 end

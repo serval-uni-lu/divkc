@@ -43,6 +43,8 @@ function run {
 
     rm "$1.pnnf"
     rm "$1.unnf"
+
+    echo "$op"
 }
 export -f run
 
