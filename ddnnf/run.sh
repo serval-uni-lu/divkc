@@ -16,9 +16,9 @@ function run {
     umc=$(d4 -dDNNF "$1.proj.pup" -out="$1.unnf" | grep -E "^s " | sed 's/^s //g')
 
     rm "$1.proj"
-    rm "$1.proj.p"
-    rm "$1.proj.pup"
-    # rm "$1.proj.pupp"
+    # rm "$1.proj.p"
+    # rm "$1.proj.pup"
+    rm "$1.proj.pupp"
 
     # if [ "${#pmc}" -lt 5 ] ; then
     #     echo "skipping $1"

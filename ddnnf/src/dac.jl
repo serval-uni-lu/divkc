@@ -85,7 +85,7 @@ function appmc(dac :: DAC, N :: Int64, k :: Int64)
             n += 1
             sigma += ai
 
-            push!(Y, mc * sigma / n)
+            push!(Y, div(mc * sigma, n))
             push!(X, time() - b)
             push!(vr, ai)
 
@@ -100,5 +100,5 @@ function appmc(dac :: DAC, N :: Int64, k :: Int64)
     sort!(smc)
 
     # println("s ", get_mc(dac.pnnf, 1) * sigma / N)
-    return (mc, mc * sigma / n, vr, X, Y, smc)
+    return (mc, div(mc * sigma, n), vr, X, Y, smc)
 end
