@@ -115,3 +115,117 @@ function sample(nnf :: ADDNNF)
 
     return res
 end
+
+function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64, n :: TrueNode)
+    return []
+end
+
+function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64, n :: FalseNode)
+    return []
+end
+
+function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64, n :: UnaryNode)
+    for l in get_literals(nnf.nnf, n.child)
+        push!(s, l)
+    end
+    mc = get_mc(nnf, i)
+    for v in get_free_vars(nnf.nnf, n.child)
+        l = mkLit(v, false)
+        if (l in nnf.assumps)
+            push!(s, l)
+        elseif ((~l) in nnf.assumps)
+            push!(s, ~l)
+        elseif id <= (mc / 2)
+            push!(s, l)
+            mc /= 2
+        else
+            mc /= 2
+            id -= mc
+            push!(s, ~l)
+        end
+    end
+    if id > get_mc(n.child.child)
+        println("u ", id, " >= ", get_mc(n.child.child))
+    end
+    return [(id, n.child.child)]
+end
+
+function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64, n :: OrNode)
+    if id > get_mc(nnf, i)
+        println("o ", id, " <= ", get_mc(nnf, i))
+    end
+    for c in n.children
+        cmc = get_mc(nnf, c)
+
+        if id <= cmc
+            for l in get_literals(nnf.nnf, c)
+                push!(s, l)
+            end
+
+            for v in get_free_vars(nnf.nnf, c)
+                l = mkLit(v, false)
+                if (l in nnf.assumps)
+                    push!(s, l)
+                elseif ((~l) in nnf.assumps)
+                    push!(s, ~l)
+                elseif id <= (cmc / 2)
+                    push!(s, l)
+                    cmc /= 2
+                else
+                    cmc /= 2
+                    id -= cmc
+                    push!(s, ~l)
+                end
+            end
+
+            if id > get_mc(nnf, c.child)
+                println("- o ", id, " >= ", get_mc(nnf, c.child))
+            end
+
+            return [(id, c.child)]
+        else
+            id -= cmc
+        end
+    end
+
+    # return [(id, n.child.child)]
+end
+
+function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64, n :: AndNode)
+    res = Vector{Tuple{BigInt, Int64}}()
+
+    tmc = get_mc(nnf, i)
+    if id > tmc
+        println("a ", id, " <= ", tmc)
+    end
+    for c in n.children
+        cmc = get_mc(nnf, c)
+
+        x = ((id - 1) % cmc) + 1
+        y = div(id - 1, cmc) + 1
+
+        if x > cmc
+            println("- a ", id, " <= ", tmc)
+        end
+
+        push!(res, (x, c.child))
+        id = y
+    end
+
+    return res
+end
+
+function get_solution(nnf :: ADDNNF, id :: BigInt)
+    stack = [(id, Int64(1))]
+    res = Vector{Lit}()
+
+    while length(stack) > 0
+        lid, x = pop!(stack)
+        y = get_solution(nnf, res, lid, x, nnf.nnf.nodes[x])
+        for i in y
+            push!(stack, i)
+        end
+    end
+
+    return res
+end

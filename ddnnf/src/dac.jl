@@ -102,3 +102,21 @@ function appmc(dac :: DAC, N :: Int64, k :: Int64)
     # println("s ", get_mc(dac.pnnf, 1) * sigma / N)
     return (mc, div(mc * sigma, n), vr, X, Y, smc)
 end
+
+function emc(dac :: DAC)
+    mc = get_mc(dac.pnnf, 1)
+    lck = ReentrantLock()
+    sigma = BigInt(0)
+
+    Threads.@threads for i in BigInt(1):mc
+        s = Set(get_solution(dac.pnnf, i))
+        lunnf = annotate_mc(dac.unnf.nnf, s)
+        ai = get_mc(lunnf, 1)
+
+        lock(lck) do
+            sigma += ai
+        end
+    end
+
+    return sigma
+end
