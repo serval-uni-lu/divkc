@@ -17,8 +17,8 @@ dac = dac_from_file(ARGS[1])
 #     global TMC = data.mc[1]
 # end
 # 
-# println("sp ", get_mc(dac.pnnf, 1))
-# println("su ", get_mc(dac.unnf, 1))
+println("sp ", get_mc(dac.pnnf, 1))
+println("su ", get_mc(dac.unnf, 1))
 # 
 # # Set(sample(dac.pnnf))
 # # @btime sample(dac.pnnf)
@@ -87,4 +87,4 @@ dac = dac_from_file(ARGS[1])
 
 tmp = emc(dac)
 println("cmc ", tmp)
-println("tmc ", TMC)
+# println("tmc ", TMC)

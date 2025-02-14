@@ -27,22 +27,24 @@ function run {
     #     exit 0
     # fi
 
-    op=$(julia -t 4 "src/main.jl" "$1")
+    op=$(julia -t 6 "src/main.jl" "$1")
     jpmc=$(echo "$op" | grep -E "^sp " | sed 's/^sp //g')
     jumc=$(echo "$op" | grep -E "^su " | sed 's/^su //g')
     jamc=$(echo "$op" | grep -E "^s " | sed 's/^s //g')
 
     if [ "$pmc" != "$jpmc" ] ; then
-        echo "$1, pmc, $pmc, $jpmc"
+        echo "$1, pmc err, $pmc, $jpmc"
     fi
     if [ "$umc" != "$jumc" ] ; then
-        echo "$1, umc, $umc, $jumc"
+        echo "$1, umc err, $umc, $jumc"
     fi
 
     echo "$1, $pmc, $umc, $jamc"
 
     rm "$1.pnnf"
     rm "$1.unnf"
+
+    echo "----"
 
     echo "$op"
 }
