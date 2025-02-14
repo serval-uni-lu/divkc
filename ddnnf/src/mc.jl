@@ -1,18 +1,19 @@
 struct ADDNNF
     nnf :: DDNNF
+    assumps :: Set{Lit}
     mc :: Vector{BigInt}
 end
 
-function get_mc(nnf :: ADDNNF, e :: Edge, assumps :: Set{Lit} = Set{Lit}())
+function get_mc(nnf :: ADDNNF, e :: Edge)
     for l in get_literals(nnf.nnf, e)
-        if (~l) in assumps
+        if (~l) in nnf.assumps
             return 0
         end
     end
     nfree = e.e_free - e.b_free + 1
     for v in get_free_vars(nnf.nnf, e)
         l = mkLit(v, false)
-        if (l in assumps) || ((~l) in assumps)
+        if (l in nnf.assumps) || ((~l) in nnf.assumps)
             nfree -= 1
         end
     end
@@ -22,40 +23,40 @@ end
 get_mc(nnf :: ADDNNF, i :: Int64) = nnf.mc[i]
 
 function annotate_mc(nnf :: DDNNF, assumps :: Set{Lit} = Set{Lit}())
-    res = ADDNNF(nnf, Vector{BigInt}(undef, length(nnf.nodes)))
+    res = ADDNNF(nnf, assumps, Vector{BigInt}(undef, length(nnf.nodes)))
 
     for i in nnf.ordering
-        annotate_mc(res, i, nnf.nodes[i], assumps)
+        annotate_mc(res, i, nnf.nodes[i])
     end
 
     return res
 end
 
-function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: FalseNode, assumps :: Set{Lit})
+function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: FalseNode)
     nnf.mc[i] = 0
 end
 
-function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: TrueNode, assumps :: Set{Lit})
+function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: TrueNode)
     nnf.mc[i] = 1
 end
 
-function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: UnaryNode, assumps :: Set{Lit})
-    nnf.mc[i] = get_mc(nnf, n.child, assumps)
+function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: UnaryNode)
+    nnf.mc[i] = get_mc(nnf, n.child)
 end
 
-function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: OrNode, assumps :: Set{Lit})
+function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: OrNode)
     nnf.mc[i] = 0
 
     for c in n.children
-        nnf.mc[i] += get_mc(nnf, c, assumps)
+        nnf.mc[i] += get_mc(nnf, c)
     end
 end
 
-function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: AndNode, assumps :: Set{Lit})
+function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: AndNode)
     nnf.mc[i] = 1
 
     for c in n.children
-        nnf.mc[i] *= get_mc(nnf, c, assumps)
+        nnf.mc[i] *= get_mc(nnf, c)
     end
 end
 

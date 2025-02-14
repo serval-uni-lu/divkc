@@ -23,7 +23,7 @@ println("su ", get_mc(dac.unnf, 1))
 # Set(sample(dac.pnnf))
 # @btime sample(dac.pnnf)
 
-pmc, amc, vr, X, Y, smc = appmc(dac, 100000, 200)
+pmc, amc, vr, X, Y, smc = appmc(dac, 1000, 200)
 f = Figure(size = (3000, 3000))
 a1 = Axis(f[1, 1], title = "c_i distribution", xlabel = "c_i")
 a2 = Axis(f[1, 2], title = "ApproxMC", xlabel = "time (s)")
