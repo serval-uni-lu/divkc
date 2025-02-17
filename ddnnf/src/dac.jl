@@ -142,5 +142,5 @@ function appmc2(dac :: DAC, N :: Int64)
         end
     end
 
-    return mc * estimate / N
+    return mc * estimate / N, (N / estimate) / mc
 end

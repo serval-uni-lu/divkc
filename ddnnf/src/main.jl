@@ -31,7 +31,7 @@ a2 = Axis(f[1, 2], title = "ApproxMC", xlabel = "time (s)")
 a3 = Axis(f[2, 1], title = "hp - lp", xlabel = "k")
 a4 = Axis(f[2, 2], title = "epsilon estimate", xlabel = "k (|R_P| = $pmc)")
 
-amc2 = appmc2(dac, 1000)
+amc2, pp = appmc2(dac, 1000)
 
 uniformp = BigFloat(1) / BigFloat(TMC)
 
@@ -80,6 +80,9 @@ end
 if TMC != -1
     scatterlines!(a2, [X[begin], X[end]], [TMC, TMC], color = :black)
     scatterlines!(a4, smcx, py, marker = :cross, strokewidth = 0, markersize = 5)
+
+    ppy = max((1 / (TMC * pp)) - 1, (TMC * pp) - 1)
+    scatterlines!(a4, [50, 200], [ppy, ppy], color = :black)
 end
 
 scatterlines!(a2, [X[begin], X[end]], [amc2, amc2], color = :red)
