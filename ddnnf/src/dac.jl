@@ -120,3 +120,27 @@ function emc(dac :: DAC)
 
     return sigma
 end
+
+function appmc2(dac :: DAC, N :: Int64)
+    m = Set{BigInt}()
+    mc = get_mc(dac.pnnf, 1)
+    N = min(mc, BigInt(N))
+    
+    while length(m) < N
+        push!(m, rand(BigInt(1):mc))
+    end
+
+    estimate = BigInt(1)
+    lck = ReentrantLock()
+    Threads.@threads for id in collect(m)
+        s = Set(get_solution(dac.pnnf, id))
+        lunnf = annotate_mc(dac.unnf.nnf, s)
+        ai = get_mc(lunnf, 1)
+
+        lock(lck) do
+            estimate += ai
+        end
+    end
+
+    return mc * estimate / N
+end
