@@ -43,7 +43,7 @@ int main(int argc, char const** argv) {
     std::string const path(argv[1]);
     CNF cnf(path.c_str());
     cnf.simplify();
-    cnf.subsumption();
+    // cnf.subsumption();
     CNF up(cnf);
     CNF upp(cnf);
 

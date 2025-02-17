@@ -100,7 +100,7 @@ inline std::ostream & operator<<(std::ostream & out, Variable const& v) {
 
 struct Clause {
     private:
-    // std::set<Literal> c;
+    //std::set<Literal> c;
     std::vector<Literal> c;
 
     public:
@@ -131,13 +131,13 @@ struct Clause {
 
     inline auto const& operator[](std::size_t i) const {
         return c[i];
-        // for(auto const& l : c){
-        //     if(i == 0) {
-        //         return l;
-        //     }
-        //     i--;
-        // }
-        // throw std::out_of_range ("Clause[i] i is out of range");
+        //for(auto const& l : c){
+            //if(i == 0) {
+                //return l;
+            //}
+            //i--;
+        //}
+        //throw std::out_of_range ("Clause[i] i is out of range");
     }
 };
 
@@ -168,6 +168,8 @@ class CNF {
         std::vector<std::size_t> available_ids;
 
         std::size_t nb_active = 0;
+
+        void compute_idx();
 
     public:
         CNF() = default;

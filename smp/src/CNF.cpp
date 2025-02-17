@@ -55,7 +55,7 @@ void Clause::push(Literal const& l) {
 }
 
 void Clause::remove(Literal const& l) {
-    // c.erase(l);
+    //c.erase(l);
     auto it = std::remove(c.begin(), c.end(), l);
     c.erase(it, c.end());
 }
@@ -65,8 +65,8 @@ void Clause::remove(Variable const& v) {
     //c.erase(l);
     //c.erase(~l);
     auto it = std::remove_if(c.begin(), c.end(), [&](auto const& l) {
-            return Variable(l) == v;
-            });
+          return Variable(l) == v;
+          });
     c.erase(it, c.end());
 }
 
@@ -80,13 +80,13 @@ bool Clause::contains(Literal const& l) const {
         }
     }
     return false;
-    // return c.find(l) != c.end();
+    //return c.find(l) != c.end();
 }
 
 bool Clause::contains(Clause const& cls) const {
-    // return std::all_of(cls.c.begin(), cls.c.end(), [this](auto const& l) {
-    //     return contains(l);
-    // });
+    //return std::all_of(cls.c.begin(), cls.c.end(), [this](auto const& l) {
+    //    return contains(l);
+    //});
     auto itl = begin();
     auto itcls = cls.begin();
 
@@ -268,6 +268,22 @@ std::ostream & operator<<(std::ostream & out, CNF const& cnf) {
 }
 
 void CNF::simplify() {
+    for(std::size_t id = 0; id < clauses.size(); id++) {
+        if(active[id]) {
+            bool trivial = false;
+            for(auto const& l : clauses[id]) {
+                if(clauses[id].contains(~l)) {
+                    trivial = true;
+                    break;
+                }
+            }
+
+            if(trivial) {
+                rm_clause(id);
+            }
+        }
+    }
+
     bool change = true;
     while(change) {
         change = false;
@@ -481,7 +497,7 @@ void CNF::rm_clause(std::size_t id) {
  */
 void CNF::forget(Variable v) {
     auto const& lp = Literal(v, 1);
-    auto const& ln = Literal(v, -1);
+    auto const& ln = ~lp;
 
     if(units.find(lp) != units.end()) {
         units.erase(lp);
@@ -577,6 +593,7 @@ void CNF::project() {
         auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(ed - st);
 
         dign.insert(v);
+        // compute_idx();
 
         //std::cerr << "c nf " << nbf << " ; nba " << nb_active << "\n";
 
@@ -620,4 +637,17 @@ std::set<Variable> CNF::inplace_upper_bound(std::set<Variable> const& v) {
     }
 
     return res;
+}
+
+void CNF::compute_idx() {
+    for(auto & i : idx) {
+        i.clear();
+    }
+    for(std::size_t id = 0; id < clauses.size(); id++) {
+        if(active[id]) {
+            for(auto const& l : clauses[id]) {
+                idx[l.get()].insert(id);
+            }
+        }
+    }
 }
