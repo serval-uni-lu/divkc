@@ -144,8 +144,8 @@ function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64,
             push!(s, ~l)
         end
     end
-    if id > get_mc(n.child.child)
-        println("u ", id, " >= ", get_mc(n.child.child))
+    if id > get_mc(nnf, n.child.child)
+        println("u ", id, " >= ", get_mc(nnf, n.child.child))
     end
     return [(id, n.child.child)]
 end
