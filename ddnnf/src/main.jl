@@ -75,9 +75,9 @@ for i in 1:length(smc)
     end
 end
 
-mie, mae, mapp, mipp = appmc2(dac, 50, 1000)
-println("mie ", mie)
-println("mae ", mae)
+mie, mae, pp = appmc2(dac, 50, 1000)
+println("mie ", minimum(pp))
+println("mae ", maximum(pp))
 
 scatterlines!(a2, [X[begin], X[end]], [mie, mae], color = :red)
 
@@ -85,12 +85,14 @@ if TMC != -1
     scatterlines!(a2, [X[begin], X[end]], [TMC, TMC], color = :black)
     # scatterlines!(a4, smcx, py, marker = :cross, strokewidth = 0, markersize = 5)
 
-    ppy1 = max((1 / (TMC * mapp)) - 1, (TMC * mapp) - 1)
-    ppy2 = max((1 / (TMC * mipp)) - 1, (TMC * mipp) - 1)
-    scatterlines!(a4, [50, 200], [ppy1, ppy2], color = :red)
+    # ppy1 = max((1 / (TMC * mapp)) - 1, (TMC * mapp) - 1)
+    # ppy2 = max((1 / (TMC * mipp)) - 1, (TMC * mipp) - 1)
+    ppy = map(maximum, zip(1 ./ (TMC .* pp) .- 1, (TMC .* pp) .- 1))
+    # scatterlines!(a4, [50, 200], [ppy1, ppy2], color = :red)
+    hist!(a4, ppy, bins = 100)
 
-    println("el ", min(ppy1, ppy2))
-    println("eh ", max(ppy1, ppy2))
+    println("el ", minimum(ppy))
+    println("eh ", maximum(ppy))
 end
 
 # scatterlines!(a2, [X[begin], X[end]], [amc2, amc2], color = :red)

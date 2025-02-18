@@ -123,12 +123,11 @@ end
 
 function appmc2(dac :: DAC, N :: Int64, k :: Int64)
     mc = get_mc(dac.pnnf, 1)
-    umc = get_mc(dac.unnf, 1)
     N = min(mc, BigInt(N))
 
     lck = ReentrantLock()
-    mie = mc * umc
-    mae = BigInt(1)
+
+    eps = Vector{BigInt}()
     
     Threads.@threads for i in 1:k
         m = Set{BigInt}()
@@ -146,10 +145,11 @@ function appmc2(dac :: DAC, N :: Int64, k :: Int64)
         end
 
         lock(lck) do
-            mie = min(mie, estimate)
-            mae = max(mae, estimate)
+            push!(eps, estimate)
         end
     end
 
-    return mc * mie / N, mc * mae / N, (N / mie) / mc, (N / mae) / mc
+    mie = minimum(eps)
+    mae = maximum(eps)
+    return mc * mie / N, mc * mae / N, (N ./ eps) ./ mc
 end
