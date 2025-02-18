@@ -32,6 +32,11 @@ function run {
     jumc=$(echo "$op" | grep -E "^su " | sed 's/^su //g')
     jamc=$(echo "$op" | grep -E "^s " | sed 's/^s //g')
 
+    el=$(echo "$op" | grep -E "^el " | sed 's/^el //g')
+    eh=$(echo "$op" | grep -E "^eh " | sed 's/^eh //g')
+    mie=$(echo "$op" | grep -E "^mie " | sed 's/^mie //g')
+    mae=$(echo "$op" | grep -E "^mae " | sed 's/^mae //g')
+
     if [ "$pmc" != "$jpmc" ] ; then
         echo "$1, pmc err, $pmc, $jpmc"
     fi
@@ -39,7 +44,7 @@ function run {
         echo "$1, umc err, $umc, $jumc"
     fi
 
-    echo "$1, $pmc, $umc, $jamc"
+    echo "$1, $pmc, $umc, $jamc, $el, $eh, $mie, $mae"
 
     rm "$1.pnnf"
     rm "$1.unnf"
