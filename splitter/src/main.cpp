@@ -99,8 +99,8 @@ std::vector<int> split(CNF const& cnf, int const nb_part, int & cost) {
 }
 
 int main(int argc, char *argv[]) {
-    if(argc != 2) {
-        std::cerr << "usage: splitter <path to DIMACS cnf>\n";
+    if(argc != 3) {
+        std::cerr << "usage: splitter <path to DIMACS cnf> <nb partitions>\n";
         return 1;
     }
     std::string path(argv[1]);
