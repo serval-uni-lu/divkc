@@ -105,8 +105,8 @@ int main(int argc, char *argv[]) {
     }
     std::string path(argv[1]);
     //int const s_size = std::stoi(argv[2]);
-    //int const nb_part = std::stoi(argv[2]);
-    int const nb_part = 2;
+    int const nb_part = std::stoi(argv[2]);
+    // int const nb_part = 2;
     int cost;
     CNF cnf(path.c_str());
     //int const nb_part = ceil(cnf.get_nb_vars() / (double)s_size);
