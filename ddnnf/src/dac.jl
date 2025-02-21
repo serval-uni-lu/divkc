@@ -153,3 +153,32 @@ function appmc2(dac :: DAC, N :: Int64, k :: Int64)
     mae = maximum(eps)
     return mc * mie / N, mc * mae / N, (N ./ eps) ./ mc
 end
+
+function applb(dac :: DAC, N :: Int64, k :: Int64, a :: Float64)
+    mc = BigFloat(get_mc(dac.pnnf, 1) * get_mc(dac.unnf, 1))
+    lck = ReentrantLock()
+
+    k = min(BigInt(k), get_mc(dac.pnnf, 1))
+
+    for i in 1:N
+        m = Set{BigInt}()
+        while length(m) < k
+            push!(m, rand(BigInt(1):get_mc(dac.pnnf, 1)))
+        end
+
+        lmc = BigInt(0)
+        for id in collect(m)
+            s = Set(get_solution(dac.pnnf, id))
+            lunnf = annotate_mc(dac.unnf.nnf, s)
+            ai = get_mc(lunnf, 1)
+            lmc += ai
+        end
+
+        lmc = get_mc(dac.pnnf, 1) * lmc / (k * 2^a)
+        lock(lck) do
+            mc = min(mc, lmc)
+        end
+    end
+
+    return mc
+end
