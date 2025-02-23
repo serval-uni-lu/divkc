@@ -60,47 +60,32 @@ function map_model(m :: Set{Lit})
     return res
 end
 
-function appmc(dac :: DAC, N :: Int64, k :: Int64)
+function appmc(dac :: DAC, N :: Int64)
     Y = Vector{BigFloat}()
-    vr = Vector{BigInt}()
-    X = Vector{Float64}()
+    L = Vector{BigInt}()
+    Yl = Vector{BigFloat}()
+    Yh = Vector{BigFloat}()
 
-    smc = Dict{BigInt, BigInt}()
+    total = BigInt(0)
+    z = quantile(Normal(), 1 - 0.05)
 
-    keep(x) = mkVar(x) in dac.pvar
-
-    mc = get_mc(dac.pnnf, 1)
-    b = time()
-    sigma = BigInt(0)
-    n = 0
-
-    lck = ReentrantLock()
-
-    Threads.@threads for i in 1:N
+    for i in 1:N
         s = Set(sample(dac.pnnf))
         lunnf = annotate_mc(dac.unnf.nnf, s)
-        ai = get_mc(lunnf, 1)
+        ai = get_mc(lunnf, 1) * get_mc(dac.pnnf, 1)
+        total += ai
+        m = total / i
+        push!(L, ai)
 
-        lock(lck) do
-            n += 1
-            sigma += ai
+        var = sum((L .- m) .^ 2) / (i - 1)
+        sd = sqrt(var) / sqrt(i)
 
-            push!(Y, div(mc * sigma, n))
-            push!(X, time() - b)
-            push!(vr, ai)
-
-            smc[map_model(s)] = ai
-
-            if length(smc) >= 3 * k
-                cleanup(smc, k)
-            end
-        end
+        push!(Y, m)
+        push!(Yl, m - z * sd)
+        push!(Yh, m + z * sd)
     end
-    smc = collect(values(smc))
-    sort!(smc)
 
-    # println("s ", get_mc(dac.pnnf, 1) * sigma / N)
-    return (mc, div(mc * sigma, n), vr, X, Y, smc)
+    return Y, Yl, Yh
 end
 
 function emc(dac :: DAC)
