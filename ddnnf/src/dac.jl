@@ -63,29 +63,41 @@ end
 function appmc(dac :: DAC, N :: Int64)
     Y = Vector{BigFloat}()
     L = Vector{BigInt}()
-    Yl = Vector{BigFloat}()
-    Yh = Vector{BigFloat}()
+    # Yl = Vector{BigFloat}()
+    # Yh = Vector{BigFloat}()
+    S = Vector{BigFloat}()
 
     total = BigInt(0)
     z = quantile(Normal(), 1 - 0.05)
 
-    for i in 1:N
+    lck = ReentrantLock()
+
+    Threads.@threads for i in 1:N
+    # Threads.@threads for id in rand(BigInt(1) : get_mc(dac.pnnf, 1), N)
         s = Set(sample(dac.pnnf))
+        # s = Set(get_solution(dac.pnnf, id))
         lunnf = annotate_mc(dac.unnf.nnf, s)
         ai = get_mc(lunnf, 1) * get_mc(dac.pnnf, 1)
-        total += ai
-        m = total / i
-        push!(L, ai)
 
-        var = sum((L .- m) .^ 2) / (i - 1)
-        sd = sqrt(var) / sqrt(i)
 
-        push!(Y, m)
-        push!(Yl, m - z * sd)
-        push!(Yh, m + z * sd)
+        lock(lck) do
+            li = length(Y) + 1
+            total += ai
+            m = total / li
+            push!(L, ai)
+
+            var = sum((L .- m) .^ 2) / (li - 1)
+            sd = sqrt(var) / sqrt(li)
+
+            push!(Y, m)
+            # push!(Yl, m - z * sd)
+            # push!(Yh, m + z * sd)
+            push!(S, sd)
+        end
     end
 
-    return Y, Yl, Yh
+    # return Y, Yl, Yh
+    return Y, Y .- z .* S, Y .+ z .* S
 end
 
 function emc(dac :: DAC)
