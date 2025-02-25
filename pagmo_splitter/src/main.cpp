@@ -29,7 +29,7 @@ struct Prob {
             res += c;
         }
 
-        if(res == 0 || res >= 0.8 * v.size()) {
+        if(res == 0 || res >= 0.7 * v.size()) {
             return {std::numeric_limits<double>::max()};
         }
 
