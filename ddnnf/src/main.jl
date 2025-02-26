@@ -3,6 +3,7 @@ using CairoMakie
 using DataFrames
 using CSV
 using Distributions
+using DataStructures
 
 include("var.jl")
 include("ddnnf.jl")
@@ -21,20 +22,30 @@ end
 
 println("sp ", get_mc(dac.pnnf, 1))
 println("su ", get_mc(dac.unnf, 1))
-println("sl ", applb(dac, 500, 300, 0.01))
+# println("sl ", applb(dac, 500, 300, 0.01))
 
-Y, Yl, Yh = appmc(dac, 10000)
-X = 1:length(Y)
+vl, vh, l, h = eps(dac, 20000, 1000)
+println(l)
+println(h)
 
-f = Figure(size = (1000, 1000))
+X = 1:length(vl)
+
+# Y, Yl, Yh = appmc(dac, 1000)
+# X = 1:length(Y)
+
+f = Figure(size = (2000, 1000))
 a1 = Axis(f[1, 1])
-scatterlines!(a1, X, Y, marker = :cross, markersize = 5)
-scatterlines!(a1, X, Yl, marker = :cross, markersize = 5)
-scatterlines!(a1, X, Yh, marker = :cross, markersize = 5)
+a2 = Axis(f[1, 2])
+scatterlines!(a1, X, vl, marker = :cross, markersize = 5)
+scatterlines!(a2, X, vh, marker = :cross, markersize = 5)
+# scatterlines!(a1, X, Y, marker = :cross, markersize = 5)
+# scatterlines!(a1, X, Yl, marker = :cross, markersize = 5)
+# scatterlines!(a1, X, Yh, marker = :cross, markersize = 5)
 
-if TMC != -1
-    scatterlines!(a1, [X[begin], X[end]], [TMC, TMC])
-end
+# if TMC != -1
+#     scatterlines!(a1, [X[begin], X[end]], [TMC, TMC])
+# end
 save(ARGS[1] * ".png", f)
 
-println("s ", Y[end])
+# println("s ", Y[end])
+

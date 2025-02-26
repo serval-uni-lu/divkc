@@ -179,3 +179,37 @@ function applb(dac :: DAC, N :: Int64, k :: Int64, a :: Float64)
 
     return mc
 end
+
+function eps(dac :: DAC, N :: Int64, k :: Int64)
+    low = PriorityQueue{BigInt, BigInt}(Base.Order.ReverseOrdering())
+    high = PriorityQueue{BigInt, BigInt}()
+
+    v1 = Vector{BigInt}()
+    v2 = Vector{BigInt}()
+
+    lck = ReentrantLock()
+
+    Threads.@threads for i in 1:N
+        id = rand(BigInt(1) : get_mc(dac.pnnf, 1))
+        s = Set(get_solution(dac.pnnf, id))
+        lunnf = annotate_mc(dac.unnf.nnf, s)
+        ai = get_mc(lunnf, 1)
+
+        lock(lck) do
+            low[id] = ai
+            high[id] = ai
+
+            if length(low) > k
+                dequeue!(low)
+                push!(v1, sum(values(low)))
+            end
+
+            if length(high) > k
+                dequeue!(high)
+                push!(v2, sum(values(high)))
+            end
+        end
+    end
+
+    return v1, v2, sum(values(low)), sum(values(high))
+end
