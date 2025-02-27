@@ -214,22 +214,13 @@ end
 
 function demc(dac :: PDAC)
     mc = get_pc(dac.pnnf, 1)
-    lck = ReentrantLock()
     sigma = BigInt(0)
 
-    Threads.@threads for i in BigInt(1):BigInt(1000):mc
-        lsigma = BigInt(0)
-
-        for id in i:min(i + 1000 - 1, mc)
-            s = get_path(dac.pnnf, id)
-            lunnf = annotate_mc(dac.unnf, s)
-            ai = get_mc(lunnf, 1)
-            lsigma += ai
-        end
-
-        lock(lck) do
-            sigma += lsigma
-        end
+    sigma = tmapreduce(+, BigInt(1):mc; outputtype = BigInt, init = BigInt(0), scheduler = :static) do i
+        s = get_path(dac.pnnf, i)
+        lunnf = annotate_mc(dac.unnf, s)
+        ai = get_mc(lunnf, 1)
+        ai
     end
 
     return sigma
