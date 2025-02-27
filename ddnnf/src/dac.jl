@@ -144,7 +144,7 @@ function appmc(dac :: PDAC, N :: Int64)
     S = Vector{BigFloat}()
 
     total = BigInt(0)
-    z = quantile(Normal(), 1 - 0.05)
+    z = quantile(Normal(), 1 - 0.01)
 
     lck = ReentrantLock()
 
@@ -206,6 +206,29 @@ function emc(dac :: PDAC)
 
         lock(lck) do
             sigma += ai
+        end
+    end
+
+    return sigma
+end
+
+function demc(dac :: PDAC)
+    mc = get_pc(dac.pnnf, 1)
+    lck = ReentrantLock()
+    sigma = BigInt(0)
+
+    Threads.@threads for i in BigInt(1):BigInt(1000):mc
+        lsigma = BigInt(0)
+
+        for id in i:min(i + 1000 - 1, mc)
+            s = get_path(dac.pnnf, id)
+            lunnf = annotate_mc(dac.unnf, s)
+            ai = get_mc(lunnf, 1)
+            lsigma += ai
+        end
+
+        lock(lck) do
+            sigma += lsigma
         end
     end
 

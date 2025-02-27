@@ -27,31 +27,31 @@ function run {
     #     exit 0
     # fi
 
-    op=$(julia -t 6 "src/main.jl" "$1")
-    jpmc=$(echo "$op" | grep -E "^sp " | sed 's/^sp //g')
-    jumc=$(echo "$op" | grep -E "^su " | sed 's/^su //g')
-    jamc=$(echo "$op" | grep -E "^s " | sed 's/^s //g')
+    julia -t 6 "src/main.jl" "$1"
+    # jpmc=$(echo "$op" | grep -E "^sp " | sed 's/^sp //g')
+    # jumc=$(echo "$op" | grep -E "^su " | sed 's/^su //g')
+    # jamc=$(echo "$op" | grep -E "^s " | sed 's/^s //g')
 
-    el=$(echo "$op" | grep -E "^el " | sed 's/^el //g')
-    eh=$(echo "$op" | grep -E "^eh " | sed 's/^eh //g')
-    mie=$(echo "$op" | grep -E "^mie " | sed 's/^mie //g')
-    mae=$(echo "$op" | grep -E "^mae " | sed 's/^mae //g')
+    # el=$(echo "$op" | grep -E "^el " | sed 's/^el //g')
+    # eh=$(echo "$op" | grep -E "^eh " | sed 's/^eh //g')
+    # mie=$(echo "$op" | grep -E "^mie " | sed 's/^mie //g')
+    # mae=$(echo "$op" | grep -E "^mae " | sed 's/^mae //g')
 
-    if [ "$pmc" != "$jpmc" ] ; then
-        echo "$1, pmc err, $pmc, $jpmc"
-    fi
-    if [ "$umc" != "$jumc" ] ; then
-        echo "$1, umc err, $umc, $jumc"
-    fi
+    # if [ "$pmc" != "$jpmc" ] ; then
+    #     echo "$1, pmc err, $pmc, $jpmc"
+    # fi
+    # if [ "$umc" != "$jumc" ] ; then
+    #     echo "$1, umc err, $umc, $jumc"
+    # fi
 
-    echo "$1, $pmc, $umc, $jamc, $el, $eh, $mie, $mae"
+    # echo "$1, $pmc, $umc, $jamc, $el, $eh, $mie, $mae"
 
     rm "$1.pnnf"
     rm "$1.unnf"
 
-    echo "----"
+    # echo "----"
 
-    echo "$op"
+    # echo "$op"
 }
 export -f run
 
