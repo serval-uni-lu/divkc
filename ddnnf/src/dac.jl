@@ -4,6 +4,12 @@ struct DAC
     unnf :: ADDNNF
 end
 
+struct PDAC
+    pvar :: Set{Var}
+    pnnf :: PCDDNNF
+    unnf :: DDNNF
+end
+
 function dac_from_file(path :: String)
     vp = Set{Var}()
 
@@ -32,6 +38,36 @@ function dac_from_file(path :: String)
     aunnf = annotate_mc(unnf)
 
     return DAC(vp, apnnf, aunnf)
+end
+
+function pdac_from_file(path :: String)
+    vp = Set{Var}()
+
+    # parse log file
+    for line in eachline(path * ".proj.log")
+        if startswith(line, "c p show ")
+            tmp = map(strip, split(line[length("c p show "):end]))
+
+            toint(x) = Base.parse(Int64, x)
+            nonzero(x) = x != 0
+
+            y = map(mkVar, filter(nonzero, map(toint, tmp)))
+            union!(vp, y)
+        end
+    end
+
+    # proj ddnnf
+    # TODO
+    # potential bug in use of projection set
+    pnnf = ddnnf_from_file(path * ".pnnf", true, vp)
+    # pnnf = ddnnf_from_file(path * ".pnnf")
+    apnnf = annotate_pc(pnnf)
+
+    # upper bound ddnnf
+    unnf = ddnnf_from_file(path * ".unnf")
+    # aunnf = annotate_mc(unnf)
+
+    return PDAC(vp, apnnf, unnf)
 end
 
 function cleanup(smc :: Dict{BigInt, BigInt}, k :: Int64)
@@ -100,6 +136,46 @@ function appmc(dac :: DAC, N :: Int64)
     return Y, Y .- z .* S, Y .+ z .* S
 end
 
+function appmc(dac :: PDAC, N :: Int64)
+    Y = Vector{BigFloat}()
+    L = Vector{BigInt}()
+    # Yl = Vector{BigFloat}()
+    # Yh = Vector{BigFloat}()
+    S = Vector{BigFloat}()
+
+    total = BigInt(0)
+    z = quantile(Normal(), 1 - 0.05)
+
+    lck = ReentrantLock()
+
+    Threads.@threads for i in 1:N
+    # Threads.@threads for id in rand(BigInt(1) : get_mc(dac.pnnf, 1), N)
+        s = get_path(dac.pnnf, rand(BigInt(1) : get_pc(dac.pnnf, 1)))
+        # s = Set(get_solution(dac.pnnf, id))
+        lunnf = annotate_mc(dac.unnf, s)
+        ai = get_mc(lunnf, 1) * get_pc(dac.pnnf, 1)
+
+
+        lock(lck) do
+            li = length(Y) + 1
+            total += ai
+            m = total / li
+            push!(L, ai)
+
+            var = sum((L .- m) .^ 2) / (li - 1)
+            sd = sqrt(var) / sqrt(li)
+
+            push!(Y, m)
+            # push!(Yl, m - z * sd)
+            # push!(Yh, m + z * sd)
+            push!(S, sd)
+        end
+    end
+
+    # return Y, Yl, Yh
+    return Y, Y .- z .* S, Y .+ z .* S
+end
+
 function emc(dac :: DAC)
     mc = get_mc(dac.pnnf, 1)
     lck = ReentrantLock()
@@ -108,6 +184,24 @@ function emc(dac :: DAC)
     Threads.@threads for i in BigInt(1):mc
         s = Set(get_solution(dac.pnnf, i))
         lunnf = annotate_mc(dac.unnf.nnf, s)
+        ai = get_mc(lunnf, 1)
+
+        lock(lck) do
+            sigma += ai
+        end
+    end
+
+    return sigma
+end
+
+function emc(dac :: PDAC)
+    mc = get_pc(dac.pnnf, 1)
+    lck = ReentrantLock()
+    sigma = BigInt(0)
+
+    Threads.@threads for i in BigInt(1):mc
+        s = get_path(dac.pnnf, i)
+        lunnf = annotate_mc(dac.unnf, s)
         ai = get_mc(lunnf, 1)
 
         lock(lck) do
