@@ -232,19 +232,19 @@ function emc2(dac :: PDAC)
     return sigma
 end
 
-function demc(dac :: PDAC)
-    mc = get_pc(dac.pnnf, 1)
-    sigma = BigInt(0)
-
-    sigma = tmapreduce(+, BigInt(1):mc; outputtype = BigInt, init = BigInt(0), scheduler = :static) do i
-        s = get_path(dac.pnnf, i)
-        lunnf = annotate_mc(dac.unnf, s)
-        ai = get_mc(lunnf, 1)
-        ai
-    end
-
-    return sigma
-end
+# function demc(dac :: PDAC)
+#     mc = get_pc(dac.pnnf, 1)
+#     sigma = BigInt(0)
+# 
+#     sigma = tmapreduce(+, BigInt(1):mc; outputtype = BigInt, init = BigInt(0), scheduler = :static) do i
+#         s = get_path(dac.pnnf, i)
+#         lunnf = annotate_mc(dac.unnf, s)
+#         ai = get_mc(lunnf, 1)
+#         ai
+#     end
+# 
+#     return sigma
+# end
 
 function appmc2(dac :: DAC, N :: Int64, k :: Int64)
     mc = get_mc(dac.pnnf, 1)
