@@ -51,3 +51,4 @@ println(get_pc(pdac.pnnf, 1) / 10^6)
 # println("s ", Y[end])
 
 println("es ", demc(pdac))
+# println("es ", emc2(pdac))

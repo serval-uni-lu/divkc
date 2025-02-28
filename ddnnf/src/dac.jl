@@ -212,6 +212,26 @@ function emc(dac :: PDAC)
     return sigma
 end
 
+function emc2(dac :: PDAC)
+    mc = get_pc(dac.pnnf, 1)
+    sigma = BigInt(0)
+    ch = Channel(100)
+
+    @async Threads.@threads for i in BigInt(1):mc
+        s = get_path(dac.pnnf, i)
+        lunnf = annotate_mc(dac.unnf, s)
+        ai = get_mc(lunnf, 1)
+
+        put!(ch, ai)
+    end
+
+    for i in BigInt(1):mc
+        sigma += take!(ch)
+    end
+
+    return sigma
+end
+
 function demc(dac :: PDAC)
     mc = get_pc(dac.pnnf, 1)
     sigma = BigInt(0)

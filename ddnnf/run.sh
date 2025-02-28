@@ -28,6 +28,7 @@ function run {
     # fi
 
     julia -t 4 "src/main.jl" "$1"
+    # julia -p 4 "src/dist.jl" "$1"
     # jpmc=$(echo "$op" | grep -E "^sp " | sed 's/^sp //g')
     # jumc=$(echo "$op" | grep -E "^su " | sed 's/^su //g')
     # jamc=$(echo "$op" | grep -E "^s " | sed 's/^s //g')
@@ -46,8 +47,8 @@ function run {
 
     # echo "$1, $pmc, $umc, $jamc, $el, $eh, $mie, $mae"
 
-    rm "$1.pnnf"
-    rm "$1.unnf"
+    # rm "$1.pnnf"
+    # rm "$1.unnf"
 
     # echo "----"
 
