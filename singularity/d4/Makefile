@@ -16,7 +16,7 @@ RCOBJS     = $(addsuffix r,  $(COBJS))
 
 PATOH_PATH = patoh/libpatoh.a
 
-CXX        = g++ -std=c++11
+CXX        = g++ -std=c++14
 #CFLAGS    ?= -Wall -Wno-parentheses
 
 UNAME := $(shell uname)
@@ -48,13 +48,13 @@ rs:     $(EXEC)_static
 ## Compile options
 $(OBJDIR)/%.o:                    CFLAGS +=$(COPTIMIZE) -g -D DEBUG
 $(OBJDIR)/%.op:                   CFLAGS +=$(COPTIMIZE) -pg -g -D NDEBUG
-$(OBJDIR)/%.od:                   CFLAGS +=-O2 -g -D DEBUG -Wfatal-errors
+$(OBJDIR)/%.od:                   CFLAGS += -O2 -g -D DEBUG -Wfatal-errors -fsanitize=address -fno-omit-frame-pointer -static-libasan
 $(OBJDIR)/%.or:                   CFLAGS +=$(COPTIMIZE) -g -D NDEBUG
 
 ## Link options
 $(EXEC):                LFLAGS += -g
 $(EXEC)_profile:        LFLAGS += -g -pg
-$(EXEC)_debug:          LFLAGS += -g
+$(EXEC)_debug:          LFLAGS += -g -fsanitize=address -fno-omit-frame-pointer -static-libasan
 $(EXEC)_static:         LFLAGS += --static
 
 ## Dependencies

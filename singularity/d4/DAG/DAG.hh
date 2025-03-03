@@ -99,6 +99,9 @@ template<class T> class DAG
     return stamp - globalStamp;
   }
 
+  virtual inline bool isUnaryNode() { return false; }
+  virtual inline bool isAndNode() { return false; }
+
   virtual void printNNF(std::ostream& out, bool certif) = 0;
   virtual T computeNbModels();
   virtual void debug(){}

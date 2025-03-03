@@ -20,6 +20,8 @@
 
 #include "DAG.hh"
 
+#include<memory>
+
 template<class T> class DAG;
 
 template<class T> class rootNode : public DAG<T>
@@ -61,7 +63,7 @@ public:
 
   int getSize_(){return 1 + b.d->getSize_();}
 
-  inline void assignRootNode(vec<Lit> &units, DAG<T> *d, bool fromCache_,
+  inline void assignRootNode(vec<Lit> &units, std::shared_ptr<DAG<T> > d, bool fromCache_,
                              int nbVar, vec<Var> &fVar, vec<int> &idxReason)
   {
     b.initBranch(units, d, fVar);
@@ -88,6 +90,9 @@ public:
 
     Lit *pUnit = &DAG<T>::unitLits[b.idxUnitLit];
     for( ; *pUnit != lit_Undef ; pUnit++) out << readableLit(*pUnit) << " ";
+    out << "; ";
+    Var* pVar = &DAG<T>::freeVariables[b.idxFreeVar];
+    for( ; *pVar != var_Undef ; pVar++) out << readableVar(*pVar) << " ";
     out << "0" << endl;
 
     globalStamp += idxOutputStruct;
