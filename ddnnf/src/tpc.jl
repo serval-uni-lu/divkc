@@ -8,7 +8,7 @@ include("pc.jl")
 include("dac.jl")
 
 # pdac = pdac_from_file(ARGS[1])
-pnnf = ddnnf_from_file(ARGS[1] * ".pnnf", true, vp)
+pnnf = ddnnf_from_file(ARGS[1] * ".pnnf")
 apnnf = annotate_pc(pnnf)
 pc = get_pc(apnnf, 1)
 println(ARGS[1], ", ", pc)
