@@ -567,7 +567,8 @@ std::size_t CNF::occurrence_product(Variable v) {
     return idx[lp.get()].size() * idx[ln.get()].size();
 }
 
-void CNF::project() {
+void CNF::project(int const timeout) {
+    auto const st = std::chrono::steady_clock::now();
     auto const ina = nb_active;
 
     std::set<Variable> frgt = vars;
@@ -585,19 +586,15 @@ void CNF::project() {
             }
         }
 
-        auto const st = std::chrono::steady_clock::now();
         forget(v);
         frgt.erase(v);
         nbf += 1;
-        auto const ed = std::chrono::steady_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(ed - st);
 
         dign.insert(v);
-        // compute_idx();
 
-        //std::cerr << "c nf " << nbf << " ; nba " << nb_active << "\n";
-
-        if(nb_active >= 3 * ina) {
+        auto const ed = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(ed - st);
+        if(nb_active >= 3 * ina || (timeout != -1 && elapsed.count() >= timeout)) {
         // if(elapsed.count() > 60) {
             std::cerr << "c break " << nbf << " / " << ign.size() << "\n";
             break;

@@ -41,13 +41,14 @@ int main(int argc, char const** argv) {
     }
 
     std::string const path(argv[1]);
+    int const timeout = std::stoi(argv[2]);
     CNF cnf(path.c_str());
     cnf.simplify();
     // cnf.subsumption();
     CNF up(cnf);
     CNF upp(cnf);
 
-    cnf.project();
+    cnf.project(timeout);
 
 
     std::ofstream out(path + ".p");
@@ -68,11 +69,11 @@ int main(int argc, char const** argv) {
 
     std::cout << "c v " << puvar.size() << " / " << cnf.nb_vars() << "\n";
 
-    upp.set_prj(puvar);
-    upp.project();
-    std::ofstream uppout(path + ".pupp");
-    uppout << upp;
-    uppout.close();
+    // upp.set_prj(puvar);
+    // upp.project();
+    // std::ofstream uppout(path + ".pupp");
+    // uppout << upp;
+    // uppout.close();
 
     std::ofstream logout(path + ".log");
     logout << "c p show ";
