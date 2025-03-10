@@ -105,6 +105,23 @@ bool Clause::contains(Clause const& cls) const {
     return itcls == cls.end();
 }
 
+std::string mtrim(std::string const& s) {
+    auto b = s.begin();
+    auto e = s.end();
+
+    while(std::isspace(*b)) {
+        b++;
+    }
+
+    if(b != e) {
+        while(std::isspace(*(e - 1))) {
+            e--;
+        }
+    }
+
+    return std::string(b, e);
+}
+
 CNF::CNF(char const* path) {
     std::ifstream f(path);
 
@@ -114,8 +131,10 @@ CNF::CNF(char const* path) {
     }
 
     int nb_vars;
-    std::string line;
-    while(getline(f, line)) {
+    std::string oline;
+    while(getline(f, oline)) {
+        std::string line = mtrim(oline);
+
         if(line.rfind("p cnf ", 0) == 0) {
             std::stringstream iss(line);
             std::string tmp;
@@ -171,6 +190,10 @@ CNF::CNF(char const* path) {
 
                     idx[tmp.get()].insert(clauses.size());
                 }
+            }
+
+            if(clause.size() == 0) {
+                std::cerr << "empty clause in input: \"" << line << "\"\n";
             }
 
             clauses.push_back(clause);
