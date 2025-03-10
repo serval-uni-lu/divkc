@@ -158,7 +158,7 @@ CNF::CNF(char const* path) {
                 }
             }
         }
-        else if(line[0] != 'c' && line[0] != 'p') {
+        else if(line[0] != 'c' && line[0] != 'p' && line.size() != 0) {
             Clause clause;
             std::stringstream iss(line);
 
