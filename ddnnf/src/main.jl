@@ -25,5 +25,5 @@ e, el, eh = appmc_l(pdac, 1)
 # @profile Y, Yl, Yh = appmc(pdac, 100)
 # Profile.print()
 
-@time Y, Yl, Yh = appmc(pdac, 1000)
-@time e, el, eh = appmc_l(pdac, 1000)
+@time Y, Yl, Yh = appmc(pdac, 100)
+@time e, el, eh = appmc_l(pdac, 100)

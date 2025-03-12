@@ -18,8 +18,8 @@ Y, Yl, Yh = appmc(pdac, 10000)
 X = 1 : length(Y)
 
 fc(x) = x.file == ARGS[1]
-data = CSV.read("/home/users/ozeyen/ddnnf/mc.csv", DataFrame, types = Dict("mc" => BigInt))
-# data = CSV.read("mc.csv", DataFrame, types = Dict("mc" => BigInt))
+# data = CSV.read("/home/users/ozeyen/ddnnf/mc.csv", DataFrame, types = Dict("mc" => BigInt))
+data = CSV.read("mc.csv", DataFrame, types = Dict("mc" => BigInt))
 data = filter(fc, data)
 TMC = -1
 if length(data.mc) == 1

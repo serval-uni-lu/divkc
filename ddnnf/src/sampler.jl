@@ -18,11 +18,11 @@ function exact_uniform_sampling(pdac :: PDAC, N :: Int64)
 
         for pid in 1:pc
             s = get_path(pdac.pnnf, pid)
-            lunnf = annotate_mc(pdac.unnf, s)
-            ai = get_mc(lunnf, 1)
+            annotate_mc(pdac.unnf, s)
+            ai = get_mc(pdac.unnf, 1)
 
             if id <= ai
-                for l in sort(get_solution(lunnf, id), by = toIndex)
+                for l in sort(get_solution(pdac.unnf, id), by = toIndex)
                     print(mkReadable(l), " ")
                 end
                 println("0")
@@ -50,19 +50,12 @@ function heuristic_uniform_sampling(pdac :: PDAC, N :: Int64, k :: Int64)
         end
 
         pids = collect(pids)
-        # mc_pids = collect(map(pids) do pid
-        #         s = get_path(dac.pnnf, pid)
-        #         lunnf = annotate_mc(dac.unnf, s)
-        #         ai = get_mc(lunnf, 1)
-        #         ai
-        #     end)
-        mc_pids = Vector{BigInt}(undef, length(pids))
-        Threads.@threads for i in 1:length(pids)
-            s = get_path(pdac.pnnf, pids[i])
-            lunnf = annotate_mc(pdac.unnf, s)
-            ai = get_mc(lunnf, 1)
-            mc_pids[i] = ai
-        end
+        mc_pids = collect(map(pids) do pid
+                s = get_path(pdac.pnnf, pid)
+                annotate_mc(pdac.unnf, s)
+                ai = get_mc(pdac.unnf, 1)
+                return ai
+            end)
         tmc = sum(mc_pids)
 
         id = rand(BigInt(1) : tmc)
@@ -71,9 +64,9 @@ function heuristic_uniform_sampling(pdac :: PDAC, N :: Int64, k :: Int64)
         for i in 1:length(pids)
             if id <= mc_pids[i]
                 s = get_path(pdac.pnnf, pids[i])
-                lunnf = annotate_mc(pdac.unnf, s)
+                annotate_mc(pdac.unnf, s)
 
-                for l in sort(get_solution(lunnf, id), by = toIndex)
+                for l in sort(get_solution(pdac.unnf, id), by = toIndex)
                     print(mkReadable(l), " ")
                 end
                 println("0")

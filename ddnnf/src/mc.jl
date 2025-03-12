@@ -1,18 +1,12 @@
-struct ADDNNF
-    nnf :: DDNNF
-    assumps :: Set{Lit}
-    mc :: Vector{BigInt}
-end
-
-function get_mc(nnf :: ADDNNF, e :: Edge)
-    for l in get_literals(nnf.nnf, e)
+function get_mc(nnf :: DDNNF, e :: Edge)
+    for l in get_literals(nnf, e)
         if (~l) in nnf.assumps
             return 0
         end
     end
 
     nfree = e.e_free - e.b_free + 1
-    for v in get_free_vars(nnf.nnf, e)
+    for v in get_free_vars(nnf, e)
         l = mkLit(v, false)
         if (l in nnf.assumps) || ((~l) in nnf.assumps)
             nfree -= 1
@@ -22,65 +16,66 @@ function get_mc(nnf :: ADDNNF, e :: Edge)
     # f(x) = mkLit(x, false) in nnf.assumps || mkLit(x, true) in nnf.assumps
     # nfree = e.e_free - e.b_free + 1 - sum(f, get_free_vars(nnf.nnf, e); init = 0)
     # return get_mc(nnf, e.child) * BigInt(2)^(nfree)
-    return get_mc(nnf, e.child) * (BigInt(1) << (nfree))
+    return get_mc(nnf, nnf.nodes[e.child]) * (BigInt(1) << (nfree))
 end
 
-get_mc(nnf :: ADDNNF, i :: Int64) = nnf.mc[i]
+get_mc(nnf :: DDNNF, i :: Int64) = get_mc(nnf, nnf.nodes[i])
+get_mc(nnf :: DDNNF, n :: UnaryNode) = n.mc
+get_mc(nnf :: DDNNF, n :: OrNode) = n.mc
+get_mc(nnf :: DDNNF, n :: AndNode) = n.mc
+get_mc(nnf :: DDNNF, n :: TrueNode) = BigInt(1)
+get_mc(nnf :: DDNNF, n :: FalseNode) = BigInt(0)
 
 function annotate_mc(nnf :: DDNNF, assumps :: Set{Lit} = Set{Lit}())
-    res = ADDNNF(nnf, assumps, Vector{BigInt}(undef, length(nnf.nodes)))
+    nnf.assumps = assumps
 
     for i in nnf.ordering
-        annotate_mc(res, i, nnf.nodes[i])
+        annotate_mc(nnf, nnf.nodes[i])
     end
-
-    return res
 end
 
-function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: FalseNode)
-    nnf.mc[i] = 0
+function annotate_mc(nnf :: DDNNF, n :: FalseNode)
 end
 
-function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: TrueNode)
-    nnf.mc[i] = 1
+function annotate_mc(nnf :: DDNNF, n :: TrueNode)
 end
 
-function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: UnaryNode)
-    nnf.mc[i] = get_mc(nnf, n.child)
+function annotate_mc(nnf :: DDNNF, n :: UnaryNode)
+    n.mc = get_mc(nnf, n.child)
 end
 
-function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: OrNode)
+function annotate_mc(nnf :: DDNNF, n :: OrNode)
     f(x) = get_mc(nnf, x)
-    nnf.mc[i] = sum(f, n.children)
+    n.mc = sum(f, n.children)
 end
 
-function annotate_mc(nnf :: ADDNNF, i :: Int64, n :: AndNode)
+function annotate_mc(nnf :: DDNNF, n :: AndNode)
     f(x) = get_mc(nnf, x)
-    nnf.mc[i] = prod(f, n.children)
+    n.mc = prod(f, n.children)
 end
 
 
 
-function sample(nnf :: ADDNNF, s :: Vector{Lit}, i :: Int64, n :: TrueNode)
+function sample(nnf :: DDNNF, s :: Vector{Lit}, n :: TrueNode)
     return []
 end
 
-function sample(nnf :: ADDNNF, s :: Vector{Lit}, i :: Int64, n :: UnaryNode)
-    union!(s, get_literals(nnf.nnf, n.child))
-    for v in get_free_vars(nnf.nnf, n.child)
+function sample(nnf :: DDNNF, s :: Vector{Lit}, n :: UnaryNode)
+    union!(s, get_literals(nnf, n.child))
+    for v in get_free_vars(nnf, n.child)
         push!(s, mkLit(v, rand((true, false))))
     end
     return [n.child.child]
 end
 
-function sample(nnf :: ADDNNF, s :: Vector{Lit}, i :: Int64, n :: OrNode)
+function sample(nnf :: DDNNF, s :: Vector{Lit}, n :: OrNode)
     x = rand(BigInt(1):get_mc(nnf, i))
     for c in n.children
         cmc = get_mc(nnf, c)
 
         if x <= cmc
-            union!(s, get_literals(nnf.nnf, c))
-            for v in get_free_vars(nnf.nnf, c)
+            union!(s, get_literals(nnf, c))
+            for v in get_free_vars(nnf, c)
                 push!(s, mkLit(v, rand((true, false))))
             end
             return [c.child]
@@ -90,19 +85,18 @@ function sample(nnf :: ADDNNF, s :: Vector{Lit}, i :: Int64, n :: OrNode)
     end
 end
 
-function sample(nnf :: ADDNNF, s :: Vector{Lit}, i :: Int64, n :: AndNode)
+function sample(nnf :: DDNNF, s :: Vector{Lit}, n :: AndNode)
     f(c) = c.child
     return map(f, n.children)
 end
 
-# only works if annotate_mc has been called with assumps an empty set
-function sample(nnf :: ADDNNF)
+function sample(nnf :: DDNNF)
     stack = [Int64(1)]
     res = Vector{Lit}()
 
     while length(stack) > 0
         x = pop!(stack)
-        y = sample(nnf, res, x, nnf.nnf.nodes[x])
+        y = sample(nnf, res, nnf.nodes[x])
         for i in y
             push!(stack, i)
         end
@@ -111,18 +105,18 @@ function sample(nnf :: ADDNNF)
     return res
 end
 
-function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64, n :: TrueNode)
+function get_solution(nnf :: DDNNF, s :: Vector{Lit}, id :: BigInt, n :: TrueNode)
     return []
 end
 
-function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64, n :: FalseNode)
+function get_solution(nnf :: DDNNF, s :: Vector{Lit}, id :: BigInt, n :: FalseNode)
     return []
 end
 
-function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64, n :: UnaryNode)
-    union!(s, get_literals(nnf.nnf, n.child))
-    mc = get_mc(nnf, i)
-    for v in get_free_vars(nnf.nnf, n.child)
+function get_solution(nnf :: DDNNF, s :: Vector{Lit}, id :: BigInt, n :: UnaryNode)
+    union!(s, get_literals(nnf, n.child))
+    mc = get_mc(nnf, n)
+    for v in get_free_vars(nnf, n.child)
         l = mkLit(v, false)
         if (l in nnf.assumps)
             push!(s, l)
@@ -143,17 +137,17 @@ function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64,
     return [(id, n.child.child)]
 end
 
-function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64, n :: OrNode)
-    if id > get_mc(nnf, i)
+function get_solution(nnf :: DDNNF, s :: Vector{Lit}, id :: BigInt, n :: OrNode)
+    if id > get_mc(nnf, n)
         println("o ", id, " <= ", get_mc(nnf, i))
     end
     for c in n.children
         cmc = get_mc(nnf, c)
 
         if id <= cmc
-            union!(s, get_literals(nnf.nnf, c))
+            union!(s, get_literals(nnf, c))
 
-            for v in get_free_vars(nnf.nnf, c)
+            for v in get_free_vars(nnf, c)
                 l = mkLit(v, false)
                 if (l in nnf.assumps)
                     push!(s, l)
@@ -182,10 +176,10 @@ function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64,
     # return [(id, n.child.child)]
 end
 
-function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64, n :: AndNode)
+function get_solution(nnf :: DDNNF, s :: Vector{Lit}, id :: BigInt, n :: AndNode)
     res = Vector{Tuple{BigInt, Int64}}()
 
-    tmc = get_mc(nnf, i)
+    tmc = get_mc(nnf, n)
     if id > tmc
         println("a ", id, " <= ", tmc)
     end
@@ -206,13 +200,13 @@ function get_solution(nnf :: ADDNNF, s :: Vector{Lit}, id :: BigInt, i :: Int64,
     return res
 end
 
-function get_solution(nnf :: ADDNNF, id :: BigInt)
+function get_solution(nnf :: DDNNF, id :: BigInt)
     stack = [(id, Int64(1))]
     res = Vector{Lit}()
 
     while length(stack) > 0
         lid, x = pop!(stack)
-        y = get_solution(nnf, res, lid, x, nnf.nnf.nodes[x])
+        y = get_solution(nnf, res, lid, nnf.nodes[x])
         for i in y
             push!(stack, i)
         end

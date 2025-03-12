@@ -9,14 +9,17 @@ end
 
 mutable struct AndNode
     children :: Vector{Edge}
+    mc :: BigInt
 end
 
 mutable struct OrNode
     children :: Vector{Edge}
+    mc :: BigInt
 end
 
 mutable struct UnaryNode
     child :: Union{Nothing, Edge}
+    mc :: BigInt
 end
 
 struct TrueNode
@@ -27,12 +30,13 @@ end
 
 const Node = Union{AndNode, OrNode, UnaryNode, TrueNode, FalseNode}
 
-struct DDNNF
+mutable struct DDNNF
     nodes :: Vector{Node}
     edges :: Vector{Edge}
     literals :: Vector{Lit}
     freev :: Vector{Var}
     ordering :: Vector{Int64}
+    assumps :: Set{Lit}
 end
 
 function get_children(n :: AndNode)
@@ -89,15 +93,15 @@ function add_child(nnf :: DDNNF, src :: Int64, dst :: Int64, cnst :: AbstractArr
 end
 
 function ddnnf_from_file(path :: String, prj = false, pvar = Set{Var}())
-    res = DDNNF([], [], [], [], [])
+    res = DDNNF([], [], [], [], [], Set{Lit}())
 
     for line in eachline(path)
         if startswith(line, "o ")
-            push!(res.nodes, OrNode([]))
+            push!(res.nodes, OrNode([], 0))
         elseif startswith(line, "a ")
-            push!(res.nodes, AndNode([]))
+            push!(res.nodes, AndNode([], 0))
         elseif startswith(line, "u ")
-            push!(res.nodes, UnaryNode(nothing))
+            push!(res.nodes, UnaryNode(nothing, 0))
         elseif startswith(line, "t ")
             push!(res.nodes, TrueNode())
         elseif startswith(line, "f ")

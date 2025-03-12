@@ -1,78 +1,73 @@
-struct PCDDNNF
-    nnf :: DDNNF
-    assumps :: Set{Lit}
-    pc :: Vector{BigInt}
-end
-
-function get_pc(nnf :: PCDDNNF, e :: Edge)
-    for l in get_literals(nnf.nnf, e)
+function get_pc(nnf :: DDNNF, e :: Edge)
+    for l in get_literals(nnf, e)
         if (~l) in nnf.assumps
             return 0
         end
     end
 
-    return get_pc(nnf, e.child)
+    return get_pc(nnf, nnf.nodes[e.child])
 end
 
-get_pc(nnf :: PCDDNNF, i :: Int64) = nnf.pc[i]
+get_pc(nnf :: DDNNF, i :: Int64) = get_pc(nnf, nnf.nodes[i])
+get_pc(nnf :: DDNNF, n :: UnaryNode) = n.mc
+get_pc(nnf :: DDNNF, n :: OrNode) = n.mc
+get_pc(nnf :: DDNNF, n :: AndNode) = n.mc
+get_pc(nnf :: DDNNF, n :: TrueNode) = BigInt(1)
+get_pc(nnf :: DDNNF, n :: FalseNode) = BigInt(0)
 
 function annotate_pc(nnf :: DDNNF, assumps :: Set{Lit} = Set{Lit}())
-    res = PCDDNNF(nnf, assumps, Vector{BigInt}(undef, length(nnf.nodes)))
+    nnf.assumps = assumps
 
     for i in nnf.ordering
-        annotate_pc(res, i, nnf.nodes[i])
+        annotate_pc(nnf, nnf.nodes[i])
     end
-
-    return res
 end
 
-function annotate_pc(nnf :: PCDDNNF, i :: Int64, n :: FalseNode)
-    nnf.pc[i] = 0
+function annotate_pc(nnf :: DDNNF, n :: FalseNode)
 end
 
-function annotate_pc(nnf :: PCDDNNF, i :: Int64, n :: TrueNode)
-    nnf.pc[i] = 1
+function annotate_pc(nnf :: DDNNF, n :: TrueNode)
 end
 
-function annotate_pc(nnf :: PCDDNNF, i :: Int64, n :: UnaryNode)
-    nnf.pc[i] = get_pc(nnf, n.child)
+function annotate_pc(nnf :: DDNNF, n :: UnaryNode)
+    n.mc = get_pc(nnf, n.child)
 end
 
-function annotate_pc(nnf :: PCDDNNF, i :: Int64, n :: OrNode)
+function annotate_pc(nnf :: DDNNF, n :: OrNode)
     f(x) = get_pc(nnf, x)
-    nnf.pc[i] = sum(f, n.children)
+    n.mc = sum(f, n.children)
 end
 
-function annotate_pc(nnf :: PCDDNNF, i :: Int64, n :: AndNode)
+function annotate_pc(nnf :: DDNNF, n :: AndNode)
     f(x) = get_pc(nnf, x)
-    nnf.pc[i] = prod(f, n.children)
+    n.mc = prod(f, n.children)
 end
 
-function get_path(nnf :: PCDDNNF, s :: Set{Lit}, id :: BigInt, i :: Int64, n :: TrueNode)
+function get_path(nnf :: DDNNF, s :: Set{Lit}, id :: BigInt, n :: TrueNode)
     return []
 end
 
-function get_path(nnf :: PCDDNNF, s :: Set{Lit}, id :: BigInt, i :: Int64, n :: FalseNode)
+function get_path(nnf :: DDNNF, s :: Set{Lit}, id :: BigInt, n :: FalseNode)
     return []
 end
 
-function get_path(nnf :: PCDDNNF, s :: Set{Lit}, id :: BigInt, i :: Int64, n :: UnaryNode)
-    union!(s, get_literals(nnf.nnf, n.child))
+function get_path(nnf :: DDNNF, s :: Set{Lit}, id :: BigInt, n :: UnaryNode)
+    union!(s, get_literals(nnf, n.child))
     if id > get_pc(nnf, n.child.child)
         println("u ", id, " >= ", get_pc(nnf, n.child.child))
     end
     return [(id, n.child.child)]
 end
 
-function get_path(nnf :: PCDDNNF, s :: Set{Lit}, id :: BigInt, i :: Int64, n :: OrNode)
-    if id > get_pc(nnf, i)
+function get_path(nnf :: DDNNF, s :: Set{Lit}, id :: BigInt, n :: OrNode)
+    if id > get_pc(nnf, n)
         println("o ", id, " <= ", get_pc(nnf, i))
     end
     for c in n.children
         cmc = get_pc(nnf, c)
 
         if id <= cmc
-            union!(s, get_literals(nnf.nnf, c))
+            union!(s, get_literals(nnf, c))
 
             if id > get_pc(nnf, c.child)
                 println("- o ", id, " >= ", get_pc(nnf, c.child))
@@ -87,10 +82,10 @@ function get_path(nnf :: PCDDNNF, s :: Set{Lit}, id :: BigInt, i :: Int64, n :: 
     # return [(id, n.child.child)]
 end
 
-function get_path(nnf :: PCDDNNF, s :: Set{Lit}, id :: BigInt, i :: Int64, n :: AndNode)
+function get_path(nnf :: DDNNF, s :: Set{Lit}, id :: BigInt, n :: AndNode)
     res = Vector{Tuple{BigInt, Int64}}()
 
-    tmc = get_pc(nnf, i)
+    tmc = get_pc(nnf, n)
     if id > tmc
         println("a ", id, " <= ", tmc)
     end
@@ -111,13 +106,13 @@ function get_path(nnf :: PCDDNNF, s :: Set{Lit}, id :: BigInt, i :: Int64, n :: 
     return res
 end
 
-function get_path(nnf :: PCDDNNF, id :: BigInt)
+function get_path(nnf :: DDNNF, id :: BigInt)
     stack = [(id, Int64(1))]
     res = Set{Lit}()
 
     while length(stack) > 0
         lid, x = pop!(stack)
-        y = get_path(nnf, res, lid, x, nnf.nnf.nodes[x])
+        y = get_path(nnf, res, lid, nnf.nodes[x])
         for i in y
             push!(stack, i)
         end

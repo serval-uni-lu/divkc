@@ -1,12 +1,12 @@
 struct DAC
     pvar :: Set{Var}
-    pnnf :: ADDNNF
-    unnf :: ADDNNF
+    pnnf :: DDNNF
+    unnf :: DDNNF
 end
 
 struct PDAC
     pvar :: Set{Var}
-    pnnf :: PCDDNNF
+    pnnf :: DDNNF
     unnf :: DDNNF
 end
 
@@ -26,18 +26,15 @@ function dac_from_file(path :: String)
         end
     end
 
-    # proj ddnnf
-    # TODO
-    # potential bug in use of projection set
     pnnf = ddnnf_from_file(path * ".pnnf", true, vp)
     # pnnf = ddnnf_from_file(path * ".pnnf")
-    apnnf = annotate_mc(pnnf)
+    annotate_mc(pnnf)
 
     # upper bound ddnnf
     unnf = ddnnf_from_file(path * ".unnf")
-    aunnf = annotate_mc(unnf)
+    # annotate_mc(unnf)
 
-    return DAC(vp, apnnf, aunnf)
+    return DAC(vp, pnnf, unnf)
 end
 
 function pdac_from_file(path :: String)
@@ -56,18 +53,15 @@ function pdac_from_file(path :: String)
         end
     end
 
-    # proj ddnnf
-    # TODO
-    # potential bug in use of projection set
     pnnf = ddnnf_from_file(path * ".pnnf", true, vp)
     # pnnf = ddnnf_from_file(path * ".pnnf")
-    apnnf = annotate_pc(pnnf)
+    annotate_pc(pnnf)
 
     # upper bound ddnnf
     unnf = ddnnf_from_file(path * ".unnf")
     # aunnf = annotate_mc(unnf)
 
-    return PDAC(vp, apnnf, unnf)
+    return PDAC(vp, pnnf, unnf)
 end
 
 function cleanup(smc :: Dict{BigInt, BigInt}, k :: Int64)
@@ -99,80 +93,58 @@ end
 function appmc(dac :: DAC, N :: Int64)
     Y = Vector{BigFloat}()
     L = Vector{BigInt}()
-    # Yl = Vector{BigFloat}()
-    # Yh = Vector{BigFloat}()
     S = Vector{BigFloat}()
 
     total = BigInt(0)
     z = quantile(Normal(), 1 - 0.05)
 
-    lck = ReentrantLock()
-
-    Threads.@threads for i in 1:N
-    # Threads.@threads for id in rand(BigInt(1) : get_mc(dac.pnnf, 1), N)
+    for i in 1:N
         s = Set(sample(dac.pnnf))
-        # s = Set(get_solution(dac.pnnf, id))
-        lunnf = annotate_mc(dac.unnf.nnf, s)
-        ai = get_mc(lunnf, 1) * get_mc(dac.pnnf, 1)
+        annotate_mc(dac.unnf, s)
+        ai = get_mc(dac.unnf, 1) * get_mc(dac.pnnf, 1)
 
 
-        lock(lck) do
-            li = length(Y) + 1
-            total += ai
-            m = total / li
-            push!(L, ai)
+        li = length(Y) + 1
+        total += ai
+        m = total / li
+        push!(L, ai)
 
-            var = sum((L .- m) .^ 2) / (li - 1)
-            sd = sqrt(var) / sqrt(li)
+        var = sum((L .- m) .^ 2) / (li - 1)
+        sd = sqrt(var) / sqrt(li)
 
-            push!(Y, m)
-            # push!(Yl, m - z * sd)
-            # push!(Yh, m + z * sd)
-            push!(S, sd)
-        end
+        push!(Y, m)
+        push!(S, sd)
     end
 
-    # return Y, Yl, Yh
     return Y, Y .- z .* S, Y .+ z .* S
 end
 
 function appmc(dac :: PDAC, N :: Int64)
     Y = Vector{BigFloat}()
     L = Vector{BigInt}()
-    # Yl = Vector{BigFloat}()
-    # Yh = Vector{BigFloat}()
     S = Vector{BigFloat}()
 
     total = BigInt(0)
     z = quantile(Normal(), 1 - 0.01)
 
-    lck = ReentrantLock()
-
-    Threads.@threads for i in 1:N
-    # Threads.@threads for id in rand(BigInt(1) : get_mc(dac.pnnf, 1), N)
+    for i in 1:N
         s = get_path(dac.pnnf, rand(BigInt(1) : get_pc(dac.pnnf, 1)))
-        # s = Set(get_solution(dac.pnnf, id))
-        lunnf = annotate_mc(dac.unnf, s)
-        ai = get_mc(lunnf, 1) * get_pc(dac.pnnf, 1)
+        annotate_mc(dac.unnf, s)
+        ai = get_mc(dac.unnf, 1) * get_pc(dac.pnnf, 1)
 
 
-        lock(lck) do
-            li = length(Y) + 1
-            total += ai
-            m = total / li
-            push!(L, ai)
+        li = length(Y) + 1
+        total += ai
+        m = total / li
+        push!(L, ai)
 
-            var = sum((L .- m) .^ 2) / (li - 1)
-            sd = sqrt(var) / sqrt(li)
+        var = sum((L .- m) .^ 2) / (li - 1)
+        sd = sqrt(var) / sqrt(li)
 
-            push!(Y, m)
-            # push!(Yl, m - z * sd)
-            # push!(Yh, m + z * sd)
-            push!(S, sd)
-        end
+        push!(Y, m)
+        push!(S, sd)
     end
 
-    # return Y, Yl, Yh
     return Y, Y .- z .* S, Y .+ z .* S
 end
 
@@ -184,25 +156,18 @@ function appmc_l(dac :: PDAC, N :: Int64)
 
     z = quantile(Normal(), 1 - 0.01)
 
-    lck = ReentrantLock()
-
-    Threads.@threads for i in 1:N
-    # Threads.@threads for id in rand(BigInt(1) : get_mc(dac.pnnf, 1), N)
+    for i in 1:N
         s = get_path(dac.pnnf, rand(BigInt(1) : get_pc(dac.pnnf, 1)))
         # s = Set(get_solution(dac.pnnf, id))
-        lunnf = annotate_mc(dac.unnf, s)
-        ai = get_mc(lunnf, 1) * get_pc(dac.pnnf, 1)
+        annotate_mc(dac.unnf, s)
+        ai = get_mc(dac.unnf, 1) * get_pc(dac.pnnf, 1)
 
-        lock(lck) do
-            k += 1
-            n_mean = rmean + ((ai - rmean) / k)
-            rm = rm + ((ai - rmean) * (ai - n_mean))
-            rmean = n_mean
-        end
+        k += 1
+        n_mean = rmean + ((ai - rmean) / k)
+        rm = rm + ((ai - rmean) * (ai - n_mean))
+        rmean = n_mean
     end
 
-    # return Y, Yl, Yh
-    # return Y, Y .- z .* S, Y .+ z .* S
     S2 = rm / (k - 1)
     sd = sqrt(S2) / sqrt(k)
     return rmean, rmean - z * sd, rmean + z * sd
@@ -210,17 +175,14 @@ end
 
 function emc(dac :: DAC)
     mc = get_mc(dac.pnnf, 1)
-    lck = ReentrantLock()
     sigma = BigInt(0)
 
-    Threads.@threads for i in BigInt(1):mc
+    for i in BigInt(1):mc
         s = Set(get_solution(dac.pnnf, i))
-        lunnf = annotate_mc(dac.unnf.nnf, s)
-        ai = get_mc(lunnf, 1)
+        annotate_mc(dac.unnf, s)
+        ai = get_mc(dac.unnf, 1)
 
-        lock(lck) do
-            sigma += ai
-        end
+        sigma += ai
     end
 
     return sigma
@@ -228,148 +190,15 @@ end
 
 function emc(dac :: PDAC)
     mc = get_pc(dac.pnnf, 1)
-    lck = ReentrantLock()
     sigma = BigInt(0)
-
-    Threads.@threads for i in BigInt(1):mc
-        s = get_path(dac.pnnf, i)
-        lunnf = annotate_mc(dac.unnf, s)
-        ai = get_mc(lunnf, 1)
-
-        lock(lck) do
-            sigma += ai
-        end
-    end
-
-    return sigma
-end
-
-function emc2(dac :: PDAC)
-    mc = get_pc(dac.pnnf, 1)
-    sigma = BigInt(0)
-    ch = Channel(100)
-
-    @async Threads.@threads for i in BigInt(1):mc
-        s = get_path(dac.pnnf, i)
-        lunnf = annotate_mc(dac.unnf, s)
-        ai = get_mc(lunnf, 1)
-
-        put!(ch, ai)
-    end
 
     for i in BigInt(1):mc
-        sigma += take!(ch)
+        s = get_path(dac.pnnf, i)
+        annotate_mc(dac.unnf, s)
+        ai = get_mc(dac.unnf, 1)
+
+        sigma += ai
     end
 
     return sigma
-end
-
-# function demc(dac :: PDAC)
-#     mc = get_pc(dac.pnnf, 1)
-#     sigma = BigInt(0)
-# 
-#     sigma = tmapreduce(+, BigInt(1):mc; outputtype = BigInt, init = BigInt(0), scheduler = :static) do i
-#         s = get_path(dac.pnnf, i)
-#         lunnf = annotate_mc(dac.unnf, s)
-#         ai = get_mc(lunnf, 1)
-#         ai
-#     end
-# 
-#     return sigma
-# end
-
-function appmc2(dac :: DAC, N :: Int64, k :: Int64)
-    mc = get_mc(dac.pnnf, 1)
-    N = min(mc, BigInt(N))
-
-    lck = ReentrantLock()
-
-    eps = Vector{BigInt}()
-    
-    Threads.@threads for i in 1:k
-        m = Set{BigInt}()
-        while length(m) < N
-            push!(m, rand(BigInt(1):mc))
-        end
-
-        estimate = BigInt(1)
-        for id in collect(m)
-            s = Set(get_solution(dac.pnnf, id))
-            lunnf = annotate_mc(dac.unnf.nnf, s)
-            ai = get_mc(lunnf, 1)
-
-            estimate += ai
-        end
-
-        lock(lck) do
-            push!(eps, estimate)
-        end
-    end
-
-    mie = minimum(eps)
-    mae = maximum(eps)
-    return mc * mie / N, mc * mae / N, (N ./ eps) ./ mc
-end
-
-function applb(dac :: DAC, N :: Int64, k :: Int64, a :: Float64)
-    mc = BigFloat(get_mc(dac.pnnf, 1) * get_mc(dac.unnf, 1))
-    lck = ReentrantLock()
-
-    k = min(BigInt(k), get_mc(dac.pnnf, 1))
-
-    for i in 1:N
-        m = Set{BigInt}()
-        while length(m) < k
-            push!(m, rand(BigInt(1):get_mc(dac.pnnf, 1)))
-        end
-
-        lmc = BigInt(0)
-        for id in collect(m)
-            s = Set(get_solution(dac.pnnf, id))
-            lunnf = annotate_mc(dac.unnf.nnf, s)
-            ai = get_mc(lunnf, 1)
-            lmc += ai
-        end
-
-        lmc = get_mc(dac.pnnf, 1) * lmc / (k * 2^a)
-        lock(lck) do
-            mc = min(mc, lmc)
-        end
-    end
-
-    return mc
-end
-
-function eps(dac :: DAC, N :: Int64, k :: Int64)
-    low = PriorityQueue{BigInt, BigInt}(Base.Order.ReverseOrdering())
-    high = PriorityQueue{BigInt, BigInt}()
-
-    v1 = Vector{BigInt}()
-    v2 = Vector{BigInt}()
-
-    lck = ReentrantLock()
-
-    Threads.@threads for i in 1:N
-        id = rand(BigInt(1) : get_mc(dac.pnnf, 1))
-        s = Set(get_solution(dac.pnnf, id))
-        lunnf = annotate_mc(dac.unnf.nnf, s)
-        ai = get_mc(lunnf, 1)
-
-        lock(lck) do
-            low[id] = ai
-            high[id] = ai
-
-            if length(low) > k
-                dequeue!(low)
-                push!(v1, sum(values(low)))
-            end
-
-            if length(high) > k
-                dequeue!(high)
-                push!(v2, sum(values(high)))
-            end
-        end
-    end
-
-    return v1, v2, sum(values(low)), sum(values(high))
 end
