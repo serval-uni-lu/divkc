@@ -22,7 +22,7 @@ function get_mc(nnf :: ADDNNF, e :: Edge)
     # f(x) = mkLit(x, false) in nnf.assumps || mkLit(x, true) in nnf.assumps
     # nfree = e.e_free - e.b_free + 1 - sum(f, get_free_vars(nnf.nnf, e); init = 0)
     # return get_mc(nnf, e.child) * BigInt(2)^(nfree)
-    return get_mc(nnf, e.child) * (BigInt(2) << (nfree))
+    return get_mc(nnf, e.child) * (BigInt(1) << (nfree))
 end
 
 get_mc(nnf :: ADDNNF, i :: Int64) = nnf.mc[i]
