@@ -4,7 +4,6 @@ using DataFrames
 using CSV
 using Distributions
 using DataStructures
-# using OhMyThreads
 
 include("var.jl")
 include("ddnnf.jl")
