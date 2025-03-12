@@ -191,7 +191,7 @@ class CNF {
 
         void forget(Variable v);
         void set_prj(std::set<Variable> const& v) { prj = v; }
-        void project();
+        void project(int const timeout = -1);
 
         std::size_t occurrence_count(Variable v);
         std::size_t occurrence_product(Variable v);
