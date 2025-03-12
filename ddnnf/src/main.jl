@@ -1,3 +1,4 @@
+using Profile
 using BenchmarkTools
 using CairoMakie
 using DataFrames
@@ -19,36 +20,8 @@ pdac = pdac_from_file(ARGS[1])
 println(get_pc(pdac.pnnf, 1))
 println(get_pc(pdac.pnnf, 1) / 10^6)
 
-# Y, Yl, Yh = appmc(pdac, 10000)
-# X = 1 : length(Y)
-# 
-# fc(x) = x.file == ARGS[1]
-# # # data = CSV.read("/home/users/ozeyen/ddnnf/mc.csv", DataFrame, types = Dict("mc" => BigInt))
-# data = CSV.read("mc.csv", DataFrame, types = Dict("mc" => BigInt))
-# data = filter(fc, data)
-# TMC = -1
-# if length(data.mc) == 1
-#     global TMC = data.mc[1]
-# end
-# # 
-# # println("sp ", get_mc(dac.pnnf, 1))
-# # println("su ", get_mc(dac.unnf, 1))
-# # # println("sl ", applb(dac, 500, 300, 0.01))
-# # 
-# f = Figure(size = (1000, 1000))
-# a1 = Axis(f[1, 1])
-# # a2 = Axis(f[1, 2])
-# scatterlines!(a1, X, Y, marker = :cross, markersize = 5)
-# scatterlines!(a1, X, Yl, marker = :cross, markersize = 5)
-# scatterlines!(a1, X, Yh, marker = :cross, markersize = 5)
-# # 
-# if TMC != -1
-#     scatterlines!(a1, [X[begin], X[end]], [TMC, TMC])
-#     println("tmc ", TMC)
-# end
-# save(ARGS[1] * ".png", f)
-# # 
-# println("s ", Y[end])
+Y, Yl, Yh = appmc(pdac, 1)
+@profile Y, Yl, Yh = appmc(pdac, 100)
+Profile.print()
 
-# println("es ", demc(pdac))
-println("es ", emc2(pdac))
+@time Y, Yl, Yh = appmc(pdac, 100)

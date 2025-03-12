@@ -39,19 +39,13 @@ function annotate_pc(nnf :: PCDDNNF, i :: Int64, n :: UnaryNode)
 end
 
 function annotate_pc(nnf :: PCDDNNF, i :: Int64, n :: OrNode)
-    nnf.pc[i] = 0
-
-    for c in n.children
-        nnf.pc[i] += get_pc(nnf, c)
-    end
+    f(x) = get_pc(nnf, x)
+    nnf.pc[i] = sum(f, n.children)
 end
 
 function annotate_pc(nnf :: PCDDNNF, i :: Int64, n :: AndNode)
-    nnf.pc[i] = 1
-
-    for c in n.children
-        nnf.pc[i] *= get_pc(nnf, c)
-    end
+    f(x) = get_pc(nnf, x)
+    nnf.pc[i] = prod(f, n.children)
 end
 
 function get_path(nnf :: PCDDNNF, s :: Set{Lit}, id :: BigInt, i :: Int64, n :: TrueNode)
@@ -63,9 +57,7 @@ function get_path(nnf :: PCDDNNF, s :: Set{Lit}, id :: BigInt, i :: Int64, n :: 
 end
 
 function get_path(nnf :: PCDDNNF, s :: Set{Lit}, id :: BigInt, i :: Int64, n :: UnaryNode)
-    for l in get_literals(nnf.nnf, n.child)
-        push!(s, l)
-    end
+    union!(s, get_literals(nnf.nnf, n.child))
     if id > get_pc(nnf, n.child.child)
         println("u ", id, " >= ", get_pc(nnf, n.child.child))
     end
@@ -80,9 +72,7 @@ function get_path(nnf :: PCDDNNF, s :: Set{Lit}, id :: BigInt, i :: Int64, n :: 
         cmc = get_pc(nnf, c)
 
         if id <= cmc
-            for l in get_literals(nnf.nnf, c)
-                push!(s, l)
-            end
+            union!(s, get_literals(nnf.nnf, c))
 
             if id > get_pc(nnf, c.child)
                 println("- o ", id, " >= ", get_pc(nnf, c.child))
