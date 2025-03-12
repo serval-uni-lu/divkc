@@ -176,6 +176,38 @@ function appmc(dac :: PDAC, N :: Int64)
     return Y, Y .- z .* S, Y .+ z .* S
 end
 
+# Welford's online algorithm
+function appmc_l(dac :: PDAC, N :: Int64)
+    rmean = BigFloat(0)
+    rm = BigFloat(0)
+    k = 0
+
+    z = quantile(Normal(), 1 - 0.01)
+
+    lck = ReentrantLock()
+
+    Threads.@threads for i in 1:N
+    # Threads.@threads for id in rand(BigInt(1) : get_mc(dac.pnnf, 1), N)
+        s = get_path(dac.pnnf, rand(BigInt(1) : get_pc(dac.pnnf, 1)))
+        # s = Set(get_solution(dac.pnnf, id))
+        lunnf = annotate_mc(dac.unnf, s)
+        ai = get_mc(lunnf, 1) * get_pc(dac.pnnf, 1)
+
+        lock(lck) do
+            k += 1
+            n_mean = rmean + ((ai - rmean) / k)
+            rm = rm + ((ai - rmean) * (ai - n_mean))
+            rmean = n_mean
+        end
+    end
+
+    # return Y, Yl, Yh
+    # return Y, Y .- z .* S, Y .+ z .* S
+    S2 = rm / (k - 1)
+    sd = sqrt(S2) / sqrt(k)
+    return rmean, rmean - z * sd, rmean + z * sd
+end
+
 function emc(dac :: DAC)
     mc = get_mc(dac.pnnf, 1)
     lck = ReentrantLock()
