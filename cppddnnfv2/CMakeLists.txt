@@ -45,3 +45,8 @@ add_executable(cppddnnf
         src/main.cpp
         ${FL})
 target_link_libraries(cppddnnf gmp boost_random)
+
+add_executable(ksampler
+        src/sampler.cpp
+        ${FL})
+target_link_libraries(ksampler gmp boost_random)
