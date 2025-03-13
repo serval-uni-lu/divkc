@@ -256,7 +256,6 @@ void ANNF::set_assumps(std::vector<Literal> const& a) {
 void ANNF::get_path(mpz_int const& id, std::vector<Literal> & s) const {
     std::vector<std::pair<mpz_int, std::size_t> > stack;
     stack.push_back(std::pair(id, ROOT));
-    s.clear();
 
     while(stack.size() > 0) {
         auto lid = std::get<0>(stack[stack.size() - 1]);
@@ -307,7 +306,6 @@ void ANNF::get_path(mpz_int const& id, std::vector<Literal> & s) const {
 void ANNF::get_solution(mpz_int const& id, std::vector<Literal> & s) const {
     std::vector<std::pair<mpz_int, std::size_t> > stack;
     stack.push_back(std::pair(id, ROOT));
-    s.clear();
 
     while(stack.size() > 0) {
         auto lid = std::get<0>(stack[stack.size() - 1]);
