@@ -335,7 +335,7 @@ void ANNF::get_solution(mpz_int const& id, std::vector<Literal> & s) const {
             }
 
             for(auto const& c : n.children) {
-                auto const cmc = get_mc(c);
+                auto cmc = get_mc(c);
 
                 if(lid <= cmc) {
                     for(auto const& l : c.units) {
