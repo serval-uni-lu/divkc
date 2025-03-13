@@ -28,9 +28,11 @@ add_link_options(
 set(FL
     src/nnf.hpp
     src/var.hpp
+    src/pdac.hpp
 
     src/nnf.cpp
     src/var.cpp
+    src/pdac.cpp
 )
 
 # add_executable(ddnnf
