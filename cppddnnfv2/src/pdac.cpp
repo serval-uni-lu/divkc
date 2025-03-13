@@ -63,7 +63,7 @@ void appmc(PDAC const& pdac, int const N, double const alpha) {
 
     #pragma omp parallel for
     for(int i = 0; i < N; i++) {
-        std::vector<Literal> path;
+        std::set<Literal> path;
         ANNF aunnf = ANNF(pdac.unnf);
         auto l = ui(mt);
 
@@ -251,7 +251,7 @@ mpz_int exact_mc(PDAC const& pdac) {
     apnnf.annotate_pc();
     auto const pc = apnnf.mc(ROOT);
 
-    std::vector<Literal> path;
+    std::set<Literal> path;
     ANNF aunnf = ANNF(pdac.unnf);
     mpz_int tmc = 0;
 
@@ -284,7 +284,7 @@ void exact_uniform_sampling(PDAC const& pdac, int const N) {
     #pragma omp parallel for
     for(int i = 1; i <= ipc; i++) {
         ANNF aunnf = ANNF(pdac.unnf);
-        std::vector<Literal> path;
+        std::set<Literal> path;
         apnnf.get_path(i, path);
 
         aunnf.set_assumps(path);
@@ -311,7 +311,7 @@ void exact_uniform_sampling(PDAC const& pdac, int const N) {
 
         bool ch = false;
 
-        std::vector<Literal> lpath;
+        std::set<Literal> lpath;
         ANNF launnf = ANNF(pdac.unnf);
 
         for(int pid = 1; 1 <= ipc; pid++) {
@@ -321,7 +321,7 @@ void exact_uniform_sampling(PDAC const& pdac, int const N) {
                 launnf.set_assumps(lpath);
                 launnf.annotate_mc();
                 launnf.get_solution(id, lpath);
-                std::sort(lpath.begin(), lpath.end());
+                // std::sort(lpath.begin(), lpath.end());
                 #pragma omp critical
                 {
                     for(auto const& l : lpath) {
@@ -356,7 +356,7 @@ void heuristic_uniform_sampling(PDAC const& pdac, int const N, int const k) {
 
     #pragma omp parallel for
     for(int i = 0; i < N; i++) {
-        std::vector<Literal> path;
+        std::set<Literal> path;
         ANNF aunnf = ANNF(pdac.unnf);
 
         mt19937 mt;
@@ -373,7 +373,7 @@ void heuristic_uniform_sampling(PDAC const& pdac, int const N, int const k) {
         std::vector<mpz_int> vpids(pids.begin(), pids.end());
         std::vector<mpz_int> mc_vpids;
         mpz_int tmc = 0;
-        for(int j = 0; j < vpids.size(); j++) {
+        for(std::size_t j = 0; j < vpids.size(); j++) {
             path.clear();
             apnnf.get_path(vpids[j], path);
             aunnf.set_assumps(path);
@@ -388,7 +388,7 @@ void heuristic_uniform_sampling(PDAC const& pdac, int const N, int const k) {
         mpz_int id = lui(mt);
         bool ch = false;
 
-        for(int j = 0; j < vpids.size(); j++) {
+        for(std::size_t j = 0; j < vpids.size(); j++) {
             if(id <= mc_vpids[j]) {
                 path.clear();
                 apnnf.get_path(vpids[j], path);
@@ -396,7 +396,7 @@ void heuristic_uniform_sampling(PDAC const& pdac, int const N, int const k) {
                 aunnf.annotate_mc();
 
                 aunnf.get_solution(id, path);
-                std::sort(path.begin(), path.end());
+                // std::sort(path.begin(), path.end());
                 #pragma omp critical
                 {
                     for(auto const& l : path) {

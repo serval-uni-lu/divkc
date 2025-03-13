@@ -253,7 +253,7 @@ void ANNF::set_assumps(std::vector<Literal> const& a) {
 }
 
 
-void ANNF::get_path(mpz_int const& id, std::vector<Literal> & s) const {
+void ANNF::get_path(mpz_int const& id, std::set<Literal> & s) const {
     std::vector<std::pair<mpz_int, std::size_t> > stack;
     stack.push_back(std::pair(id, ROOT));
 
@@ -289,7 +289,7 @@ void ANNF::get_path(mpz_int const& id, std::vector<Literal> & s) const {
 
                 if(lid <= cmc) {
                     for(auto const& l : c.units) {
-                        s.push_back(l);
+                        s.insert(l);
                     }
 
                     stack.emplace_back(lid, c.id_dst);
@@ -303,7 +303,7 @@ void ANNF::get_path(mpz_int const& id, std::vector<Literal> & s) const {
     }
 }
 
-void ANNF::get_solution(mpz_int const& id, std::vector<Literal> & s) const {
+void ANNF::get_solution(mpz_int const& id, std::set<Literal> & s) const {
     std::vector<std::pair<mpz_int, std::size_t> > stack;
     stack.push_back(std::pair(id, ROOT));
 
@@ -339,25 +339,25 @@ void ANNF::get_solution(mpz_int const& id, std::vector<Literal> & s) const {
 
                 if(lid <= cmc) {
                     for(auto const& l : c.units) {
-                        s.push_back(l);
+                        s.insert(l);
                     }
 
                     for(auto const& v : c.freeVars) {
                         auto const l = Literal(v, 0);
                         if(assumps.find(l) != assumps.end()) {
-                            s.push_back(l);
+                            s.insert(l);
                         }
                         else if(assumps.find(~l) != assumps.end()) {
-                            s.push_back(~l);
+                            s.insert(~l);
                         }
                         else if(lid <= (cmc / 2)) {
-                            s.push_back(l);
+                            s.insert(l);
                             cmc /= 2;
                         }
                         else {
                             cmc /= 2;
                             lid -= cmc;
-                            s.push_back(~l);
+                            s.insert(~l);
                         }
                     }
 

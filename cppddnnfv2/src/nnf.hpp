@@ -89,8 +89,8 @@ public:
 
     mpz_int mc(std::size_t id) const;
 
-    void get_path(mpz_int const& id, std::vector<Literal> & s) const;
-    void get_solution(mpz_int const& id, std::vector<Literal> & s) const;
+    void get_path(mpz_int const& id, std::set<Literal> & s) const;
+    void get_solution(mpz_int const& id, std::set<Literal> & s) const;
 };
 
 
