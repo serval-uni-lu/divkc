@@ -264,16 +264,16 @@ void ANNF::get_path(mpz_int const& id, std::vector<Literal> & s) const {
 
         Node const& n = nnf[nid];
         if(n.type == And) {
-            auto tmc = mc(nid);
+            auto const tmc = mc(nid);
             if(lid > tmc) {
                 std::cerr << "a " << lid << " <= " << tmc << "\n";
             }
 
             for(auto const& c : n.children) {
-                auto cmc = get_pc(c);
+                auto const cmc = get_pc(c);
 
-                auto x = ((lid - 1) % cmc) + 1;
-                auto y = ((lid - 1) / cmc) + 1;
+                auto const x = ((lid - 1) % cmc) + 1;
+                auto const y = ((lid - 1) / cmc) + 1;
 
                 stack.emplace_back(x, c.id_dst);
                 lid = y;
@@ -285,7 +285,7 @@ void ANNF::get_path(mpz_int const& id, std::vector<Literal> & s) const {
             }
 
             for(auto const& c : n.children) {
-                auto cmc = get_pc(c);
+                auto const cmc = get_pc(c);
 
                 if(lid <= cmc) {
                     for(auto const& l : c.units) {
@@ -314,16 +314,16 @@ void ANNF::get_solution(mpz_int const& id, std::vector<Literal> & s) const {
 
         Node const& n = nnf[nid];
         if(n.type == And) {
-            auto tmc = mc(nid);
+            auto const tmc = mc(nid);
             if(lid > tmc) {
                 std::cerr << "a " << lid << " <= " << tmc << "\n";
             }
 
             for(auto const& c : n.children) {
-                auto cmc = get_mc(c);
+                auto const cmc = get_mc(c);
 
-                auto x = ((lid - 1) % cmc) + 1;
-                auto y = ((lid - 1) / cmc) + 1;
+                auto const x = ((lid - 1) % cmc) + 1;
+                auto const y = ((lid - 1) / cmc) + 1;
 
                 stack.emplace_back(x, c.id_dst);
                 lid = y;
@@ -335,7 +335,7 @@ void ANNF::get_solution(mpz_int const& id, std::vector<Literal> & s) const {
             }
 
             for(auto const& c : n.children) {
-                auto cmc = get_mc(c);
+                auto const cmc = get_mc(c);
 
                 if(lid <= cmc) {
                     for(auto const& l : c.units) {

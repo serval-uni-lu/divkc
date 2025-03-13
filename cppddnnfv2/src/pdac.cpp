@@ -185,22 +185,22 @@ void heuristic_uniform_sampling(PDAC const& pdac, int const N, int const k) {
         std::vector<mpz_int> vpids(pids.begin(), pids.end());
         std::vector<mpz_int> mc_vpids;
         mpz_int tmc = 0;
-        for(int j = 0; j < vpids.size(); j++) {
+        for(std::size_t j = 0; j < vpids.size(); j++) {
             path.clear();
             apnnf.get_path(vpids[j], path);
             aunnf.set_assumps(path);
             aunnf.annotate_mc();
-            auto const& ai = aunnf.mc(ROOT);
+            auto const ai = aunnf.mc(ROOT);
 
             mc_vpids.push_back(ai);
             tmc += ai;
         }
 
-        uniform_int_distribution<mpz_int> ui(1, tmc);
-        mpz_int id = ui(mt);
+        uniform_int_distribution<mpz_int> lui(1, tmc);
+        mpz_int id = lui(mt);
         bool ch = false;
 
-        for(int j = 0; j < vpids.size(); j++) {
+        for(std::size_t j = 0; j < vpids.size(); j++) {
             if(id <= mc_vpids[j]) {
                 path.clear();
                 apnnf.get_path(vpids[j], path);
