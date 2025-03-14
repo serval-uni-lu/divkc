@@ -4,7 +4,6 @@ From: ubuntu:22.04
 %files
     ./src /src
     ./CMakeLists.txt /CMakeLists.txt
-    ../wrapper /wrapper
 
 %post
     echo "setup start"
@@ -15,10 +14,7 @@ From: ubuntu:22.04
     mkdir build
     cd build
     cmake ..
-    make -j8
-
-    cd /wrapper
-    make
+    make -j8 pc
 
 %runscript
-    /wrapper/wrap 64000 18000 /build/cppddnnf "$@"
+    /build/pc "$@"
