@@ -41,10 +41,10 @@ set(FL
 #         src/main.cpp
 #         ${FL})
 
-add_executable(cppddnnf
-        src/main.cpp
+add_executable(appmc
+        src/appmc.cpp
         ${FL})
-target_link_libraries(cppddnnf gmp boost_random)
+target_link_libraries(appmc gmp boost_random)
 
 add_executable(ksampler
         src/sampler.cpp

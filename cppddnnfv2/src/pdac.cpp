@@ -60,6 +60,9 @@ void appmc(PDAC const& pdac, int const N, double const alpha) {
     mpf_float rm = 0;
 
     int k = 0;
+    mpf_float const z = quantile(normal(), 1 - alpha);
+
+    std::cout << "N,Y,Yl,Yh\n";
 
     #pragma omp parallel for
     for(int i = 0; i < N; i++) {
@@ -79,18 +82,18 @@ void appmc(PDAC const& pdac, int const N, double const alpha) {
             mpf_float n_mean = rmean + ((ai - rmean) / k);
             rm = rm + ((ai - rmean) * (ai - n_mean));
             rmean = n_mean;
+
+            mpf_float S2 = rm / (N - 1);
+            mpf_float sd = sqrt(S2) / sqrt(N);
+
+            std::cout << k << ", " << rmean << ", " << (rmean - z * sd) << ", " << (rmean + z * sd) << "\n";
         }
     }
 
-    mpf_float S2 = rm / (N - 1);
-    mpf_float sd = sqrt(S2) / sqrt(N);
-
-    mpf_float z = quantile(normal(), 1 - alpha);
-
-    std::cout << "pc " << pc << "\n";
-    std::cout << "s " << rmean << "\n";
-    std::cout << "sl " << (rmean - z * sd) << "\n";
-    std::cout << "sh " << (rmean + z * sd) << "\n";
+    // std::cout << "pc " << pc << "\n";
+    // std::cout << "s " << rmean << "\n";
+    // std::cout << "sl " << (rmean - z * sd) << "\n";
+    // std::cout << "sh " << (rmean + z * sd) << "\n";
 }
 
 // mpz_int exact_mc(PDAC const& pdac) {
