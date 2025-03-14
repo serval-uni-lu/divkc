@@ -83,10 +83,12 @@ void appmc(PDAC const& pdac, int const N, double const alpha) {
             rm = rm + ((ai - rmean) * (ai - n_mean));
             rmean = n_mean;
 
-            mpf_float S2 = rm / (k - 1);
-            mpf_float sd = sqrt(S2) / sqrt(k);
+            if(k > 1) {
+                mpf_float S2 = rm / (k - 1);
+                mpf_float sd = sqrt(S2) / sqrt(k);
 
-            std::cout << k << ", " << rmean << ", " << (rmean - z * sd) << ", " << (rmean + z * sd) << "\n";
+                std::cout << k << ", " << rmean << ", " << (rmean - z * sd) << ", " << (rmean + z * sd) << "\n";
+            }
         }
     }
 
