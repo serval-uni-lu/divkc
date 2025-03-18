@@ -46,6 +46,11 @@ add_executable(appmc
         ${FL})
 target_link_libraries(appmc gmp boost_random)
 
+add_executable(lmc
+        src/lmc.cpp
+        ${FL})
+target_link_libraries(lmc gmp boost_random)
+
 add_executable(ksampler
         src/sampler.cpp
         ${FL})

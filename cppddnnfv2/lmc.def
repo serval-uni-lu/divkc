@@ -1,0 +1,24 @@
+BootStrap: docker
+From: ubuntu:22.04
+
+%files
+    ./src /src
+    ./CMakeLists.txt /CMakeLists.txt
+    ../wrapper /wrapper
+
+%post
+    echo "setup start"
+    apt-get -y update
+    apt-get -y install cmake make g++ libboost-dev libgmp-dev libboost-random-dev
+
+    cd /
+    mkdir build
+    cd build
+    cmake ..
+    make -j8 lmc
+
+    cd /wrapper
+    make
+
+%runscript
+    /wrapper/wrap 64000 18000 /build/lmc "$@"
