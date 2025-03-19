@@ -21,4 +21,4 @@ From: ubuntu:22.04
     make
 
 %runscript
-    /wrapper/wrap 64000 18000 /build/appmc "$@"
+    /wrapper/wrap 64000 5400 /build/appmc "$@"
