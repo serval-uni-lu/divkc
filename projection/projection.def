@@ -2,14 +2,14 @@ BootStrap: docker
 From: ubuntu:22.04
 
 %files
-    ./ /smp
+    ./ /projection
 
 %post
     echo "setup start"
     apt-get -y update
     apt-get -y install libz3-dev make g++
 
-    cd smp
+    cd projection
     make clean
     make -j8
 
@@ -17,4 +17,4 @@ From: ubuntu:22.04
     echo "setup done"
 
 %runscript
-    /smp/smp "$@"
+    /projection/projection "$@"

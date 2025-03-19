@@ -13,7 +13,7 @@ ifeq ($(PRINT_MAP),1)
 CXXFLAGS += -DPRINT_MAP
 endif
 
-EXEC = smp
+EXEC = projection
 
 CSRCS      = $(wildcard *.cpp */*.cpp)
 CHDRS      = $(wildcard *.hpp */*.hpp)
