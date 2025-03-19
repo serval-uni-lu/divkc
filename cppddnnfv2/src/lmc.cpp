@@ -81,7 +81,7 @@ mpf_float lmc(PDAC const& pdac, int const N, double const alpha) {
         aunnf.set_assumps(path);
         aunnf.annotate_mc();
         mpf_float ai = (aunnf.mc(ROOT) * pc);
-        ai *= pow(2, alpha);
+        ai *= pow(2, -1 * alpha);
 
         #pragma omp critical
         if(res == -1 || ai < res) {
