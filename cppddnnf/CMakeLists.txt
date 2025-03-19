@@ -13,6 +13,7 @@ add_compile_options(
         -pedantic
         -O3
         -pthread
+        -fopenmp
         #         -lgmp
         #         -lboost_random
         ${ASAN}
@@ -21,6 +22,7 @@ add_link_options(
         ${ASAN}
         -pthread
         -O3
+        -fopenmp
         #         -lgmp
         #         -lboost_random
 )
@@ -39,7 +41,22 @@ set(FL
 #         src/main.cpp
 #         ${FL})
 
-add_executable(cppddnnf
-        src/main.cpp
+add_executable(appmc
+        src/appmc.cpp
         ${FL})
-target_link_libraries(cppddnnf -static gmp boost_random)
+target_link_libraries(appmc gmp boost_random)
+
+add_executable(lmc
+        src/lmc.cpp
+        ${FL})
+target_link_libraries(lmc gmp boost_random)
+
+add_executable(ksampler
+        src/sampler.cpp
+        ${FL})
+target_link_libraries(ksampler gmp boost_random)
+
+add_executable(pc
+        src/pc.cpp
+        ${FL})
+target_link_libraries(pc gmp boost_random)

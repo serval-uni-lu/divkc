@@ -18,6 +18,8 @@ using boost::multiprecision::mpz_int;
 
 extern std::pmr::unsynchronized_pool_resource MEM_POOL;
 
+std::size_t constexpr ROOT = 1;
+
 enum NodeType {
     And,
     Or,
@@ -35,7 +37,6 @@ struct Edge {
 struct Node {
     NodeType type;
     std::vector<Edge> children;
-    mpz_int mc;
 
     Node() {}
 };
@@ -44,16 +45,10 @@ struct Node {
 class NNF {
 private:
     std::size_t nb_vars;
-    std::size_t root;
     std::vector<Node> nodes;
     std::vector<std::size_t> ordering;
 
-    std::set<Literal> assumps;
-
     void compute_ordering();
-
-    mpz_int get_mc(Edge const& e) const;
-    mpz_int get_pc(Edge const& e) const;
 public:
     NNF() = default;
     NNF(std::string const& path);
@@ -72,17 +67,30 @@ public:
         return nodes[i];
     }
 
-    void set_assumps(std::set<Literal> const& a);
-    void set_assumps(std::vector<Literal> const& a);
+    inline std::vector<std::size_t> const& get_ordering() const { return ordering; }
+};
+
+class ANNF {
+private:
+    std::vector<mpz_int> mcv;
+    NNF const& nnf;
+    std::set<Literal> assumps;
+
+    mpz_int get_mc(Edge const& e) const;
+    mpz_int get_pc(Edge const& e) const;
+public:
+    ANNF(NNF const& f);
+    // ANNF(NNF const& f, std::set<Literal> const& a);
+
     void annotate_mc();
     void annotate_pc();
+    void set_assumps(std::set<Literal> const& a);
+    void set_assumps(std::vector<Literal> const& a);
 
-    mpz_int mc() const;
     mpz_int mc(std::size_t id) const;
 
-
-    void get_path(mpz_int const& id, std::vector<Literal> & s) const;
-    void get_solution(mpz_int const& id, std::vector<Literal> & s) const;
+    void get_path(mpz_int const& id, std::set<Literal> & s) const;
+    void get_solution(mpz_int const& id, std::set<Literal> & s) const;
 };
 
 

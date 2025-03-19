@@ -100,7 +100,6 @@ void NNF::init(std::string const& path, bool project, std::set<Variable> const& 
         }
     }
 
-    root = 1;
     f.close();
 
     compute_ordering();
@@ -130,96 +129,12 @@ mpz_int m_pow(std::size_t const& e, std::size_t const& p) {
     return r;
 }
 
-mpz_int NNF::mc(std::size_t id) const {
-    return nodes[id].mc;
-}
-
-mpz_int NNF::mc() const {
-    return mc(root);
-}
-
-mpz_int NNF::get_mc(Edge const& e) const {
-    for(auto const& l : e.units) {
-        if(assumps.find(~l) != assumps.end()) {
-            return 0;
-        }
-    }
-    int nfree = e.freeVars.size();
-    for(auto const& v : e.freeVars) {
-        auto const l = Literal(v, 0);
-        if(assumps.find(l) != assumps.end() || assumps.find(~l) != assumps.end()) {
-            nfree -= 1;
-        }
-    }
-
-    return nodes[e.id_dst].mc * m_pow(2, nfree);
-}
-
-mpz_int NNF::get_pc(Edge const& e) const {
-    for(auto const& l : e.units) {
-        if(assumps.find(~l) != assumps.end()) {
-            return 0;
-        }
-    }
-    return nodes[e.id_dst].mc;
-}
-
-void NNF::annotate_mc() {
-    for(auto const& nid : ordering) {
-        Node & n = nodes[nid];
-        n.mc = 0;
-
-        if(n.type == True) {
-            n.mc = 1;
-        }
-        else if(n.type == False) {
-            n.mc = 0;
-        }
-        else if(n.type == And) {
-            n.mc = 1;
-            for(auto const& i : n.children) {
-                n.mc *= get_mc(i);
-            }
-        }
-        else if(n.type == Or || n.type == Unary) {
-            for(auto const& i : n.children) {
-                n.mc += get_mc(i);
-            }
-        }
-    }
-}
-
-void NNF::annotate_pc() {
-    for(auto const& nid : ordering) {
-        Node & n = nodes[nid];
-        n.mc = 0;
-
-        if(n.type == True) {
-            n.mc = 1;
-        }
-        else if(n.type == False) {
-            n.mc = 0;
-        }
-        else if(n.type == And) {
-            n.mc = 1;
-            for(auto const& i : n.children) {
-                n.mc *= get_pc(i);
-            }
-        }
-        else if(n.type == Or || n.type == Unary) {
-            for(auto const& i : n.children) {
-                n.mc += get_pc(i);
-            }
-        }
-    }
-}
-
 void NNF::compute_ordering() {
     ordering.clear();
     std::vector<std::size_t> stack;
     std::set<std::size_t> visited;
 
-    stack.push_back(root);
+    stack.push_back(ROOT);
 
     while(stack.size() > 0) {
         auto num = stack[stack.size() - 1];
@@ -244,37 +159,121 @@ void NNF::compute_ordering() {
     }
 }
 
-void NNF::set_assumps(std::set<Literal> const& a) {
+ANNF::ANNF(NNF const& f) 
+    : mcv(f.nb_nodes(), 0), nnf(f) {
+}
+
+mpz_int ANNF::mc(std::size_t id) const {
+    return mcv[id];
+}
+
+mpz_int ANNF::get_mc(Edge const& e) const {
+    for(auto const& l : e.units) {
+        if(assumps.find(~l) != assumps.end()) {
+            return 0;
+        }
+    }
+    int nfree = e.freeVars.size();
+    for(auto const& v : e.freeVars) {
+        auto const l = Literal(v, 0);
+        if(assumps.find(l) != assumps.end() || assumps.find(~l) != assumps.end()) {
+            nfree -= 1;
+        }
+    }
+
+    return mc(e.id_dst) * m_pow(2, nfree);
+}
+
+mpz_int ANNF::get_pc(Edge const& e) const {
+    for(auto const& l : e.units) {
+        if(assumps.find(~l) != assumps.end()) {
+            return 0;
+        }
+    }
+    return mc(e.id_dst);
+}
+
+void ANNF::annotate_mc() {
+    for(auto const& nid : nnf.get_ordering()) {
+        Node const& n = nnf[nid];
+        mcv[nid] = 0;
+
+        if(n.type == True) {
+            mcv[nid] = 1;
+        }
+        else if(n.type == False) {
+            mcv[nid] = 0;
+        }
+        else if(n.type == And) {
+            mcv[nid] = 1;
+            for(auto const& i : n.children) {
+                mcv[nid] *= get_mc(i);
+            }
+        }
+        else if(n.type == Or || n.type == Unary) {
+            for(auto const& i : n.children) {
+                mcv[nid] += get_mc(i);
+            }
+        }
+    }
+}
+
+void ANNF::annotate_pc() {
+    for(auto const& nid : nnf.get_ordering()) {
+        Node const& n = nnf[nid];
+        mcv[nid] = 0;
+
+        if(n.type == True) {
+            mcv[nid] = 1;
+        }
+        else if(n.type == False) {
+            mcv[nid] = 0;
+        }
+        else if(n.type == And) {
+            mcv[nid] = 1;
+            for(auto const& i : n.children) {
+                mcv[nid] *= get_pc(i);
+            }
+        }
+        else if(n.type == Or || n.type == Unary) {
+            for(auto const& i : n.children) {
+                mcv[nid] += get_pc(i);
+            }
+        }
+    }
+}
+
+void ANNF::set_assumps(std::set<Literal> const& a) {
     assumps = a;
 }
 
-void NNF::set_assumps(std::vector<Literal> const& a) {
+void ANNF::set_assumps(std::vector<Literal> const& a) {
     assumps.clear();
     assumps.insert(a.begin(), a.end());
 }
 
-void NNF::get_path(mpz_int const& id, std::vector<Literal> & s) const {
+
+void ANNF::get_path(mpz_int const& id, std::set<Literal> & s) const {
     std::vector<std::pair<mpz_int, std::size_t> > stack;
-    stack.push_back(std::pair(id, root));
-    s.clear();
+    stack.push_back(std::pair(id, ROOT));
 
     while(stack.size() > 0) {
         auto lid = std::get<0>(stack[stack.size() - 1]);
         auto nid = std::get<1>(stack[stack.size() - 1]);
         stack.pop_back();
 
-        Node const& n = nodes[nid];
+        Node const& n = nnf[nid];
         if(n.type == And) {
-            auto tmc = mc(nid);
+            auto const tmc = mc(nid);
             if(lid > tmc) {
                 std::cerr << "a " << lid << " <= " << tmc << "\n";
             }
 
             for(auto const& c : n.children) {
-                auto cmc = get_pc(c);
+                auto const cmc = get_pc(c);
 
-                auto x = ((lid - 1) % cmc) + 1;
-                auto y = ((lid - 1) / cmc) + 1;
+                auto const x = ((lid - 1) % cmc) + 1;
+                auto const y = ((lid - 1) / cmc) + 1;
 
                 stack.emplace_back(x, c.id_dst);
                 lid = y;
@@ -286,11 +285,11 @@ void NNF::get_path(mpz_int const& id, std::vector<Literal> & s) const {
             }
 
             for(auto const& c : n.children) {
-                auto cmc = get_pc(c);
+                auto const cmc = get_pc(c);
 
                 if(lid <= cmc) {
                     for(auto const& l : c.units) {
-                        s.push_back(l);
+                        s.insert(l);
                     }
 
                     stack.emplace_back(lid, c.id_dst);
@@ -304,28 +303,27 @@ void NNF::get_path(mpz_int const& id, std::vector<Literal> & s) const {
     }
 }
 
-void NNF::get_solution(mpz_int const& id, std::vector<Literal> & s) const {
+void ANNF::get_solution(mpz_int const& id, std::set<Literal> & s) const {
     std::vector<std::pair<mpz_int, std::size_t> > stack;
-    stack.push_back(std::pair(id, root));
-    s.clear();
+    stack.push_back(std::pair(id, ROOT));
 
     while(stack.size() > 0) {
         auto lid = std::get<0>(stack[stack.size() - 1]);
         auto nid = std::get<1>(stack[stack.size() - 1]);
         stack.pop_back();
 
-        Node const& n = nodes[nid];
+        Node const& n = nnf[nid];
         if(n.type == And) {
-            auto tmc = mc(nid);
+            auto const tmc = mc(nid);
             if(lid > tmc) {
                 std::cerr << "a " << lid << " <= " << tmc << "\n";
             }
 
             for(auto const& c : n.children) {
-                auto cmc = get_mc(c);
+                auto const cmc = get_mc(c);
 
-                auto x = ((lid - 1) % cmc) + 1;
-                auto y = ((lid - 1) / cmc) + 1;
+                auto const x = ((lid - 1) % cmc) + 1;
+                auto const y = ((lid - 1) / cmc) + 1;
 
                 stack.emplace_back(x, c.id_dst);
                 lid = y;
@@ -341,25 +339,25 @@ void NNF::get_solution(mpz_int const& id, std::vector<Literal> & s) const {
 
                 if(lid <= cmc) {
                     for(auto const& l : c.units) {
-                        s.push_back(l);
+                        s.insert(l);
                     }
 
                     for(auto const& v : c.freeVars) {
                         auto const l = Literal(v, 0);
                         if(assumps.find(l) != assumps.end()) {
-                            s.push_back(l);
+                            s.insert(l);
                         }
                         else if(assumps.find(~l) != assumps.end()) {
-                            s.push_back(~l);
+                            s.insert(~l);
                         }
                         else if(lid <= (cmc / 2)) {
-                            s.push_back(l);
+                            s.insert(l);
                             cmc /= 2;
                         }
                         else {
                             cmc /= 2;
                             lid -= cmc;
-                            s.push_back(~l);
+                            s.insert(~l);
                         }
                     }
 
