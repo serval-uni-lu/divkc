@@ -49,7 +49,7 @@ mpf_float lmca(PDAC const& pdac, int const N, int const k, double const alpha) {
             // ai *= pow(2, alpha);
             mean = mean + ((ai - mean) / (j + 1));
         }
-        mean *= pow(2, alpha);
+        mean *= pow(2, -1 * alpha);
 
         #pragma omp critical
         if(res == -1 || mean < res) {
@@ -59,37 +59,37 @@ mpf_float lmca(PDAC const& pdac, int const N, int const k, double const alpha) {
     return res;
 }
 
-mpf_float lmc(PDAC const& pdac, int const N, double const alpha) {
-    mpf_float res = -1;
-
-    ANNF apnnf = ANNF(pdac.pnnf);
-    apnnf.annotate_pc();
-    auto const pc = apnnf.mc(ROOT);
-
-    random_device rng;
-    mt19937 mt(rng);
-    uniform_int_distribution<mpz_int> ui(1, pc);
-
-    #pragma omp parallel for
-    for(int i = 0; i < N; i++) {
-        std::set<Literal> path;
-        ANNF aunnf = ANNF(pdac.unnf);
-        auto l = ui(mt);
-
-        path.clear();
-        apnnf.get_path(l, path);
-        aunnf.set_assumps(path);
-        aunnf.annotate_mc();
-        mpf_float ai = (aunnf.mc(ROOT) * pc);
-        ai *= pow(2, -1 * alpha);
-
-        #pragma omp critical
-        if(res == -1 || ai < res) {
-            res = ai;
-        }
-    }
-    return res;
-}
+// mpf_float lmc(PDAC const& pdac, int const N, double const alpha) {
+//     mpf_float res = -1;
+// 
+//     ANNF apnnf = ANNF(pdac.pnnf);
+//     apnnf.annotate_pc();
+//     auto const pc = apnnf.mc(ROOT);
+// 
+//     random_device rng;
+//     mt19937 mt(rng);
+//     uniform_int_distribution<mpz_int> ui(1, pc);
+// 
+//     #pragma omp parallel for
+//     for(int i = 0; i < N; i++) {
+//         std::set<Literal> path;
+//         ANNF aunnf = ANNF(pdac.unnf);
+//         auto l = ui(mt);
+// 
+//         path.clear();
+//         apnnf.get_path(l, path);
+//         aunnf.set_assumps(path);
+//         aunnf.annotate_mc();
+//         mpf_float ai = (aunnf.mc(ROOT) * pc);
+//         ai *= pow(2, -1 * alpha);
+// 
+//         #pragma omp critical
+//         if(res == -1 || ai < res) {
+//             res = ai;
+//         }
+//     }
+//     return res;
+// }
 
 int main(int argc, char** argv) {
     if(argc != 5) {
