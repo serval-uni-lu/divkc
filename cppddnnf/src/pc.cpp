@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     apnnf.annotate_pc();
     auto const pc = apnnf.mc(ROOT);
 
-    std::cout << cnf_path << ", " << pc << "\n";
+    std::cout << pc << "\n";
 
     return 0;
 }
