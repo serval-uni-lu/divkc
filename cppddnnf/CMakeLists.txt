@@ -56,6 +56,11 @@ add_executable(ksampler
         ${FL})
 target_link_libraries(ksampler gmp boost_random)
 
+add_executable(rsampler
+        src/rsampler.cpp
+        ${FL})
+target_link_libraries(rsampler gmp boost_random)
+
 add_executable(pc
         src/pc.cpp
         ${FL})
