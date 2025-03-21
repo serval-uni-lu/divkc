@@ -51,12 +51,18 @@ void reservoir(PDAC const& pdac, int const N, int const k) {
             }
         }
         else {
-            binomial_distribution<int, long double> binom(N, static_cast<long double>(ai / tmc));
-            int const tn = binom(mt);
-            std::random_shuffle(reservoir.begin(), reservoir.end());
-            for(int i = 0; i < tn; i++) {
-                reservoir[i] = l;
+            // binomial_distribution<int, long double> binom(N, static_cast<long double>(ai / tmc));
+            // int const tn = binom(mt);
+            uniform_int_distribution<mpz_int> lui(1, tmc);
+            for(int i = 0; i < reservoir.size(); i++) {
+                if(lui(mt) <= ai) {
+                    reservoir[i] = l;
+                }
             }
+            // std::random_shuffle(reservoir.begin(), reservoir.end());
+            // for(int i = 0; i < tn; i++) {
+            //     reservoir[i] = l;
+            // }
         }
 
     }
