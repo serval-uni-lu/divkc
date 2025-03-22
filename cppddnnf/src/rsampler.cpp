@@ -9,7 +9,9 @@
 #include <boost/random/random_device.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/binomial_distribution.hpp>
+// #include <boost/random/binomial_distribution.hpp>
+#include <boost/range/algorithm.hpp>
+
 
 #include <boost/multiprecision/gmp.hpp>
 
@@ -41,6 +43,7 @@ void reservoir_heuristic(PDAC const& pdac, std::size_t const N, std::size_t cons
             while(visited.find(l) != visited.end()) {
                 l = ui(mt);
             }
+            visited.insert(l);
         }
 
         path.clear();
@@ -69,6 +72,8 @@ void reservoir_heuristic(PDAC const& pdac, std::size_t const N, std::size_t cons
         }
 
     }
+
+    boost::random_shuffle(reservoir);
 
     #pragma omp parallel for
     for(std::size_t i = 0; i < reservoir.size(); i++) {
@@ -112,7 +117,7 @@ void reservoir_exact(PDAC const& pdac, std::size_t const N) {
     mpz_int tmc = 0;
 
     #pragma omp parallel for
-    for(std::size_t l = 0; l < ipc; l++) {
+    for(std::size_t l = 1; l <= ipc; l++) {
         std::set<Literal> path;
         ANNF aunnf = ANNF(pdac.unnf);
 
@@ -142,6 +147,8 @@ void reservoir_exact(PDAC const& pdac, std::size_t const N) {
             }
         }
     }
+
+    boost::random_shuffle(reservoir);
 
     #pragma omp parallel for
     for(std::size_t i = 0; i < reservoir.size(); i++) {
