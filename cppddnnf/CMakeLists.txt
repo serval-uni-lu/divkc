@@ -37,10 +37,6 @@ set(FL
     src/pdac.cpp
 )
 
-# add_executable(ddnnf
-#         src/main.cpp
-#         ${FL})
-
 add_executable(appmc
         src/appmc.cpp
         ${FL})

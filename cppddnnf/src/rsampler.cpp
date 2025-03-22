@@ -17,7 +17,7 @@ using namespace boost::random;
 using boost::multiprecision::mpf_float;
 using boost::multiprecision::mpz_int;
 
-void reservoir(PDAC const& pdac, int const N, int const k) {
+void reservoir_heuristic(PDAC const& pdac, std::size_t const N, std::size_t const k) {
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
     auto const pc = apnnf.mc(ROOT);
@@ -30,12 +30,17 @@ void reservoir(PDAC const& pdac, int const N, int const k) {
     std::vector<mpz_int> reservoir;
     mpz_int tmc = 0;
 
-    for(int i = 0; i < k && visited.size() < pc; i++) {
+    #pragma omp parallel for
+    for(std::size_t i = 0; i < k; i++) {
         std::set<Literal> path;
         ANNF aunnf = ANNF(pdac.unnf);
-        auto l = ui(mt);
-        while(visited.find(l) != visited.end()) {
+        mpz_int l = -1;
+        #pragma omp critical
+        {
             l = ui(mt);
+            while(visited.find(l) != visited.end()) {
+                l = ui(mt);
+            }
         }
 
         path.clear();
@@ -43,31 +48,30 @@ void reservoir(PDAC const& pdac, int const N, int const k) {
         aunnf.set_assumps(path);
         aunnf.annotate_mc();
         auto const ai = aunnf.mc(ROOT);
-        tmc += ai;
 
-        if(reservoir.size() < N) {
-            while(reservoir.size() < N) {
-                reservoir.push_back(l);
-            }
-        }
-        else {
-            // binomial_distribution<int, long double> binom(N, static_cast<long double>(ai / tmc));
-            // int const tn = binom(mt);
-            uniform_int_distribution<mpz_int> lui(1, tmc);
-            for(int i = 0; i < reservoir.size(); i++) {
-                if(lui(mt) <= ai) {
-                    reservoir[i] = l;
+        #pragma omp critical
+        {
+            tmc += ai;
+
+            if(reservoir.size() < N) {
+                while(reservoir.size() < N) {
+                    reservoir.push_back(l);
                 }
             }
-            // std::random_shuffle(reservoir.begin(), reservoir.end());
-            // for(int i = 0; i < tn; i++) {
-            //     reservoir[i] = l;
-            // }
+            else {
+                uniform_int_distribution<mpz_int> lui(1, tmc);
+                for(std::size_t i = 0; i < reservoir.size(); i++) {
+                    if(lui(mt) <= ai) {
+                        reservoir[i] = l;
+                    }
+                }
+            }
         }
 
     }
 
-    for(int i = 0; i < reservoir.size(); i++) {
+    #pragma omp parallel for
+    for(std::size_t i = 0; i < reservoir.size(); i++) {
         std::set<Literal> path;
         ANNF aunnf = ANNF(pdac.unnf);
         auto const l = reservoir[i];
@@ -79,12 +83,106 @@ void reservoir(PDAC const& pdac, int const N, int const k) {
         auto const ai = aunnf.mc(ROOT);
 
         uniform_int_distribution<mpz_int> ui(1, ai);
-        auto const id = ui(mt);
+        mpz_int id = -1;
+        #pragma omp critical
+        id = ui(mt);
+
         aunnf.get_solution(id, path);
-        for(auto const& l : path) {
-            std::cout << l << " ";
+
+        #pragma omp critical
+        {
+            for(auto const& l : path) {
+                std::cout << l << " ";
+            }
+            std::cout << "0\n";
         }
-        std::cout << "0\n";
+    }
+}
+
+void reservoir_exact(PDAC const& pdac, std::size_t const N) {
+    ANNF apnnf = ANNF(pdac.pnnf);
+    apnnf.annotate_pc();
+    auto const pc = apnnf.mc(ROOT);
+    std::size_t const ipc = static_cast<std::size_t>(pc);
+
+    random_device rng;
+    mt19937 mt(rng);
+
+    std::vector<mpz_int> reservoir;
+    mpz_int tmc = 0;
+
+    #pragma omp parallel for
+    for(std::size_t l = 0; l < ipc; l++) {
+        std::set<Literal> path;
+        ANNF aunnf = ANNF(pdac.unnf);
+
+        path.clear();
+        apnnf.get_path(l, path);
+        aunnf.set_assumps(path);
+        aunnf.annotate_mc();
+        auto const ai = aunnf.mc(ROOT);
+
+
+        #pragma omp critical
+        {
+            tmc += ai;
+
+            if(reservoir.size() < N) {
+                while(reservoir.size() < N) {
+                    reservoir.push_back(l);
+                }
+            }
+            else {
+                uniform_int_distribution<mpz_int> lui(1, tmc);
+                for(std::size_t i = 0; i < reservoir.size(); i++) {
+                    if(lui(mt) <= ai) {
+                        reservoir[i] = l;
+                    }
+                }
+            }
+        }
+    }
+
+    #pragma omp parallel for
+    for(std::size_t i = 0; i < reservoir.size(); i++) {
+        std::set<Literal> path;
+        ANNF aunnf = ANNF(pdac.unnf);
+        auto const l = reservoir[i];
+
+        path.clear();
+        apnnf.get_path(l, path);
+        aunnf.set_assumps(path);
+        aunnf.annotate_mc();
+        auto const ai = aunnf.mc(ROOT);
+
+        uniform_int_distribution<mpz_int> ui(1, ai);
+
+        mpz_int id = -1;
+        #pragma omp critical
+        id = ui(mt);
+
+        aunnf.get_solution(id, path);
+
+        #pragma omp critical
+        {
+            for(auto const& l : path) {
+                std::cout << l << " ";
+            }
+            std::cout << "0\n";
+        }
+    }
+}
+
+void rsampler(PDAC const& pdac, std::size_t const N, std::size_t const k) {
+    ANNF apnnf = ANNF(pdac.pnnf);
+    apnnf.annotate_pc();
+    auto const pc = apnnf.mc(ROOT);
+
+    if(pc > k) {
+        reservoir_heuristic(pdac, N, k);
+    }
+    else {
+        reservoir_exact(pdac, N);
     }
 }
 
@@ -97,12 +195,12 @@ int main(int argc, char** argv) {
     }
     std::string const cnf_path(argv[1]);
 
-    int const N = std::stoi(argv[2]);
-    int const k = std::stoi(argv[3]);
+    std::size_t const N = std::stoull(argv[2]);
+    std::size_t const k = std::stoull(argv[3]);
 
     auto pdac = pdac_from_file(cnf_path);
 
-    reservoir(pdac, N, k);
+    rsampler(pdac, N, k);
 
     return 0;
 }
