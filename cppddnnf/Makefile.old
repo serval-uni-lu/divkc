@@ -1,0 +1,40 @@
+CXXFLAGS ::= -Wall -Wextra -Wpedantic -fopenmp
+LDFLAGS ::= -lboost_random -lgmp -fopenmp
+CXX ::= g++
+CC ::= gcc
+
+OBJS ::= obj/nnf.o
+OBJS += obj/var.o
+OBJS += obj/pdac.o
+
+.PHONY: all
+all: pc.elf sampler.elf rsampler.elf lmc.elf appmc.elf
+
+pc.elf: $(OBJS) obj/pc.o
+sampler.elf: $(OBJS) obj/sampler.o
+rsampler.elf: $(OBJS) obj/rsampler.o
+lmc.elf: $(OBJS) obj/lmc.o
+appmc.elf: $(OBJS) obj/appmc.o
+
+obj/nnf.o   : src/nnf.cpp
+obj/appmc.o : src/appmc.cpp
+obj/var.o   : src/var.cpp
+obj/pdac.o  : src/pdac.cpp
+obj/sampler.o   : src/sampler.cpp
+obj/rsampler.o  : src/rsampler.cpp
+obj/lmc.o       : src/lmc.cpp
+obj/pc.o        : src/pc.cpp
+
+obj/%.o: src/%.cpp
+	@mkdir -p obj
+	$(CXX) -c $(CXXFLAGS) $< -o $@
+
+%.elf: obj/%.o
+	$(CXX) $? $(LDFLAGS) -o $@
+
+.PHONY: clean cleanall
+clean:
+	rm -rf obj
+
+cleanall: clean
+	rm -f *.elf
