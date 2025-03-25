@@ -14,7 +14,7 @@ struct SourceFile {
 
 std::string gen_rule(SourceFile const& s) {
     std::string res;
-    res += s.obj_path + ": mkfolders " + s.src_path + "\n";
+    res += s.obj_path + ": mkfolders gem " + s.src_path + "\n";
     res += "\t$(CXX) $(CXXFLAGS) -c " + s.src_path + " -o " + s.obj_path + "\n";
     return res;
 }
@@ -114,6 +114,10 @@ public:
         }
         std::cout << "\nclean:\n\trm -rf obj";
         std::cout << "\ncleanall: clean\n\trm -f *.elf";
+        std::cout << "\ngem: gem.cpp\n";
+        std::cout << "\tg++ gem.cpp -o gem\n";
+        std::cout << "\t./gem > Makefile\n";
+        std::cout << "\t@echo \"Had to regenerate the makefile. Please rerun make.\"\n\texit 1";
         std::cout << "\n\n";
 
 
