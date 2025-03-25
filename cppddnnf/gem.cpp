@@ -6,28 +6,6 @@
 
 namespace fs = std::filesystem;
 
-struct Dir {
-    std::vector<fs::directory_entry> cpp;
-    std::vector<fs::directory_entry> hpp;
-};
-
-Dir walk_directory(std::string const& path) {
-    Dir res;
-
-    for(auto const& f : fs::recursive_directory_iterator(path)) {
-        if(f.is_regular_file()) {
-            if(f.path().extension() == ".cpp") {
-                res.cpp.push_back(f);
-            }
-            else if(f.path().extension() == ".hpp") {
-                res.hpp.push_back(f);
-            }
-        }
-    }
-
-     return res;
-}
-
 struct SourceFile {
     std::string src_path;
     std::string obj_path;
