@@ -15,19 +15,38 @@ struct SourceFile {
 std::string gen_rule(SourceFile const& s) {
     std::string res;
     res += s.obj_path + ": mkfolders gem " + s.src_path + "\n";
-    res += "\t$(CXX) $(CXXFLAGS) -c " + s.src_path + " -o " + s.obj_path + "\n";
+    res += "\t$(CXX) $(CXXFLAGS) $(CXXFLAGSREL) -c " + s.src_path + " -o " + s.obj_path + "\n";
+
+    res += s.obj_path + "d: mkfolders gem " + s.src_path + "\n";
+    res += "\t$(CXX) $(CXXFLAGS) $(CXXFLAGSDEBUG) -c " + s.src_path + " -o " + s.obj_path + "d\n";
     return res;
 }
 
 std::string gen_ld_rule(SourceFile const& s, std::vector<SourceFile> const& deps) {
     std::string res;
-    res += s.elf_path + ": " + s.obj_path;
+    res += s.elf_path + ".r: " + s.obj_path;
     for(auto const& c : deps) {
         if(c.elf_path == "") {
             res += " " + c.obj_path;
         }
     }
-    res += "\n\t$(CXX) $(LDFLAGS) $? -o $@\n";
+    res += "\n\t$(CXX) $(LDFLAGS) $(LDFLAGSREL) $? -o " + s.elf_path + ".r\n";
+
+    res += s.elf_path + ".d: " + s.obj_path;
+    for(auto const& c : deps) {
+        if(c.elf_path == "") {
+            res += " " + c.obj_path + "d";
+        }
+    }
+    res += "\n\t$(CXX) $(LDFLAGS) $(LDFLAGSDEBUG) $? -o " + s.elf_path + ".d\n";
+    return res;
+}
+
+std::string gen_variable(std::string const& var, std::vector<std::string> const& vals) {
+    std::string res = var + " ::=";
+    for(auto const& v : vals) {
+        res += " " + v;
+    }
     return res;
 }
 
@@ -39,6 +58,12 @@ private:
     std::vector<std::string> headers;
     std::vector<std::string> cc_options;
     std::vector<std::string> ld_options;
+
+    std::vector<std::string> cc_r_options;
+    std::vector<std::string> ld_r_options;
+
+    std::vector<std::string> cc_d_options;
+    std::vector<std::string> ld_d_options;
 
 public:
     void add_source_folder(std::string const& path, std::set<std::string> const& extensions) {
@@ -56,7 +81,7 @@ public:
         f.src_path = path;
         f.obj_path = "obj/" + path + ".o";
         if(is_main) {
-            f.elf_path = fs::path(path).stem().string() + ".elf";
+            f.elf_path = fs::path(path).stem().string();
         }
         src.push_back(f);
         obj_folders.insert(fs::path(f.obj_path).parent_path());
@@ -66,7 +91,7 @@ public:
         for(auto & e : src) {
             if(e.src_path == path) {
                 if(is_main) {
-                    e.elf_path = fs::path(path).stem().string() + ".elf";
+                    e.elf_path = fs::path(path).stem().string();
                 }
                 else {
                     e.elf_path = "";
@@ -87,21 +112,43 @@ public:
         ld_options.push_back(o);
     }
 
+    void add_realease_compile_option(std::string const& o) {
+        cc_r_options.push_back(o);
+    }
+
+    void add_release_linker_option(std::string const& o) {
+        ld_r_options.push_back(o);
+    }
+
+    void add_debug_compile_option(std::string const& o) {
+        cc_d_options.push_back(o);
+    }
+
+    void add_debug_linker_option(std::string const& o) {
+        ld_d_options.push_back(o);
+    }
+
     void gen_makefile() {
-        std::cout << "CXXFLAGS ::=";
-        for(auto const& f : cc_options) {
-            std::cout << " " << f;
-        }
-        std::cout << "\nLDFLAGS ::=";
-        for(auto const& f : ld_options) {
-            std::cout << " " << f;
-        }
-        std::cout << "\n\n";
+        std::cout << gen_variable("CXXFLAGS", cc_options) << "\n";
+        std::cout << gen_variable("LDFLAGS", ld_options) << "\n";
+        std::cout << gen_variable("CXXFLAGSREL", cc_r_options) << "\n";
+        std::cout << gen_variable("LDFLAGSREL", ld_r_options) << "\n";
+        std::cout << gen_variable("CXXFLAGSDEBUG", cc_d_options) << "\n";
+        std::cout << gen_variable("LDFLAGSDEBUG", ld_d_options) << "\n";
+
+        std::cout << "\n";
 
         std::cout << "all:";
         for(auto const& f : src) {
             if(f.elf_path != "") {
-                std::cout << " " << f.elf_path;
+                std::cout << " " << f.elf_path << ".r";
+            }
+        }
+
+        std::cout << "\ndebug:";
+        for(auto const& f : src) {
+            if(f.elf_path != "") {
+                std::cout << " " << f.elf_path << ".d";
             }
         }
 
@@ -113,7 +160,7 @@ public:
             std::cout << " " << f;
         }
         std::cout << "\nclean:\n\trm -rf obj";
-        std::cout << "\ncleanall: clean\n\trm -f *.elf";
+        std::cout << "\ncleanall: clean\n\trm -f *.r *.d";
         std::cout << "\ngem: gem.cpp\n";
         std::cout << "\tg++ gem.cpp -o gem\n";
         std::cout << "\t./gem > Makefile\n";
@@ -138,6 +185,10 @@ int main(void) {
     prj.add_compile_option("-Wextra");
     prj.add_compile_option("-Wpedantic");
     prj.add_compile_option("-fopenmp");
+
+    prj.add_realease_compile_option("-O3");
+
+    prj.add_debug_compile_option("-g");
 
     prj.add_linker_option("-lboost_random");
     prj.add_linker_option("-lgmp");
