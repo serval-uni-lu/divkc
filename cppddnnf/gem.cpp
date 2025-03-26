@@ -14,10 +14,10 @@ struct SourceFile {
 
 std::string gen_rule(SourceFile const& s) {
     std::string res;
-    res += s.obj_path + ": mkfolders gem " + s.src_path + "\n";
+    res += s.obj_path + ": obj gem " + s.src_path + "\n";
     res += "\t$(CXX) $(CXXFLAGS) $(CXXFLAGSREL) -c " + s.src_path + " -o " + s.obj_path + "\n";
 
-    res += s.obj_path + "d: mkfolders gem " + s.src_path + "\n";
+    res += s.obj_path + "d: obj gem " + s.src_path + "\n";
     res += "\t$(CXX) $(CXXFLAGS) $(CXXFLAGSDEBUG) -c " + s.src_path + " -o " + s.obj_path + "d\n";
     return res;
 }
@@ -32,7 +32,7 @@ std::string gen_ld_rule(SourceFile const& s, std::vector<SourceFile> const& deps
     }
     res += "\n\t$(CXX) $(LDFLAGS) $(LDFLAGSREL) $? -o " + s.elf_path + ".r\n";
 
-    res += s.elf_path + ".d: " + s.obj_path;
+    res += s.elf_path + ".d: " + s.obj_path + "d";
     for(auto const& c : deps) {
         if(c.elf_path == "") {
             res += " " + c.obj_path + "d";
@@ -152,8 +152,8 @@ public:
             }
         }
 
-        std::cout << "\n.PHONY: all mkfolders clean cleanall\n";
-        std::cout << "mkfolders:\n";
+        std::cout << "\n.PHONY: all debug clean cleanall\n";
+        std::cout << "obj:\n";
         std::cout << "\tmkdir -p";
 
         for(auto const& f : obj_folders) {
