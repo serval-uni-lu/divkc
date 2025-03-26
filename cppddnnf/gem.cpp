@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <set>
 #include <string>
@@ -129,52 +130,54 @@ public:
     }
 
     void gen_makefile() {
-        std::cout << gen_variable("CXXFLAGS", cc_options) << "\n";
-        std::cout << gen_variable("LDFLAGS", ld_options) << "\n";
-        std::cout << gen_variable("CXXFLAGSREL", cc_r_options) << "\n";
-        std::cout << gen_variable("LDFLAGSREL", ld_r_options) << "\n";
-        std::cout << gen_variable("CXXFLAGSDEBUG", cc_d_options) << "\n";
-        std::cout << gen_variable("LDFLAGSDEBUG", ld_d_options) << "\n";
+        std::ofstream out("Makefile");
 
-        std::cout << "\n";
+        out << gen_variable("CXXFLAGS", cc_options) << "\n";
+        out << gen_variable("LDFLAGS", ld_options) << "\n";
+        out << gen_variable("CXXFLAGSREL", cc_r_options) << "\n";
+        out << gen_variable("LDFLAGSREL", ld_r_options) << "\n";
+        out << gen_variable("CXXFLAGSDEBUG", cc_d_options) << "\n";
+        out << gen_variable("LDFLAGSDEBUG", ld_d_options) << "\n";
 
-        std::cout << "all:";
+        out << "\n";
+
+        out << "all:";
         for(auto const& f : src) {
             if(f.elf_path != "") {
-                std::cout << " " << f.elf_path << ".r";
+                out << " " << f.elf_path << ".r";
             }
         }
 
-        std::cout << "\ndebug:";
+        out << "\ndebug:";
         for(auto const& f : src) {
             if(f.elf_path != "") {
-                std::cout << " " << f.elf_path << ".d";
+                out << " " << f.elf_path << ".d";
             }
         }
 
-        std::cout << "\n.PHONY: all debug clean cleanall\n";
-        std::cout << "obj:\n";
-        std::cout << "\tmkdir -p";
+        out << "\n.PHONY: all debug clean cleanall\n";
+        out << "obj:\n";
+        out << "\tmkdir -p";
 
         for(auto const& f : obj_folders) {
-            std::cout << " " << f;
+            out << " " << f;
         }
-        std::cout << "\nclean:\n\trm -rf obj";
-        std::cout << "\ncleanall: clean\n\trm -f *.r *.d gem";
-        std::cout << "\ngem: gem.cpp\n";
-        std::cout << "\tg++ gem.cpp -o gem\n";
-        std::cout << "\t./gem > Makefile\n";
-        std::cout << "\t@echo \"Had to regenerate the makefile. Please rerun make.\"\n\texit 1";
-        std::cout << "\n\n";
+        out << "\nclean:\n\trm -rf obj";
+        out << "\ncleanall: clean\n\trm -f *.r *.d gem";
+        out << "\ngem: gem.cpp\n";
+        out << "\tg++ gem.cpp -o gem\n";
+        out << "\t./gem\n";
+        out << "\t@echo \"Had to regenerate the makefile. Please rerun make.\"\n\texit 1";
+        out << "\n\n";
 
 
         for(auto const& cpp : src) {
-            std::cout << gen_rule(cpp);
+            out << gen_rule(cpp);
 
             if(cpp.elf_path != "") {
-                std::cout << gen_ld_rule(cpp, src);
+                out << gen_ld_rule(cpp, src);
             }
-            std::cout << "\n";
+            out << "\n";
         }
     }
 };
