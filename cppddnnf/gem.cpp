@@ -30,7 +30,7 @@ std::string gen_ld_rule(SourceFile const& s, std::vector<SourceFile> const& deps
             res += " " + c.obj_path;
         }
     }
-    res += "\n\t$(CXX) $(LDFLAGS) $(LDFLAGSREL) $? -o " + s.elf_path + ".r\n";
+    res += "\n\t$(CXX) $(LDFLAGS) $(LDFLAGSREL) $^ -o " + s.elf_path + ".r\n";
 
     res += s.elf_path + ".d: " + s.obj_path + "d";
     for(auto const& c : deps) {
@@ -38,7 +38,7 @@ std::string gen_ld_rule(SourceFile const& s, std::vector<SourceFile> const& deps
             res += " " + c.obj_path + "d";
         }
     }
-    res += "\n\t$(CXX) $(LDFLAGS) $(LDFLAGSDEBUG) $? -o " + s.elf_path + ".d\n";
+    res += "\n\t$(CXX) $(LDFLAGS) $(LDFLAGSDEBUG) $^ -o " + s.elf_path + ".d\n";
     return res;
 }
 
@@ -160,7 +160,7 @@ public:
             std::cout << " " << f;
         }
         std::cout << "\nclean:\n\trm -rf obj";
-        std::cout << "\ncleanall: clean\n\trm -f *.r *.d";
+        std::cout << "\ncleanall: clean\n\trm -f *.r *.d gem";
         std::cout << "\ngem: gem.cpp\n";
         std::cout << "\tg++ gem.cpp -o gem\n";
         std::cout << "\t./gem > Makefile\n";
