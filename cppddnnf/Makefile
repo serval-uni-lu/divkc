@@ -25,36 +25,36 @@ obj/src/rsampler.cpp.o: obj src/rsampler.cpp
 obj/src/rsampler.cpp.od: obj src/rsampler.cpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSDEBUG) -c src/rsampler.cpp -o obj/src/rsampler.cpp.od
 rsampler.r: obj/src/rsampler.cpp.o obj/src/pdac.cpp.o obj/src/nnf.cpp.o obj/src/var.cpp.o
-	$(CXX) $(LDFLAGS) $(LDFLAGSREL) $^ -o rsampler.r
+	$(CXX) $^ -o rsampler.r $(LDFLAGS) $(LDFLAGSREL)
 rsampler.d: obj/src/rsampler.cpp.od obj/src/pdac.cpp.od obj/src/nnf.cpp.od obj/src/var.cpp.od
-	$(CXX) $(LDFLAGS) $(LDFLAGSDEBUG) $^ -o rsampler.d
+	$(CXX) $^ -o rsampler.d $(LDFLAGS) $(LDFLAGSDEBUG)
 
 obj/src/lmc.cpp.o: obj src/lmc.cpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSREL) -c src/lmc.cpp -o obj/src/lmc.cpp.o
 obj/src/lmc.cpp.od: obj src/lmc.cpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSDEBUG) -c src/lmc.cpp -o obj/src/lmc.cpp.od
 lmc.r: obj/src/lmc.cpp.o obj/src/pdac.cpp.o obj/src/nnf.cpp.o obj/src/var.cpp.o
-	$(CXX) $(LDFLAGS) $(LDFLAGSREL) $^ -o lmc.r
+	$(CXX) $^ -o lmc.r $(LDFLAGS) $(LDFLAGSREL)
 lmc.d: obj/src/lmc.cpp.od obj/src/pdac.cpp.od obj/src/nnf.cpp.od obj/src/var.cpp.od
-	$(CXX) $(LDFLAGS) $(LDFLAGSDEBUG) $^ -o lmc.d
+	$(CXX) $^ -o lmc.d $(LDFLAGS) $(LDFLAGSDEBUG)
 
 obj/src/appmc.cpp.o: obj src/appmc.cpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSREL) -c src/appmc.cpp -o obj/src/appmc.cpp.o
 obj/src/appmc.cpp.od: obj src/appmc.cpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSDEBUG) -c src/appmc.cpp -o obj/src/appmc.cpp.od
 appmc.r: obj/src/appmc.cpp.o obj/src/pdac.cpp.o obj/src/nnf.cpp.o obj/src/var.cpp.o
-	$(CXX) $(LDFLAGS) $(LDFLAGSREL) $^ -o appmc.r
+	$(CXX) $^ -o appmc.r $(LDFLAGS) $(LDFLAGSREL)
 appmc.d: obj/src/appmc.cpp.od obj/src/pdac.cpp.od obj/src/nnf.cpp.od obj/src/var.cpp.od
-	$(CXX) $(LDFLAGS) $(LDFLAGSDEBUG) $^ -o appmc.d
+	$(CXX) $^ -o appmc.d $(LDFLAGS) $(LDFLAGSDEBUG)
 
 obj/src/sampler.cpp.o: obj src/sampler.cpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSREL) -c src/sampler.cpp -o obj/src/sampler.cpp.o
 obj/src/sampler.cpp.od: obj src/sampler.cpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSDEBUG) -c src/sampler.cpp -o obj/src/sampler.cpp.od
 sampler.r: obj/src/sampler.cpp.o obj/src/pdac.cpp.o obj/src/nnf.cpp.o obj/src/var.cpp.o
-	$(CXX) $(LDFLAGS) $(LDFLAGSREL) $^ -o sampler.r
+	$(CXX) $^ -o sampler.r $(LDFLAGS) $(LDFLAGSREL)
 sampler.d: obj/src/sampler.cpp.od obj/src/pdac.cpp.od obj/src/nnf.cpp.od obj/src/var.cpp.od
-	$(CXX) $(LDFLAGS) $(LDFLAGSDEBUG) $^ -o sampler.d
+	$(CXX) $^ -o sampler.d $(LDFLAGS) $(LDFLAGSDEBUG)
 
 obj/src/nnf.cpp.o: obj src/nnf.cpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSREL) -c src/nnf.cpp -o obj/src/nnf.cpp.o
@@ -71,7 +71,7 @@ obj/src/pc.cpp.o: obj src/pc.cpp
 obj/src/pc.cpp.od: obj src/pc.cpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSDEBUG) -c src/pc.cpp -o obj/src/pc.cpp.od
 pc.r: obj/src/pc.cpp.o obj/src/pdac.cpp.o obj/src/nnf.cpp.o obj/src/var.cpp.o
-	$(CXX) $(LDFLAGS) $(LDFLAGSREL) $^ -o pc.r
+	$(CXX) $^ -o pc.r $(LDFLAGS) $(LDFLAGSREL)
 pc.d: obj/src/pc.cpp.od obj/src/pdac.cpp.od obj/src/nnf.cpp.od obj/src/var.cpp.od
-	$(CXX) $(LDFLAGS) $(LDFLAGSDEBUG) $^ -o pc.d
+	$(CXX) $^ -o pc.d $(LDFLAGS) $(LDFLAGSDEBUG)
 

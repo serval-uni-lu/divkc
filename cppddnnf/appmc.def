@@ -3,22 +3,19 @@ From: ubuntu:22.04
 
 %files
     ./src /src
-    ./CMakeLists.txt /CMakeLists.txt
-    ../wrapper /wrapper
+    ./Makefile /Makefile
+    ../D4/wrapper /wrapper
 
 %post
     echo "setup start"
     apt-get -y update
-    apt-get -y install cmake make g++ libboost-dev libgmp-dev libboost-random-dev
+    apt-get -y install make g++ libboost-dev libgmp-dev libboost-random-dev
 
     cd /
-    mkdir build
-    cd build
-    cmake ..
-    make -j8 appmc
+    make -j8 appmc.r
 
     cd /wrapper
     make
 
 %runscript
-    /wrapper/wrap 64000 5400 /build/appmc "$@"
+    /wrapper/wrap 64000 5400 /appmc.r "$@"
