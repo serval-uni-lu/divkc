@@ -15,10 +15,10 @@ struct SourceFile {
 
 std::string gen_rule(SourceFile const& s) {
     std::string res;
-    res += s.obj_path + ": obj gem " + s.src_path + "\n";
+    res += s.obj_path + ": obj " + s.src_path + "\n";
     res += "\t$(CXX) $(CXXFLAGS) $(CXXFLAGSREL) -c " + s.src_path + " -o " + s.obj_path + "\n";
 
-    res += s.obj_path + "d: obj gem " + s.src_path + "\n";
+    res += s.obj_path + "d: obj " + s.src_path + "\n";
     res += "\t$(CXX) $(CXXFLAGS) $(CXXFLAGSDEBUG) -c " + s.src_path + " -o " + s.obj_path + "d\n";
     return res;
 }
@@ -163,11 +163,7 @@ public:
             out << " " << f;
         }
         out << "\nclean:\n\trm -rf obj";
-        out << "\ncleanall: clean\n\trm -f *.r *.d gem";
-        out << "\ngem: gem.cpp\n";
-        out << "\tg++ gem.cpp -o gem\n";
-        out << "\t./gem\n";
-        out << "\t@echo \"Had to regenerate the makefile. Please rerun make.\"\n\texit 1";
+        out << "\ncleanall: clean\n\trm -f *.r *.d";
         out << "\n\n";
 
 
