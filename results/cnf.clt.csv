@@ -386,7 +386,6 @@ cnf/plazar/V3/s444_3_2.cnf, 10000, 3.7061e+06, 3.67603e+06, 3.73616e+06
 cnf/plazar/V3/s5378a_3_2.cnf, 10000, 2.04082e+62, 1.04328e+62, 3.03837e+62
 cnf/plazar/V3/s526a_3_2.cnf, 10000, 6.13454e+06, 5.93459e+06, 6.33449e+06
 cnf/plazar/V3/s820a_3_2.cnf, 10000, 198321, 190354, 206288
-cnf/plazar/V3/s13207a_3_2.cnf, 5958, 3.55996e+210, 1.63184e+210, 5.48808
 cnf/plazar/V3/s420_3_2.cnf, 10000, 8.73145e+09, 8.30071e+09, 9.16218e+09
 cnf/plazar/V3/s713_3_2.cnf, 10000, 1.4113e+16, 1.03352e+16, 1.78908e+16
 cnf/plazar/V3/s1423a_3_2.cnf, 10000, 2.50749e+27, -5.44868e+26, 5.55984e+27
@@ -654,7 +653,6 @@ cnf/plazar/unsorted/63.sk_3_64.cnf, 10000, 1.92505e+16, 1.88415e+16, 1.96595e+16
 cnf/plazar/unsorted/27.sk_3_32.cnf, 10000, 6.68165e+07, 6.46255e+07, 6.90075e+07
 cnf/soos/or-60-20-1-UC-10.cnf.gz.no_w.cnf, 10000, 3.01716e+17, -2.74465e+17, 8.77898e+17
 cnf/soos/75-21-3-q.cnf.gz.no_w.cnf, 10000, 3.65599e+505, 3.48321e+505, 3.82877e+505
-cnf/soos/90-38-7-q.cnf.gz.no_w.cnf, 7527, 1.93747e+1693, 1.88188e+1693, 1.99305e+1
 cnf/soos/blasted_case_2_b14_even.cnf.gz.no_w.cnf, 10000, 5.1272e+35, -9.55396e+34, 1.12098e+36
 cnf/soos/s510_15_7.cnf.gz.no_w.cnf, 10000, 1.52875e+07, 1.49989e+07, 1.55761e+07
 cnf/soos/or-70-5-10.cnf.gz.no_w.cnf, 10000, 1.3955e+21, -6.09605e+17, 2.79161e+21
@@ -1396,7 +1394,6 @@ cnf/soos/or-50-5-8.cnf.gz.no_w.cnf, 10000, 8.33003e+14, 6.5891e+14, 1.0071e+15
 cnf/soos/or-100-10-5-UC-40.cnf.gz.no_w.cnf, 10000, 1.59921e+13, 1.43549e+13, 1.76293e+13
 cnf/soos/or-100-5-8-UC-20.cnf.gz.no_w.cnf, 10000, 1.04782e+17, 7.74123e+16, 1.32151e+17
 cnf/soos/or-50-10-6.cnf.gz.no_w.cnf, 10000, 1.0155e+15, 6.86679e+14, 1.34432e+15
-cnf/soos/90-46-8-q.cnf.gz.no_w.cnf, 5466, 3.35796e+2492, 3.2183e+2492, 3.497
 cnf/soos/blasted_case211.cnf.gz.no_w.cnf, 10000, 1.34937e+24, 6.59042e+23, 2.03969e+24
 cnf/soos/or-50-20-3-UC-30.cnf.gz.no_w.cnf, 10000, 5.86317e+08, 5.58014e+08, 6.1462e+08
 cnf/soos/or-50-20-6.cnf.gz.no_w.cnf, 10000, 6.28063e+14, 3.91054e+14, 8.65072e+14
@@ -1473,7 +1470,6 @@ cnf/soos/blasted_case143.cnf.gz.no_w.cnf, 10000, 1.31071e+08, 1.24771e+08, 1.373
 cnf/soos/blasted_case110.cnf.gz.no_w.cnf, 10000, 16384, 16384, 16384
 cnf/soos/90-14-2-q.cnf.gz.no_w.cnf, 10000, 2.96222e+218, 2.92797e+218, 2.99647e+218
 cnf/soos/blasted_squaring2.cnf.gz.no_w.cnf, 10000, 6.52758e+10, 5.85546e+10, 7.19969e+10
-cnf/soos/blasted_TR_b14_1_linear.cnf.gz.no_w.cnf, 5808, 3.92752e+30, 1.50032e+29, 7.70
 cnf/soos/or-60-10-2-UC-20.cnf.gz.no_w.cnf, 10000, 1.65763e+11, 1.30961e+11, 2.00566e+11
 cnf/soos/blasted_case61.cnf.gz.no_w.cnf, 10000, 2.71886e+14, 2.03991e+14, 3.39782e+14
 cnf/soos/blasted_case33.cnf.gz.no_w.cnf, 10000, 1053.3, 1016.5, 1090.1
@@ -2038,7 +2034,6 @@ cnf/lagniez/Planning/pddlXpSym/uts_k3_p_t1.cnf, 10000, 5.63306e+10, 5.4065e+10, 
 cnf/lagniez/Planning/pddlXpSym/coins_p03_p_t6.cnf, 10000, 2.80069e+78, 2.06138e+78, 3.53999e+78
 cnf/lagniez/Planning/pddlXpSym/safe_safe_2_p_t5.cnf, 10000, 3.32317e+08, 3.23286e+08, 3.41349e+08
 cnf/lagniez/Planning/pddlXpSym/coins_p03_p_t9.cnf, 10000, 1.60787e+114, 5.97272e+113, 2.61847e+114
-cnf/lagniez/Planning/pddlXpSym/safe_safe_30_p_t6.cnf, 2653, 8.87782e+55, 8.29788e+55, 9.4
 cnf/lagniez/Planning/pddlXpSym/comm_p01_p_t10.cnf, 10000, 1.00794e+82, -4.74426e+81, 2.4903e+82
 cnf/lagniez/Planning/pddlXpSym/coins_p02_p_t8.cnf, 10000, 6.50988e+102, -4.88917e+102, 1.79089e+103
 cnf/lagniez/Planning/pddlXpSym/ring2_r8_p_t5.cnf, 10000, 1.29613e+10, 1.26883e+10, 1.32343e+10
@@ -3494,7 +3489,6 @@ cnf/lagniez/BayesianNetwork/Ace/blockmap_10_02.net.cnf, 8844, 3.29704e+13, 3.264
 cnf/lagniez/BayesianNetwork/Ace/blockmap_05_02.net.cnf, 10000, 9.42028e+06, 9.33935e+06, 9.5012e+06
 cnf/lagniez/BayesianNetwork/Ace/mastermind_03_08_04.net.cnf, 10000, 6.82552e+38, 6.82552e+38, 6.82552e+38
 cnf/lagniez/BayesianNetwork/Ace/blockmap_15_01.net.cnf, 6915, 2.01327e+09, 2.01327
-cnf/lagniez/BayesianNetwork/Ace/mastermind_04_08_04.net.cnf, 7287, 1.05312e+65, 1.05312e+65, 1.05312e+6
 cnf/lagniez/BayesianNetwork/Ace/fs-01.net.cnf, 10000, 761.958, 750.181, 773.736
 cnf/lagniez/qif/sum.32.cnf, 10000, 6.95768e+38, 6.75609e+38, 7.15928e+38
 cnf/lagniez/qif/10random.cnf, 10000, 6.61509e+38, 6.14607e+38, 7.08411e+38
