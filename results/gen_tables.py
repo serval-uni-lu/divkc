@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from mpmath import mp
 
+mp.pretty = True
+
 mc = pd.read_csv("cnf.mc.csv", skipinitialspace = True, index_col = 'file')
 clt = pd.read_csv("cnf.clt.csv", skipinitialspace = True, index_col = 'file')
 # glmc = pd.read_csv("cnf.lmc.csv", skipinitialspace = True, index_col = 'file')
@@ -157,10 +159,10 @@ for x in total.index:
         nbothc /= nb
 
         # print(f"{vsub} & {nb} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} & {nbothc:5.3f} \\\\")
-        print(f"{vsub} & {nb} & {nlow:5.3f} & {nhigh:5.3f} & {nbothc:5.3f} & {min(resl)} & {max(resl)} \\\\")
+        print(f"{vsub} & {nb} & {nlow:5.3f} & {nhigh:5.3f} & {nbothc:5.3f} & {mp.nstr(min(resl), 3)} & {mp.nstr(max(resl), 3)} \\\\")
 
         # print(f"{vsub} & {nbf} & {len(lmc)} & {k} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} & {ntlow:5.3f} \\\\")
         # print(f"{vsub} & {nbf} & {len(lmc)} & {k} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} \\\\")
     else:
         # print(f"{vsub} & {nbf} & {len(lmc)} & {k} & & & \\\\")
-        print(f"{vsub} & {nb} & & & \\\\")
+        print(f"{vsub} & {nb} & & & & & \\\\")
