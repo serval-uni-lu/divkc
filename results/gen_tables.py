@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from mpmath import mp
 from statistics import median
+from statistics import mean
 
 mp.pretty = True
 
@@ -9,10 +10,12 @@ mc = pd.read_csv("cnf.mc.csv", skipinitialspace = True, index_col = 'file')
 clt = pd.read_csv("cnf.clt.csv", skipinitialspace = True, index_col = 'file')
 # glmc = pd.read_csv("cnf.lmc.csv", skipinitialspace = True, index_col = 'file')
 bounds = pd.read_csv("cnf.bounds.csv", skipinitialspace = True, index_col = 'file')
+cls = pd.read_csv("cnf.cls.csv", skipinitialspace = True, index_col = 'file')
 total = pd.read_csv("total.csv", skipinitialspace = True)
 
 mc.dropna(inplace = True)
 clt.dropna(inplace = True)
+cls.dropna(inplace = True)
 # glmc.dropna(inplace = True)
 bounds.dropna(inplace = True)
 total.dropna(inplace = True)
@@ -167,3 +170,23 @@ for x in total.index:
     else:
         # print(f"{vsub} & {nbf} & {len(lmc)} & {k} & & & \\\\")
         print(f"{vsub} & {nb} & & & & & \\\\")
+
+print("------------------------------------------------------------")
+for x in total.index:
+    sub = total['folder'][x]
+    nbf = total['nbf'][x]
+    vsub = total['map'][x]
+
+    lcls = cls[cls.index.str.contains(sub)]
+
+    v_lo = int(min(lcls['#v']))
+    v_hi = int(max(lcls['#v']))
+    v_avg = int(mean(lcls['#v']))
+    v_med = int(median(lcls['#v']))
+
+    c_lo = int(min(lcls['#c']))
+    c_hi = int(max(lcls['#c']))
+    c_avg = int(mean(lcls['#c']))
+    c_med = int(median(lcls['#c']))
+
+    print(f"{vsub} & {nbf} & {v_lo} & {v_hi} & {c_lo} & {c_hi} \\\\")
