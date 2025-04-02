@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from mpmath import mp
+from statistics import median
 
 mp.pretty = True
 
@@ -159,7 +160,7 @@ for x in total.index:
         nbothc /= nb
 
         # print(f"{vsub} & {nb} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} & {nbothc:5.3f} \\\\")
-        print(f"{vsub} & {nb} & {nlow:5.3f} & {nhigh:5.3f} & {nbothc:5.3f} & {mp.nstr(min(resl), 3)} & {mp.nstr(max(resl), 3)} \\\\")
+        print(f"{vsub} & {nb} & {nlow:5.3f} & {nhigh:5.3f} & {nbothc:5.3f} & {mp.nstr(median(resl), 3)} & {mp.nstr(max(resl), 3)} \\\\")
 
         # print(f"{vsub} & {nbf} & {len(lmc)} & {k} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} & {ntlow:5.3f} \\\\")
         # print(f"{vsub} & {nbf} & {len(lmc)} & {k} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} \\\\")
