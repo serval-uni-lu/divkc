@@ -71,12 +71,18 @@ for x in total.index:
     nthigh = 0
 
     for y in ldf.index:
-        ntlow += (mp.mpf(ldf.mc[y]) >= mp.mpf(ldf.low[y]))
-        nthigh += (mp.mpf(ldf.mc[y]) <= mp.mpf(ldf.high[y]))
+        yl = mp.mpf(ldf.Yl[y])
+        yh = mp.mpf(ldf.Yh[y])
+        lo = mp.mpf(ldf.low[y])
+        hi = mp.mpf(ldf.high[y])
+        tm = mp.mpf(ldf.mc[y])
 
-        nlow += mp.mpf(ldf.Yl[y]) <= mp.mpf(ldf.mc[y])
-        nhigh += mp.mpf(ldf.Yh[y]) >= mp.mpf(ldf.mc[y])
-        nboth += (mp.mpf(ldf.Yh[y]) >= mp.mpf(ldf.mc[y])) and (mp.mpf(ldf.Yl[y]) <= mp.mpf(ldf.mc[y]))
+        ntlow += (tm >= lo)
+        nthigh += (tm <= hi)
+
+        nlow += yl <= tm
+        nhigh += yh >= tm
+        nboth += (yh >= tm) and (yl <= tm)
         nb += 1
 
 
@@ -118,14 +124,28 @@ for x in total.index:
     # ntlow = 0
     nb = 0
 
+    resl = []
+
     for y in ldf.index:
-        nlow += (mp.mpf(ldf.Yl[y]) >= mp.mpf(ldf.low[y])) and (mp.mpf(ldf.Yl[y]) <= mp.mpf(ldf.mc[y]))
-        nhigh += mp.mpf(ldf.Yh[y]) <= mp.mpf(ldf.high[y]) and (mp.mpf(ldf.Yh[y]) >= mp.mpf(ldf.mc[y]))
-        nboth += (mp.mpf(ldf.Yl[y]) >= mp.mpf(ldf.low[y])) and (mp.mpf(ldf.Yh[y]) <= mp.mpf(ldf.high[y]))
-        nbothc += (mp.mpf(ldf.Yl[y]) >= mp.mpf(ldf.low[y])) and (mp.mpf(ldf.Yh[y]) <= mp.mpf(ldf.high[y])) and (mp.mpf(ldf.Yl[y]) <= mp.mpf(ldf.mc[y])) and (mp.mpf(ldf.Yh[y]) >= mp.mpf(ldf.mc[y]))
-        # ntlow += mp.mpf(ldf.lmc[y]) >= mp.mpf(ldf.low[y])
-        # nlvl += (mp.mpf(ldf.lmc[y]) >= mp.mpf(ldf.Yl[y])) and (mp.mpf(ldf.lmc[y]) >= mp.mpf(ldf.low[y])) and (mp.mpf(ldf.mc[y]) >= mp.mpf(ldf.lmc[y]))
+        yl = mp.mpf(ldf.Yl[y])
+        yh = mp.mpf(ldf.Yh[y])
+        lo = mp.mpf(ldf.low[y])
+        hi = mp.mpf(ldf.high[y])
+        tm = mp.mpf(ldf.mc[y])
+
+        nlow += (yl >= lo) and (yl <= tm)
+        nhigh += (yh <= hi) and (yh >= tm)
+        nboth += (yl >= lo) and (yh <= hi)
+        nbothc += (yl >= lo) and (yh <= hi) and (yl <= tm) and (yh >= tm)
+
         nb += 1
+        if yh < yl:
+            print(f"    error y: {y} : {yh} > {yl}")
+        if hi < lo:
+            print(f"    error h: {y} : {hi} > {lo}")
+
+        if (yl >= lo) and (yh <= hi) and (yl <= tm) and (yh >= tm):
+            resl.append((yh - yl) / (hi - lo))
 
 
     if nb > 0:
@@ -137,7 +157,7 @@ for x in total.index:
         nbothc /= nb
 
         # print(f"{vsub} & {nb} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} & {nbothc:5.3f} \\\\")
-        print(f"{vsub} & {nb} & {nlow:5.3f} & {nhigh:5.3f} & {nbothc:5.3f} \\\\")
+        print(f"{vsub} & {nb} & {nlow:5.3f} & {nhigh:5.3f} & {nbothc:5.3f} & {min(resl)} & {max(resl)} \\\\")
 
         # print(f"{vsub} & {nbf} & {len(lmc)} & {k} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} & {ntlow:5.3f} \\\\")
         # print(f"{vsub} & {nbf} & {len(lmc)} & {k} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} \\\\")
