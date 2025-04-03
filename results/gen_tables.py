@@ -30,6 +30,26 @@ for x in total.index:
     nbf = total['nbf'][x]
     vsub = total['map'][x]
 
+    lcls = cls[cls.index.str.contains(sub)]
+
+    v_lo = int(min(lcls['#v']))
+    v_hi = int(max(lcls['#v']))
+    v_avg = int(mean(lcls['#v']))
+    v_med = int(median(lcls['#v']))
+
+    c_lo = int(min(lcls['#c']))
+    c_hi = int(max(lcls['#c']))
+    c_avg = int(mean(lcls['#c']))
+    c_med = int(median(lcls['#c']))
+
+    print(f"{vsub} & {nbf} & {v_lo} & {v_hi} & {c_lo} & {c_hi} \\\\")
+print("------------------------------------------------------------")
+
+for x in total.index:
+    sub = total['folder'][x]
+    nbf = total['nbf'][x]
+    vsub = total['map'][x]
+
     ldf = d[d.index.str.contains(sub)]
     lmc = mc[mc.index.str.contains(sub)]
     lgb = clt[clt.index.str.contains(sub)]
@@ -75,6 +95,7 @@ for x in total.index:
 
     ntlow = 0
     nthigh = 0
+    ntboth = 0
 
     for y in ldf.index:
         yl = mp.mpf(ldf.Yl[y])
@@ -83,8 +104,9 @@ for x in total.index:
         hi = mp.mpf(ldf.high[y])
         tm = mp.mpf(ldf.mc[y])
 
-        ntlow += (tm >= lo)
-        nthigh += (tm <= hi)
+        # ntlow += (tm >= lo)
+        # nthigh += (tm <= hi)
+        ntboth += (tm >= lo) and (tm <= hi)
 
         nlow += yl <= tm
         nhigh += yh >= tm
@@ -97,15 +119,16 @@ for x in total.index:
         nhigh /= nb
         nboth /= nb
 
-        ntlow /= nb
-        nthigh /= nb
+        # ntlow /= nb
+        # nthigh /= nb
+        ntboth /= nb
 
         if k > 0:
             k = "\\textbf{" + str(k) + "}"
         # print(f"{vsub} & {nbf} & {len(lmc)} & {k} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} & {ntlow:5.3f} \\\\")
-        print(f"{vsub} & {nb} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} & {ntlow:5.3f} & {nthigh:5.3f} \\\\")
+        print(f"{vsub} & {nb} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} & {ntboth:5.3f} \\\\")
     else:
-        print(f"{vsub} & {nb} & & & & & \\\\")
+        print(f"{vsub} & {nb} & & & & \\\\")
 
 print("------------------------------------------------------------")
 
@@ -171,22 +194,3 @@ for x in total.index:
         # print(f"{vsub} & {nbf} & {len(lmc)} & {k} & & & \\\\")
         print(f"{vsub} & {nb} & & & & & \\\\")
 
-print("------------------------------------------------------------")
-for x in total.index:
-    sub = total['folder'][x]
-    nbf = total['nbf'][x]
-    vsub = total['map'][x]
-
-    lcls = cls[cls.index.str.contains(sub)]
-
-    v_lo = int(min(lcls['#v']))
-    v_hi = int(max(lcls['#v']))
-    v_avg = int(mean(lcls['#v']))
-    v_med = int(median(lcls['#v']))
-
-    c_lo = int(min(lcls['#c']))
-    c_hi = int(max(lcls['#c']))
-    c_avg = int(mean(lcls['#c']))
-    c_med = int(median(lcls['#c']))
-
-    print(f"{vsub} & {nbf} & {v_lo} & {v_hi} & {c_lo} & {c_hi} \\\\")
