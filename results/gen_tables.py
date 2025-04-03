@@ -173,8 +173,9 @@ for x in total.index:
         if hi < lo:
             print(f"    error h: {y} : {hi} > {lo}")
 
-        if (yl >= lo) and (yh <= hi) and (yl <= tm) and (yh >= tm):
-            resl.append((yh - yl) / (hi - lo))
+        # if (yl >= lo) and (yh <= hi) and (yl <= tm) and (yh >= tm):
+        if (yl <= tm) and (yh >= tm):
+            resl.append((min(yh, hi) - max(yl, lo)) / (hi - lo))
 
 
     if nb > 0:
