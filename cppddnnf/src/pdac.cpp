@@ -63,9 +63,13 @@ void appmc(PDAC const& pdac, int const N, double const alpha) {
     mpf_float const z = quantile(normal(), 1 - alpha);
 
     std::cout << "N,Y,Yl,Yh\n";
+    bool done = false;
 
     #pragma omp parallel for
     for(int i = 0; i < N; i++) {
+        if(!done) {
+            continue;
+        }
         std::set<Literal> path;
         ANNF aunnf = ANNF(pdac.unnf);
         auto l = ui(mt);
@@ -88,6 +92,11 @@ void appmc(PDAC const& pdac, int const N, double const alpha) {
                 mpf_float sd = sqrt(S2) / sqrt(k);
 
                 std::cout << k << ", " << rmean << ", " << (rmean - z * sd) << ", " << (rmean + z * sd) << "\n";
+
+                double constexpr epsilon = std::min(1 - (1.0 / 1.8), 1.8 - 1);
+                if(k >= pow((z * sd) / (rmean * epsilon), 2)) {
+                    done = true;
+                }
             }
         }
     }
