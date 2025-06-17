@@ -67,7 +67,7 @@ void appmc(PDAC const& pdac, int const N, double const alpha) {
 
     #pragma omp parallel for
     for(int i = 0; i < N; i++) {
-        if(!done) {
+        if(done) {
             continue;
         }
         std::set<Literal> path;
@@ -94,7 +94,7 @@ void appmc(PDAC const& pdac, int const N, double const alpha) {
                 std::cout << k << ", " << rmean << ", " << (rmean - z * sd) << ", " << (rmean + z * sd) << "\n";
 
                 double constexpr epsilon = std::min(1 - (1.0 / 1.8), 1.8 - 1);
-                if(k >= pow((z * sd) / (rmean * epsilon), 2)) {
+                if(k >= 10 && k >= pow((z * sd) / (rmean * epsilon), 2)) {
                     done = true;
                 }
             }
