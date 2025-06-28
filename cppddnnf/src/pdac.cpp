@@ -91,10 +91,13 @@ void appmc(PDAC const& pdac, int const N, double const alpha) {
                 mpf_float S2 = rm / (k - 1);
                 mpf_float sd = sqrt(S2) / sqrt(k);
 
-                std::cout << k << ", " << rmean << ", " << (rmean - z * sd) << ", " << (rmean + z * sd) << "\n";
+                auto yl = rmean - z * sd;
+                auto yh = rmean + z * sd;
 
-                double constexpr epsilon = std::min(1 - (1.0 / 1.8), 1.8 - 1);
-                if(k >= 10 && z * sd / rmean <= epsilon, 2) {
+                std::cout << k << ", " << rmean << ", " << yl << ", " << yh << "\n";
+
+                double constexpr epsilon = 1.3;
+                if(k >= 10 && rmean / epsilon <= yl && rmean * epsilon >= yh) {
                     done = true;
                 }
             }
