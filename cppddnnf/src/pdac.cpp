@@ -96,7 +96,7 @@ void appmc(PDAC const& pdac, int const N, double const alpha) {
 
                 std::cout << k << ", " << rmean << ", " << yl << ", " << yh << "\n";
 
-                double constexpr epsilon = 1.1;
+                double constexpr epsilon = 1.2;
                 if(k >= 10 && rmean / epsilon <= yl && rmean * epsilon >= yh) {
                     done = true;
                 }
