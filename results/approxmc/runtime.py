@@ -32,8 +32,8 @@ total = pd.read_csv("csv/total.csv", skipinitialspace = True)
 
 
 mc       = pd.read_csv("csv/mc.csv", skipinitialspace = True, index_col = 'file')
-approxmc = pd.read_csv(f"csv/approxmc_{approxmc_suffix}.csv", skipinitialspace = True, index_col = 'file')
-clt      = pd.read_csv(f"csv/{clt_prefix}/clt.csv", skipinitialspace = True, index_col = 'file')
+approxmc = pd.read_csv(f"csv/approxmc_{approxmc_suffix}.run.csv", skipinitialspace = True, index_col = 'file')
+clt      = pd.read_csv(f"csv/{clt_prefix}/clt.run.csv", skipinitialspace = True, index_col = 'file')
 pnnf     = pd.read_csv(f"csv/{clt_prefix}/pnnf.csv", skipinitialspace = True, index_col = 'file')
 unnf     = pd.read_csv(f"csv/{clt_prefix}/unnf.csv", skipinitialspace = True, index_col = 'file')
 split    = pd.read_csv(f"csv/{clt_prefix}/split.csv", skipinitialspace = True, index_col = 'file')
@@ -66,8 +66,8 @@ clt_d = clt_d.join(split, on = 'file', rsuffix = '_split')
 clt_d = clt_d.join(proj, on = 'file', rsuffix = '_proj')
 clt_d = approxmc.join(clt_d, on = 'file', rsuffix = '_clt')
 
-clt_d['clt_total_time'] = clt_total_time(clt_d, 20)
-clt_d['approxmc_total_time'] = clt_d['time'] * 20
+clt_d['clt_total_time'] = clt_total_time(clt_d, 5)
+clt_d['approxmc_total_time'] = clt_d['time'] * 5
 
 for x in total.index:
     sub = total['folder'][x]
