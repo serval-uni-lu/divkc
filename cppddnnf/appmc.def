@@ -3,19 +3,19 @@ From: ubuntu:22.04
 
 %files
     ./src /src
-    ./Makefile /Makefile
+    ./build.ninja /build.ninja
     ../D4/wrapper /wrapper
 
 %post
     echo "setup start"
     apt-get -y update
-    apt-get -y install make g++ libboost-dev libgmp-dev libboost-random-dev
+    apt-get -y install make ninja-build g++ libboost-dev libgmp-dev libboost-random-dev
 
     cd /
-    make -j8 appmc.r
+    ninja build/appmc
 
     cd /wrapper
     make
 
 %runscript
-    /wrapper/wrap 64000 5400 /appmc.r "$@"
+    /wrapper/wrap 64000 5400 /build/appmc "$@"

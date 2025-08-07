@@ -15,36 +15,36 @@ struct SourceFile {
 
 std::string gen_rule(SourceFile const& s) {
     std::string res;
-    res += s.obj_path + ": obj " + s.src_path + "\n";
-    res += "\t$(CXX) $(CXXFLAGS) $(CXXFLAGSREL) -c " + s.src_path + " -o " + s.obj_path + "\n";
+    res += "build " + s.obj_path + ": ";
+    res += "compile " + s.src_path + "\n";
 
-    res += s.obj_path + "d: obj " + s.src_path + "\n";
-    res += "\t$(CXX) $(CXXFLAGS) $(CXXFLAGSDEBUG) -c " + s.src_path + " -o " + s.obj_path + "d\n";
+    res += "build " + s.obj_path + "d: ";
+    res += "compile_debug " + s.src_path + "\n";
     return res;
 }
 
 std::string gen_ld_rule(SourceFile const& s, std::vector<SourceFile> const& deps) {
     std::string res;
-    res += s.elf_path + ".r: " + s.obj_path;
+    res += "build " + s.elf_path + ": link " + s.obj_path;
     for(auto const& c : deps) {
         if(c.elf_path == "") {
             res += " " + c.obj_path;
         }
     }
-    res += "\n\t$(CXX) $^ -o " + s.elf_path + ".r $(LDFLAGS) $(LDFLAGSREL)\n";
+    res += "\n";
 
-    res += s.elf_path + ".d: " + s.obj_path + "d";
+    res += "build " + s.elf_path + "_debug: link_debug " + s.obj_path + "d";
     for(auto const& c : deps) {
         if(c.elf_path == "") {
             res += " " + c.obj_path + "d";
         }
     }
-    res += "\n\t$(CXX) $^ -o " + s.elf_path + ".d $(LDFLAGS) $(LDFLAGSDEBUG)\n";
+    res += "\n";
     return res;
 }
 
 std::string gen_variable(std::string const& var, std::vector<std::string> const& vals) {
-    std::string res = var + " ::=";
+    std::string res = var + " =";
     for(auto const& v : vals) {
         res += " " + v;
     }
@@ -80,9 +80,9 @@ public:
     void add_source_file(std::string const& path, bool const is_main = false) {
         SourceFile f;
         f.src_path = path;
-        f.obj_path = "obj/" + path + ".o";
+        f.obj_path = "build/obj/" + path + ".o";
         if(is_main) {
-            f.elf_path = fs::path(path).stem().string();
+            f.elf_path = "build/" + fs::path(path).stem().string();
         }
         src.push_back(f);
         obj_folders.insert(fs::path(f.obj_path).parent_path());
@@ -92,7 +92,7 @@ public:
         for(auto & e : src) {
             if(e.src_path == path) {
                 if(is_main) {
-                    e.elf_path = fs::path(path).stem().string();
+                    e.elf_path = "build/" + fs::path(path).stem().string();
                 }
                 else {
                     e.elf_path = "";
@@ -130,42 +130,40 @@ public:
     }
 
     void gen_makefile() {
-        std::ofstream out("Makefile");
+        std::ofstream out("build.ninja");
 
-        out << gen_variable("CXXFLAGS", cc_options) << "\n";
-        out << gen_variable("LDFLAGS", ld_options) << "\n";
-        out << gen_variable("CXXFLAGSREL", cc_r_options) << "\n";
-        out << gen_variable("LDFLAGSREL", ld_r_options) << "\n";
-        out << gen_variable("CXXFLAGSDEBUG", cc_d_options) << "\n";
-        out << gen_variable("LDFLAGSDEBUG", ld_d_options) << "\n";
+        out << "cxx = g++\n";
+        out << "cc = gcc\n";
+        out << gen_variable("cxxflags", cc_options) << "\n";
+        out << gen_variable("ldflags", ld_options) << "\n";
+        out << gen_variable("cxxflagsrel", cc_r_options) << "\n";
+        out << gen_variable("ldflagsrel", ld_r_options) << "\n";
+        out << gen_variable("cxxflagsdebug", cc_d_options) << "\n";
+        out << gen_variable("ldflagsdebug", ld_d_options) << "\n\n";
 
-        out << "\n";
+        out << "rule compile\n";
+        out << "    command = $cxx $cflags $cxxflagsrel -c $in -o $out\n";
+        out << "    description = Compiling $in\n\n";
 
-        out << "all:";
-        for(auto const& f : src) {
-            if(f.elf_path != "") {
-                out << " " << f.elf_path << ".r";
-            }
-        }
+        out << "rule compile_debug\n";
+        out << "    command = $cxx $cflags $cxxflagsdebug -c $in -o $out\n";
+        out << "    description = Compiling (DEBUG) $in\n\n";
 
-        out << "\ndebug:";
-        for(auto const& f : src) {
-            if(f.elf_path != "") {
-                out << " " << f.elf_path << ".d";
-            }
-        }
+        out << "rule link\n";
+        out << "    command = $cxx $in -o $out $ldflags $ldflagsrel\n";
+        out << "    description = Linking $out\n\n";
 
-        out << "\n.PHONY: all debug clean cleanall\n";
-        out << "obj:\n";
-        out << "\tmkdir -p";
+        out << "rule link_debug\n";
+        out << "    command = $cxx $in -o $out $ldflags $ldflagsdebug\n";
+        out << "    description = Linking (DEBUG) $out\n\n";
 
-        for(auto const& f : obj_folders) {
-            out << " " << f;
-        }
-        out << "\nclean:\n\trm -rf obj";
-        out << "\ncleanall: clean\n\trm -f *.r *.d";
-        out << "\n\n";
+        out << "rule clean\n";
+        out << "    command = rm -rf build\n";
+        out << "    description = Cleaning\n\n";
 
+        out << "rule generate\n";
+        out << "    command = $cxx gen.cpp -o gen && ./gen\n";
+        out << "    description = Generating build.ninja\n\n";
 
         for(auto const& cpp : src) {
             out << gen_rule(cpp);
@@ -175,6 +173,27 @@ public:
             }
             out << "\n";
         }
+
+        out << "build all_release: phony";
+        for(auto const& f : src) {
+            if(f.elf_path != "") {
+                out << " " << f.elf_path;
+            }
+        }
+        out << "\n";
+
+        out << "build all_debug: phony";
+        for(auto const& f : src) {
+            if(f.elf_path != "") {
+                out << " " << f.elf_path << "_debug";
+            }
+        }
+        out << "\n";
+
+        out << "build all: phony all_release all_debug\n";
+        out << "build clean: clean\n";
+        out << "build generate: generate\n";
+        out << "default all_release\n";
     }
 };
 
@@ -194,9 +213,7 @@ int main(void) {
     prj.add_linker_option("-fopenmp");
 
     prj.add_source_folder("src", {".cpp"});
-    // prj.add_source_file("src/pdac.cpp");
-    // prj.add_source_file("src/nnf.cpp");
-    // prj.add_source_file("src/var.cpp");
+
     prj.set_main_property("src/pc.cpp");
     prj.set_main_property("src/rsampler.cpp");
     prj.set_main_property("src/lmc.cpp");
