@@ -142,11 +142,11 @@ public:
         out << gen_variable("ldflagsdebug", ld_d_options) << "\n\n";
 
         out << "rule compile\n";
-        out << "    command = $cxx $cflags $cxxflagsrel -c $in -o $out\n";
+        out << "    command = $cxx $cxxflags $cxxflagsrel -c $in -o $out\n";
         out << "    description = Compiling $in\n\n";
 
         out << "rule compile_debug\n";
-        out << "    command = $cxx $cflags $cxxflagsdebug -c $in -o $out\n";
+        out << "    command = $cxx $cxxflags $cxxflagsdebug -c $in -o $out\n";
         out << "    description = Compiling (DEBUG) $in\n\n";
 
         out << "rule link\n";

@@ -8,11 +8,11 @@ cxxflagsdebug = -g
 ldflagsdebug =
 
 rule compile
-    command = $cxx $cflags $cxxflagsrel -c $in -o $out
+    command = $cxx $cxxflags $cxxflagsrel -c $in -o $out
     description = Compiling $in
 
 rule compile_debug
-    command = $cxx $cflags $cxxflagsdebug -c $in -o $out
+    command = $cxx $cxxflags $cxxflagsdebug -c $in -o $out
     description = Compiling (DEBUG) $in
 
 rule link
