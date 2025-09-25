@@ -65,11 +65,14 @@ for x in total.index:
     nt = len(slgb)
     nboth = len(slmc.intersection(slgb))
 
+    onlyd4 = len(slmc - slgb)
+    no = len(slgb | slmc)
+
 
     if k > 0:
         k = "\\textbf{" + str(k) + "}"
     # print(f"{vsub} & {nbf} & {len(lmc)} & {k} & {nlow:5.3f} & {nhigh:5.3f} & {nboth:5.3f} & {ntlow:5.3f} \\\\")
-    print(f"{vsub} & {nbf} & {nboth} & {nbf - len(lmc)} & {k} \\\\")
+    print(f"{vsub} & {nbf} & {nboth} & {nbf - no} & {onlyd4} & {nbf - len(lmc)} & {k} \\\\")
 
 print("------------------------------------------------------------")
 for x in total.index:
