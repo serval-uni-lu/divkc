@@ -52,7 +52,7 @@ def to_md_table(table):
         table[i] = pad_right(table[i])
 
     for l in zip(*table.values()):
-        print(' | '.join(l))
+        print('|' + ' | '.join(l) + '|')
 
 
 def comp_general_table():
