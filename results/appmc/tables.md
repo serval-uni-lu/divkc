@@ -1,5 +1,5 @@
 # General Data on the Datasets
-|Dataset                          | #F<sub>total</sub> | min(`|`Var(F)`|`) | max(`|`Var(F)`|`) | min(`|`F`|`) | max(`|`F`|`)|
+|Dataset                          | #F<sub>total</sub> | min(Var(F)) | max(Var(F)) | min(F) | max(F)|
 |---------------------------------|--------------------|-------------------|-------------------|--------------|-------------|
 |Global                           | 4656               | 0                 | 8286433           | 0            | 7689680     |
 |↪ Lagniez \cite{D4}              | 1979               | 5                 | 229100            | 10           | 399794      |
