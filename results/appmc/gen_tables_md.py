@@ -58,10 +58,10 @@ def to_md_table(table):
 def comp_general_table():
     tab = { 'sub': ['Dataset']
            , 'nbf': ['#F<sub>total</sub>']
-           , 'v_lo': ['min(`|`Var(F)`|`)']
-           , 'v_hi': ['max(`|`Var(F)`|`)']
-           , 'c_lo': ['min(`|`F`|`)']
-           , 'c_hi': ['max(`|`F`|`)']
+           , 'v_lo': ['min(&#124;Var(F)&#124;)']
+           , 'v_hi': ['max(&#124;Var(F)&#124;)']
+           , 'c_lo': ['min(&#124;F&#124;)']
+           , 'c_hi': ['max(&#124;F&#124;)']
            }
 
     for x in total.index:
@@ -147,10 +147,10 @@ def comp_clt_table():
     tab = dict()
     tab['vsub'] = ['Dataset']
     tab['nbf'] = ['#F']
-    tab['nlow'] = ['Y<sub>l</sub> &le; `|`R<sub>F</sub>`|`']
-    tab['nhigh'] = ['Y<sub>h</sub> &ge; `|`R<sub>F</sub>`|`']
+    tab['nlow'] = ['Y<sub>l</sub> &le; &#124;R<sub>F</sub>&#124;']
+    tab['nhigh'] = ['Y<sub>h</sub> &ge; &#124;R<sub>F</sub>&#124;']
     tab['nboth'] = ['Coverage']
-    tab['ntboth'] = ['`|`R<sub>G<sub>P</sub></sub>`|` &le; `|`R<sub>F</sub>`|` &le; `|`R<sub>G<sub>U</sub></sub>`|` ']
+    tab['ntboth'] = ['&#124;R<sub>G<sub>P</sub></sub>&#124; &le; &#124;R<sub>F</sub>&#124; &le; &#124;R<sub>G<sub>U</sub></sub>&#124; ']
 
     for x in total.index:
         sub = total['folder'][x]
@@ -230,8 +230,8 @@ def comp_clt2_table():
     tab = dict()
     tab['vsub'] = ['Dataset']
     tab['nbf'] = ['#F']
-    tab['nlow'] = ['Y<sub>l</sub> &ge; `|`R<sub>G<sub>P</sub></sub>`|`']
-    tab['nhigh'] = ['Y<sub>h</sub> &le; `|`R<sub>G<sub>U</sub></sub>`|`']
+    tab['nlow'] = ['Y<sub>l</sub> &ge; &#124;R<sub>G<sub>P</sub></sub>&#124;']
+    tab['nhigh'] = ['Y<sub>h</sub> &le; &#124;R<sub>G<sub>U</sub></sub>&#124;']
     tab['nboth'] = ['Both']
     tab['medrc'] = ['median(r<sub>c</sub>)']
     tab['maxrc'] = ['max(r<sub>c</sub>)']
