@@ -51,8 +51,13 @@ def to_md_table(table):
     for i in table:
         table[i] = pad_right(table[i])
 
+    i = 0
     for l in zip(*table.values()):
+        if i == 1:
+            lp = list(map(lambda x : '-' * len(x), l))
+            print('|' + ' | '.join(lp) + '|')
         print('|' + ' | '.join(l) + '|')
+        i += 1
 
 
 def comp_general_table():
