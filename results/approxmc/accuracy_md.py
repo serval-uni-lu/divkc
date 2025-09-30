@@ -74,10 +74,15 @@ clt_d.dropna(inplace = True)
 
 # print(clt_d)
 
+print("|Dataset|#F|l &le; Y<sub>A</sub> &le; h|l &le; Y &le; h|")
+print("|-|-|-|-|")
 for x in total.index:
     sub = total['folder'][x]
     nbf = total['nbf'][x]
     vsub = total['map'][x]
+
+    vsub = vsub.replace('$\\hookrightarrow$', '↪')
+    vsub = vsub.replace('$\\hookrightarrow \\hookrightarrow$', '↪↪')
 
     lclt = filter_on_index(clt_d, sub)
 
@@ -92,4 +97,4 @@ for x in total.index:
     if len(lclt_a) != 0:
         clt_ra = f"{sum(lclt_a) / len(lclt_a):5.3f}"
 
-    print(f"{vsub} & {len(lclt)} & {app_ra} & {clt_ra} \\\\")
+    print(f"| {vsub} | {len(lclt)} | {app_ra} | {clt_ra} |")
