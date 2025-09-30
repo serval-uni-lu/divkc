@@ -71,6 +71,8 @@ clt_d['approxmc_total_time'] = clt_d['time'] * 5
 
 clt_d.dropna(inplace = True)
 
+print("|Dataset|#F|#DivKC|min|mean|median|max|")
+print("|-|-|-|-|-|-|-|")
 for x in total.index:
     sub = total['folder'][x]
     nbf = total['nbf'][x]
@@ -95,4 +97,4 @@ for x in total.index:
         med = f"{median(x):5.1f}"
         ma = f"{max(x):5.1f}"
 
-    print(f"{vsub} & {len(lclt_d)} & {len(tmp)} & {mi} & {me} & {med} & {ma} \\\\")
+    print(f"| {vsub} | {len(lclt_d)} | {len(tmp)} | {mi} | {me} | {med} | {ma} |")
