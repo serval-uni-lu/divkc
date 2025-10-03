@@ -3,6 +3,7 @@ import numpy as np
 from mpmath import mp
 from statistics import median
 from statistics import mean
+import re
 
 clt_prefix = "n10000.seps1.1"
 approxmc_suffix = "e0.8d0.1"
@@ -83,6 +84,7 @@ for x in total.index:
 
     vsub = vsub.replace('$\\hookrightarrow$', '↪')
     vsub = vsub.replace('$\\hookrightarrow \\hookrightarrow$', '↪↪')
+    vsub = re.sub(r'\\cite\{.*?\}', '', vsub)
 
     lclt = filter_on_index(clt_d, sub)
 
