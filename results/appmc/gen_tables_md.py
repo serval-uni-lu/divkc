@@ -3,6 +3,7 @@ import numpy as np
 from mpmath import mp
 from statistics import median
 from statistics import mean
+import re
 
 mp.pretty = True
 
@@ -76,6 +77,7 @@ def comp_general_table():
 
         vsub = vsub.replace('$\\hookrightarrow$', '↪')
         vsub = vsub.replace('$\\hookrightarrow \\hookrightarrow$', '↪↪')
+        vsub = re.sub(r'\\cite\{.*?\}', '', vsub)
 
         lcls = cls[cls.index.str.contains(sub)]
 
@@ -116,6 +118,7 @@ def comp_comp_table():
 
         vsub = vsub.replace('$\\hookrightarrow$', '↪')
         vsub = vsub.replace('$\\hookrightarrow \\hookrightarrow$', '↪↪')
+        vsub = re.sub(r'\\cite\{.*?\}', '', vsub)
 
         ldf = d[d.index.str.contains(sub)]
         lmc = mc[mc.index.str.contains(sub)]
@@ -164,6 +167,7 @@ def comp_clt_table():
 
         vsub = vsub.replace('$\\hookrightarrow$', '↪')
         vsub = vsub.replace('$\\hookrightarrow \\hookrightarrow$', '↪↪')
+        vsub = re.sub(r'\\cite\{.*?\}', '', vsub)
 
         ldf = d[d.index.str.contains(sub)]
         lmc = mc[mc.index.str.contains(sub)]
@@ -248,6 +252,7 @@ def comp_clt2_table():
 
         vsub = vsub.replace('$\\hookrightarrow$', '↪')
         vsub = vsub.replace('$\\hookrightarrow \\hookrightarrow$', '↪↪')
+        vsub = re.sub(r'\\cite\{.*?\}', '', vsub)
 
         ldf = d[d.index.str.contains(sub)]
         lmc = mc[mc.index.str.contains(sub)]
