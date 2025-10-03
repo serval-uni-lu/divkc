@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from mpmath import mp
+import math
 from statistics import median
 from statistics import mean
 
@@ -71,7 +72,7 @@ clt_d['approxmc_total_time'] = clt_d['time'] * 5
 
 clt_d.dropna(inplace = True)
 
-print("|Dataset|#F|#DivKC|min|mean|median|max|")
+print("|Dataset|#F|#DivKC|log<sub>10</sub>(min)|mean|median|log<sub>10</sub>(max)|")
 print("|-|-|-|-|-|-|-|")
 for x in total.index:
     sub = total['folder'][x]
@@ -92,9 +93,9 @@ for x in total.index:
     ma = '-'
 
     if len(tmp) != 0:
-        mi = f"{min(x):5.1f}"
+        mi = f"{math.log(min(x), 10):5.1f}"
         me = f"{mean(x):5.1f}"
         med = f"{median(x):5.1f}"
-        ma = f"{max(x):5.1f}"
+        ma = f"{math.log(max(x), 10):5.1f}"
 
     print(f"| {vsub} | {len(lclt_d)} | {len(tmp)} | {mi} | {me} | {med} | {ma} |")
