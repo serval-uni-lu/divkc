@@ -105,11 +105,9 @@ def comp_comp_table():
     tab = dict()
     tab['vsub'] = ['Dataset']
     tab['nbf'] = ['#F<sub>total</sub>']
-    tab['nboth'] = ['#Both']
-    tab['nfail'] = ['#Fail']
-    tab['nd4'] = ['#D4']
-    tab['nnotd4'] = ['#not D4']
-    tab['ndivkc'] = ['#DivKC']
+    tab['d4'] = ['#D4 and not DivKC']
+    tab['nd4'] = ['#not D4']
+    tab['divkc'] = ['#DivKC and not D4']
 
     for x in total.index:
         sub = total['folder'][x]
@@ -138,16 +136,14 @@ def comp_comp_table():
         onlyd4 = len(slmc - slgb)
         no = len(slgb | slmc)
 
-        if k > 0:
-            k = "\\textbf{" + str(k) + "}"
+        # if k > 0:
+        #     k = "\\textbf{" + str(k) + "}"
 
         tab['vsub'].append(str(vsub))
         tab['nbf'].append(str(nbf))
-        tab['nboth'].append(str(nboth))
-        tab['nfail'].append(str(nbf - no))
-        tab['nd4'].append(str(onlyd4))
-        tab['nnotd4'].append(str(nbf - len(lmc)))
-        tab['ndivkc'].append(str(k))
+        tab['d4'].append(str(onlyd4))
+        tab['nd4'].append(str(nbf - len(lmc)))
+        tab['divkc'].append(str(k))
 
     return tab
 
