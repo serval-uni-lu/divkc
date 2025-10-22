@@ -39,12 +39,17 @@ An example usage with a formula named `t.cnf`:
 The folder `cppddnnf` contains the C++ utilities necessary to work with our compiled form.
 Installing the dependencies on ubuntu is done with the commmand
 ```
-    sudo apt install make g++ libboost-dev libgmp-dev libboost-random-dev
+    sudo apt install ninja-build make g++ libboost-dev libgmp-dev libboost-random-dev
 ```
-The project is then compiled with `make -j8`.
-This will generate the `appmc.r` and the `sampler.r` files.
+The project is then compiled with
+```
+    g++ gen.cpp -o gen
+    ./gen
+    ninja
+```
+This will generate the `build/appmc` and the `build/sampler` files.
 
-`appmc.r` can be used to perform approximate model counting:
+`appmc` can be used to perform approximate model counting:
 ```
 splitter t.cnf 4 > t.cnf.log
 cat t.cnf.log t.cnf > t.cnf.proj
@@ -57,7 +62,7 @@ appmc "t.cnf" 1000 0.01
 Here we run our approximate model counter with 1000 samples
 and an alpha value of 0.01.
 
-`sampler.r` can be used to perform random sampling:
+`sampler` can be used to perform random sampling:
 ```
 splitter t.cnf 4 > t.cnf.log
 cat t.cnf.log t.cnf > t.cnf.proj
@@ -65,7 +70,7 @@ projection t.cnf.proj
 d4 -dDNNF "t.cnf.proj.p" -out="t.cnf.pnnf"
 d4 -dDNNF "t.cnf.proj.pup" -out="t.cnf.unnf"
 
-sampler.r "t.cnf" 1000 50
+sampler "t.cnf" 1000 50
 ```
 Here we run our random sampler to generate 1000 samples by using
 a buffer size of 50.
