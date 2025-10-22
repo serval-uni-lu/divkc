@@ -93,8 +93,9 @@
 |↪↪ V7               | 23   | 1.000                                                    | 0.957                                                    | 0.957 | 2.57e-17              | 0.00365           |
 |↪↪ unsorted         | 27   | 0.815                                                    | 0.815                                                    | 0.630 | 4.37e-44              | 8.86e-7           |
 |↪ Sundermann        | 257  | 0.249                                                    | 0.471                                                    | 0.089 | 1.6e-13               | 0.126             |
+
 ## Table 5: Experimental results comparing the accuracy of Algorithm 3 with ApproxMC7
-|Dataset|#F|l &le; Y<sub>A</sub> &le; h|l &le; Y &le; h|
+|Dataset|#F|l &le; Y<sub>ApproxMC</sub> &le; h|l &le; Y &le; h|
 |-|-|-|-|
 | Global | 2782 | 0.977 | 0.881 |
 | ↪ Lagniez  | 1386 | 1.000 | 0.882 |
