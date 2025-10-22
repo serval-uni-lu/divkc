@@ -320,11 +320,14 @@ def comp_clt2_table():
 
     return tab
 
-print("# General Data on the Datasets")
+print("# Datasets")
+print("## Table 1: Dataset Summary")
 to_md_table(comp_general_table())
-print("# Main Compilation Results")
+print("# Knowledge Compilation")
+print("## Table 2: Experimental results regarding the scalability of DivKC")
 to_md_table(comp_comp_table())
-print("# CLT Coverage")
+print("# Approximate Model Counting")
+print("## Table 3: Experimental results for Algorithm 3")
 to_md_table(comp_clt_table())
-print("# Comparison of CLT with G<sub>U</sub> and G<sub>P</sub>")
+print("## Table 4: Experimental results comparing the bounds obtained with Algorithm 3 and with Lemma 1")
 to_md_table(comp_clt2_table())

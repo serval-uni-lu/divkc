@@ -73,6 +73,8 @@ clt_d['approxmc_total_time'] = clt_d['time'] * 5
 
 clt_d.dropna(inplace = True)
 
+print("## Table 6: Experimental results comparing the runtime of Algorithm 3 with ApproxMC7 for 20 run")
+
 print("|Dataset|#F|#DivKC|log<sub>10</sub>(min)|mean|median|log<sub>10</sub>(max)|")
 print("|-|-|-|-|-|-|-|")
 for x in total.index:

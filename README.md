@@ -5,7 +5,8 @@ the article 'DivKC: A Divide-and-Conquer Approach to Knowledge Compilation'.
 
 ## Results
 
-The `results` contains the raw results that are presented in the article.
+The `results` contains the raw results that are presented in the article as well
+as more detailed versions of the tables available in the article.
 
 ## D4
 

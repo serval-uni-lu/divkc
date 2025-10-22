@@ -1,3 +1,4 @@
+## Table 5: Experimental results comparing the accuracy of Algorithm 3 with ApproxMC7
 |Dataset|#F|l &le; Y<sub>A</sub> &le; h|l &le; Y &le; h|
 |-|-|-|-|
 | Global | 2782 | 0.977 | 0.881 |

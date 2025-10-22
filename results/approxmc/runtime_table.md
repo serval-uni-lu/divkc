@@ -1,3 +1,4 @@
+## Table 6: Experimental results comparing the runtime of Algorithm 3 with ApproxMC7 for 20 run
 |Dataset|#F|#DivKC|log<sub>10</sub>(min)|mean|median|log<sub>10</sub>(max)|
 |-|-|-|-|-|-|-|
 | Global | 2888 | 2265 |  -3.2 | 124.5 |   4.8 |   5.3 |
