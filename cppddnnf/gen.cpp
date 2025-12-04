@@ -142,19 +142,19 @@ public:
         out << gen_variable("ldflagsdebug", ld_d_options) << "\n\n";
 
         out << "rule compile\n";
-        out << "    command = $cxx $cxxflags $cxxflagsrel -c $in -o $out\n";
+        out << "    command = $cxx -fdiagnostics-color=always $cxxflags $cxxflagsrel -c $in -o $out\n";
         out << "    description = Compiling $in\n\n";
 
         out << "rule compile_debug\n";
-        out << "    command = $cxx $cxxflags $cxxflagsdebug -c $in -o $out\n";
+        out << "    command = $cxx -fdiagnostics-color=always $cxxflags $cxxflagsdebug -c $in -o $out\n";
         out << "    description = Compiling (DEBUG) $in\n\n";
 
         out << "rule link\n";
-        out << "    command = $cxx $in -o $out $ldflags $ldflagsrel\n";
+        out << "    command = $cxx -fdiagnostics-color=always $in -o $out $ldflags $ldflagsrel\n";
         out << "    description = Linking $out\n\n";
 
         out << "rule link_debug\n";
-        out << "    command = $cxx $in -o $out $ldflags $ldflagsdebug\n";
+        out << "    command = $cxx -fdiagnostics-color=always $in -o $out $ldflags $ldflagsdebug\n";
         out << "    description = Linking (DEBUG) $out\n\n";
 
         out << "rule clean\n";
@@ -162,7 +162,7 @@ public:
         out << "    description = Cleaning\n\n";
 
         out << "rule generate\n";
-        out << "    command = $cxx gen.cpp -o gen && ./gen\n";
+        out << "    command = $cxx -fdiagnostics-color=always gen.cpp -o gen && ./gen\n";
         out << "    description = Generating build.ninja\n\n";
 
         for(auto const& cpp : src) {
@@ -209,6 +209,7 @@ int main(void) {
     prj.add_debug_compile_option("-g");
 
     prj.add_linker_option("-lboost_random");
+    prj.add_linker_option("-lboost_program_options");
     prj.add_linker_option("-lgmp");
     prj.add_linker_option("-fopenmp");
 
@@ -216,6 +217,7 @@ int main(void) {
 
     prj.set_main_property("src/pc.cpp");
     prj.set_main_property("src/rsampler.cpp");
+    prj.set_main_property("src/rhsampler.cpp");
     prj.set_main_property("src/lmc.cpp");
     prj.set_main_property("src/appmc.cpp");
     prj.set_main_property("src/sampler.cpp");

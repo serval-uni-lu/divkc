@@ -266,7 +266,7 @@ void ANNF::get_path(mpz_int const& id, std::set<Literal> & s) const {
         if(n.type == And) {
             auto const tmc = mc(nid);
             if(lid > tmc) {
-                std::cerr << "a " << lid << " <= " << tmc << "\n";
+                std::cerr << "get_path :: a " << lid << " <= " << tmc << "\n";
             }
 
             for(auto const& c : n.children) {
@@ -281,7 +281,7 @@ void ANNF::get_path(mpz_int const& id, std::set<Literal> & s) const {
         }
         else if(n.type == Or || n.type == Unary) {
             if(lid > mc(nid)) {
-                std::cerr << "o " << lid << " <= " << mc(nid) << "\n";
+                std::cerr << "get_path :: o " << lid << " <= " << mc(nid) << "\n";
             }
 
             for(auto const& c : n.children) {
@@ -316,7 +316,7 @@ void ANNF::get_solution(mpz_int const& id, std::set<Literal> & s) const {
         if(n.type == And) {
             auto const tmc = mc(nid);
             if(lid > tmc) {
-                std::cerr << "a " << lid << " <= " << tmc << "\n";
+                std::cerr << "get_solution :: a " << lid << " <= " << tmc << "\n";
             }
 
             for(auto const& c : n.children) {
@@ -331,7 +331,7 @@ void ANNF::get_solution(mpz_int const& id, std::set<Literal> & s) const {
         }
         else if(n.type == Or || n.type == Unary) {
             if(lid > mc(nid)) {
-                std::cerr << "o " << lid << " <= " << mc(nid) << "\n";
+                std::cerr << "get_solution :: o " << lid << " <= " << mc(nid) << "\n";
             }
 
             for(auto const& c : n.children) {

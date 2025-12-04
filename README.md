@@ -32,7 +32,10 @@ The folder `projection` contains the program used for CNF projection.
 It is compiled with `make -j8`.
 A singularity script is also provided in the folder.
 
-An example usage with a formula named `t.cnf`:
+An example usage with a formula named `t.cnf` and a timeout of 7200 seconds:
+```
+projection t.cnf 7200
+```
 
 ### Approximate algorithms
 
