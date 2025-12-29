@@ -101,7 +101,10 @@ used with much larger buffer sizes than `sampler`.
 To test `sampler` we had to use buffer sizes of 50 to execute the statistical unifomity
 tests in reasonable time. To test `rsampler` we used buffer sizes of 50000 instead.
 
-Here are the raw test results for both `build/sampler` as executed for the paper:
+The usage and requirements of `rsampler` are the same as for `sampler`.
+
+Here are the raw test results for `build/sampler` as executed for the paper:
+(The `+` symbols indicate which tests the sampler passed.)
 
 |File                                     |  #F |     HMP | #Fails | #Bonferroni | Time (h) |
 |-----------------------------------------|-----|---------|--------|-------------|----------|
@@ -139,8 +142,57 @@ Here are the raw test results for both `build/sampler` as executed for the paper
 |omega_modbit_q8_b2000_c10_ksampler.csv   | 178 | 0.017 + |      1 |           0 |    6.432 |
 |omega_modbit_q8_b4000_c10_ksampler.csv   | 177 | 0.189 + |      1 |           0 |    3.048 |
 
+
+Here are the raw test results for `build/rsampler`:
+
+|File                                     |  #F |     HMP | #Fails | #Bonferroni | Time (h) |
+|-----------------------------------------|-----|---------|--------|-------------|----------|
+|omega_birthday_b1000_c10_rsampler.csv    | 139 | 0.000   |      4 |           1 |   23.282 |
+|omega_birthday_b2000_c10_rsampler.csv    | 141 | 0.000   |      2 |           2 |   17.580 |
+|omega_birthday_b4000_c10_rsampler.csv    | 142 | 0.000   |      2 |           2 |   30.186 |
+|omega_chisquared_b1000_c10_rsampler.csv  |  70 | 0.185 + |      0 |           0 |   25.985 |
+|omega_chisquared_b2000_c10_rsampler.csv  |  65 | 0.201 + |      0 |           0 |   17.663 |
+|omega_chisquared_b4000_c10_rsampler.csv  |  66 | 0.048 + |      2 |           0 |   28.888 |
+|omega_freq_nb_var_b1000_c10_rsampler.csv |  82 | 0.196 + |      1 |           0 |   34.427 |
+|omega_freq_nb_var_b2000_c10_rsampler.csv |  82 | 0.197 + |      1 |           0 |   33.029 |
+|omega_freq_nb_var_b4000_c10_rsampler.csv |  83 | 0.092 + |      4 |           0 |   37.798 |
+|omega_freq_var_b1000_c10_rsampler.csv    | 176 | 0.000   |      6 |           1 |   12.896 |
+|omega_freq_var_b2000_c10_rsampler.csv    | 176 | 0.000   |      8 |           4 |   11.597 |
+|omega_freq_var_b4000_c10_rsampler.csv    | 176 | 0.000   |      8 |           2 |   11.462 |
+|omega_modbit_q128_b1000_c10_rsampler.csv |  88 | 0.000   |      1 |           1 |   49.047 |
+|omega_modbit_q128_b2000_c10_rsampler.csv |  88 | 0.000   |      3 |           2 |   43.098 |
+|omega_modbit_q128_b4000_c10_rsampler.csv |  89 | 0.000   |      2 |           1 |   45.706 |
+|omega_modbit_q16_b1000_c10_rsampler.csv  | 178 | 0.206 + |      0 |           0 |    0.947 |
+|omega_modbit_q16_b2000_c10_rsampler.csv  | 178 | 0.172 + |      2 |           0 |    1.415 |
+|omega_modbit_q16_b4000_c10_rsampler.csv  | 178 | 0.040 + |      2 |           0 |    2.565 |
+|omega_modbit_q2_b1000_c10_rsampler.csv   | 178 | 0.127 + |      3 |           0 |    0.842 |
+|omega_modbit_q2_b2000_c10_rsampler.csv   | 178 | 0.118 + |      4 |           0 |    1.411 |
+|omega_modbit_q2_b4000_c10_rsampler.csv   | 178 | 0.069 + |      3 |           0 |    2.560 |
+|omega_modbit_q32_b1000_c10_rsampler.csv  | 178 | 0.277 + |      0 |           0 |    4.598 |
+|omega_modbit_q32_b2000_c10_rsampler.csv  | 178 | 0.139 + |      2 |           0 |    5.178 |
+|omega_modbit_q32_b4000_c10_rsampler.csv  | 178 | 0.000   |      4 |           2 |    6.000 |
+|omega_modbit_q4_b1000_c10_rsampler.csv   | 178 | 0.124 + |      3 |           0 |    0.877 |
+|omega_modbit_q4_b2000_c10_rsampler.csv   | 178 | 0.203 + |      0 |           0 |    1.510 |
+|omega_modbit_q4_b4000_c10_rsampler.csv   | 178 | 0.120 + |      3 |           0 |    2.598 |
+|omega_modbit_q64_b1000_c10_rsampler.csv  | 132 | 0.170 + |      1 |           0 |   44.348 |
+|omega_modbit_q64_b2000_c10_rsampler.csv  | 132 | 0.054 + |      2 |           0 |   42.039 |
+|omega_modbit_q64_b4000_c10_rsampler.csv  | 132 | 0.000   |      2 |           1 |   41.509 |
+|omega_modbit_q8_b1000_c10_rsampler.csv   | 178 | 0.141 + |      2 |           0 |    0.919 |
+|omega_modbit_q8_b2000_c10_rsampler.csv   | 178 | 0.091 + |      3 |           0 |    1.387 |
+|omega_modbit_q8_b4000_c10_rsampler.csv   | 178 | 0.138 + |      1 |           0 |    2.584 |
+
+We can definetly see that `rsampler` passes more tests. Moreover,
+for the Modbit test with `q = 8` we see that `sampler` needed 3 hours while `rsampler`
+only needed 1 hour.
+
 ## Apptainer
 
-It is also possible to use Apptainer (Singularity) instead of using a native build.
-Simply run `apptainer build --fakeroot projection.sif projection.def` to create the container.
-You may then use the container `projection.sif` just like the native executable presented above.
+It is also possible to use Apptainer (Singularity) instead of using a native builds.
+Simply run
+```
+apptainer build --fakeroot appmc.sif appmc.def
+apptainer build --fakeroot sampler.sif sampler.def
+apptainer build --fakeroot rsampler.sif rsampler.def
+```
+to create the containers.
+You may then use the containers just like the native executable presented above.

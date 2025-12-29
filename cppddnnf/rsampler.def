@@ -13,11 +13,11 @@ From: ubuntu:22.04
 
     cd /
     ninja clean
-    ninja build/appmc
+    ninja build/rsampler
 
     cd /wrapper
     make clean
     make
 
 %runscript
-    /wrapper/wrap 64000 5400 /build/appmc "$@"
+    /wrapper/wrap 64000 5400 /build/rsampler "$@"
