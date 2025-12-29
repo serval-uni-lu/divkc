@@ -45,3 +45,8 @@ Running the program on a cnf file as follows:
 ```
 returns the line `c p show 21 25 28 0` which is to be included in the cnf file passed to the projection executable (in this repository).
 
+## Apptainer
+
+It is also possible to use Apptainer (Singularity) instead of using a native build.
+Simply run `apptainer build --fakeroot splitter.sif splitter.def` to create the container.
+You may then use the container `splitter.sif` just like the native executable presented above.
