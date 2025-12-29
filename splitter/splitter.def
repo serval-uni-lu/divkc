@@ -7,14 +7,16 @@ From: ubuntu:22.04
 %post
     echo "setup start"
     apt-get -y update
-    apt-get -y install make g++
+    apt-get -y install ninja-build libboost-program-options-dev g++
 
     cd splitter
-    make clean
-    make -j8
+    g++ gen.cpp -o gen
+    ./gen
+    ninja clean
+    ninja
 
     ls
     echo "setup done"
 
 %runscript
-    /splitter/splitter "$@"
+    /splitter/build/splitter "$@"
