@@ -4,7 +4,7 @@
 
 On Ubuntu and Debian-based systems:
 ```
-    sudo apt install ninja-build libboost-program-options-dev g++
+sudo apt install ninja-build libboost-program-options-dev g++
 ```
 
 ## Building
