@@ -47,7 +47,7 @@ void compute_var_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vecto
 }
 
 void compute_clause_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vector<int> & pins) {
-    for(int i = 1; i < cnf.nb_vars() + 1; i++) {
+    for(int i = 1; i < static_cast<int>(cnf.nb_vars() + 1); i++) {
         std::set<int> ids;
         for(int id : cnf.get_idx(Literal(i))) {
             // if(cnf.is_active(id)) {
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
         std::vector<int> part_sizes(nb_part, 0);
 
 #ifdef VIG
-        for(int i = 0; i < partvec.size(); i++) {
+        for(std::size_t i = 0; i < partvec.size(); i++) {
             // std::cout << "v " << (i + 1) << " " << partvec[i] << "\n";
             part_sizes[partvec[i]] += 1;
         }
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
 
         int nb_c = 0;
         std::set<Variable> vprj;
-        for(int i = 0; i < cnf.nb_clauses(); i++) {
+        for(std::size_t i = 0; i < cnf.nb_clauses(); i++) {
             if(cnf.is_active(i)) {
                 auto const& cl = cnf.clause(i);
 
