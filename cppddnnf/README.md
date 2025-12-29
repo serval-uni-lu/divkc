@@ -107,7 +107,8 @@ tests in reasonable time. To test `rsampler` we used buffer sizes of 50000 inste
 The usage and requirements of `rsampler` are the same as for `sampler`.
 
 Here are the raw test results for both samplers as executed for the paper:
-(The `+` symbols indicate which tests the sampler passed.)
+(The bold p-values indicate which tests the sampler passed, i.e.
+the p-value is greater than 0.01.)
 
 | |sampler| | |rsampler| | |
 |-|-|-|-|-|-|-|
