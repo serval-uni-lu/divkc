@@ -22,7 +22,7 @@ po::options_description get_program_options() {
     desc.add_options()
         ("help,h", "Display help message")
         ("cnf", po::value<std::string>(), "path to CNF file")
-        ("nb", po::value<std::size_t>(), "the target number of partitions");
+        ("nb", po::value<std::size_t>()->default_value(2), "the target number of partitions");
 
     return desc;
 }
