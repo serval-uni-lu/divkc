@@ -148,3 +148,6 @@ used is exact or heuristic based. This depends on the formula and on the buffer 
 The algorithm will then print the solutions.
 Each solution is a list of signed integers representing the literals and separated by spaces. Each solution
 is terminated by `0`.
+
+`./cppddnnf/build/rsampler` can be used instead of `./cppddnnf/build/sampler`.
+More details can be found in `cppddnnf/README.md`.

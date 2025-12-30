@@ -35,6 +35,8 @@ using boost::multiprecision::mpf_float;
 using boost::multiprecision::mpz_int;
 
 void reservoir_heuristic(PDAC const& pdac, std::size_t const N, std::size_t const k) {
+    std::cout << "c heuristic based uniformity\n";
+
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
     auto const pc = apnnf.mc(ROOT);
@@ -120,6 +122,8 @@ void reservoir_heuristic(PDAC const& pdac, std::size_t const N, std::size_t cons
 }
 
 void reservoir_exact(PDAC const& pdac, std::size_t const N) {
+    std::cout << "c true uniformity\n";
+
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
     auto const pc = apnnf.mc(ROOT);
