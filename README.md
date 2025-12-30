@@ -129,7 +129,7 @@ Once the formula has been compiled, you can perform approximate model counting a
 ./cppddnnf/build/appmc --cnf t.cnf
 ```
 
-This will output the estimates over time in CSV format with the header: `N,Y,Yl,Yh`
+This will output the estimates in CSV format with the header: `N,Y,Yl,Yh`
 , where `N` is the number of solutions used, `Y` is the estimate and `Yl` and `Yh` are
 the estimated lower and upper bounds computed with the central limit theorem.
 

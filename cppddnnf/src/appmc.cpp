@@ -15,9 +15,12 @@ po::options_description get_program_options() {
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help,h", "Display help message")
+        ("verbose", "Display all of the intermediate estimates as well")
         ("cnf", po::value<std::string>(), "path to CNF file")
         ("alpha", po::value<double>()->default_value(0.01), "alpha value for the CLT")
-        ("nb", po::value<std::size_t>()->default_value(10'000), "the maximum number of samples to use");
+        ("nb", po::value<std::size_t>()->default_value(10'000), "the maximum number of samples to use")
+        ("lnb", po::value<std::size_t>()->default_value(0), "the minimum number of samples to use, set to 0 to disable early stopping (see --epsilon)")
+        ("epsilon", po::value<double>()->default_value(1.1), "the algorithm stops early (before --nb samples have been reached) if (Y / epsilon) <= Yl and (Y * epsilon) >= Yh");
 
     return desc;
 }
@@ -44,9 +47,14 @@ int main(int argc, char** argv) {
         double const alpha = vm["alpha"].as<double>();
         std::size_t const N = vm["nb"].as<std::size_t>();
 
+        std::size_t const lN = vm["lnb"].as<std::size_t>();
+        double const epsilon = vm["epsilon"].as<double>();
+
+        bool const verbose = vm.count("verbose") > 0;
+
         auto pdac = pdac_from_file(cnf_path);
 
-        appmc(pdac, N, alpha);
+        appmc(pdac, N, alpha, lN, epsilon, verbose);
 
         return 0;
     }

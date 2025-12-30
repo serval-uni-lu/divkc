@@ -3,6 +3,7 @@
 #include "pdac.hpp"
 
 #include <fstream>
+#include <atomic>
 #include <boost/random/random_device.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
@@ -47,7 +48,7 @@ PDAC pdac_from_file(std::string const& path) {
     return res;
 }
 
-void appmc(PDAC const& pdac, int const N, double const alpha) {
+void appmc(PDAC const& pdac, std::size_t const N, double const alpha, std::size_t const lN, double const epsilon, bool const verbose) {
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
     auto const pc = apnnf.mc(ROOT);
@@ -59,17 +60,18 @@ void appmc(PDAC const& pdac, int const N, double const alpha) {
     mpf_float rmean = 0;
     mpf_float rm = 0;
 
-    int k = 0;
+    std::size_t k = 0;
     mpf_float const z = quantile(normal(), 1 - alpha);
 
     std::cout << "N,Y,Yl,Yh\n";
-    bool done = false;
+    std::atomic<bool> done = false;
 
     #pragma omp parallel for
-    for(int i = 0; i < N; i++) {
-        if(done) {
+    for(std::size_t i = 0; i < N; i++) {
+        if(done.load()) {
             continue;
         }
+
         std::set<Literal> path;
         ANNF aunnf = ANNF(pdac.unnf);
         auto l = ui(mt);
@@ -94,11 +96,16 @@ void appmc(PDAC const& pdac, int const N, double const alpha) {
                 auto yl = rmean - z * sd;
                 auto yh = rmean + z * sd;
 
-                std::cout << k << ", " << rmean << ", " << yl << ", " << yh << "\n";
+                if(verbose || k >= N) {
+                    std::cout << k << ", " << rmean << ", " << yl << ", " << yh << "\n";
+                }
 
-                double constexpr epsilon = 1.8;
-                if(k >= 10 && rmean / epsilon <= yl && rmean * epsilon >= yh) {
-                    done = true;
+                if(lN > 0 && k >= lN && rmean / epsilon <= yl && rmean * epsilon >= yh) {
+                    done.store(true);
+
+                    if(!verbose) {
+                        std::cout << k << ", " << rmean << ", " << yl << ", " << yh << "\n";
+                    }
                 }
             }
         }
@@ -286,20 +293,20 @@ mpz_int exact_mc(PDAC const& pdac) {
     return tmc;
 }
 
-void exact_uniform_sampling(PDAC const& pdac, int const N) {
+void exact_uniform_sampling(PDAC const& pdac, std::size_t const N) {
     std::cout << "c true uniformity\n";
 
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
     auto const pc = apnnf.mc(ROOT);
-    int const ipc = static_cast<int>(pc);
+    std::size_t const ipc = static_cast<std::size_t>(pc);
 
     // auto const tmc = exact_mc(pdac);
     mpz_int tmc = 0;
     std::vector<mpz_int> pmc(ipc, 0);
 
     #pragma omp parallel for
-    for(int i = 1; i <= ipc; i++) {
+    for(std::size_t i = 1; i <= ipc; i++) {
         ANNF aunnf = ANNF(pdac.unnf);
         std::set<Literal> path;
         apnnf.get_path(i, path);
@@ -321,7 +328,7 @@ void exact_uniform_sampling(PDAC const& pdac, int const N) {
     uniform_int_distribution<mpz_int> ui(1, tmc);
 
     #pragma omp parallel for
-    for(int i = 0; i < N; i++) {
+    for(std::size_t i = 0; i < N; i++) {
         mpz_int id = 0;
         #pragma omp critical
         id = ui(mt);
@@ -362,7 +369,7 @@ void exact_uniform_sampling(PDAC const& pdac, int const N) {
     }
 }
 
-void heuristic_uniform_sampling(PDAC const& pdac, int const N, int const k) {
+void heuristic_uniform_sampling(PDAC const& pdac, std::size_t const N, std::size_t const k) {
     std::cout << "c heuristic based uniformity\n";
 
     ANNF apnnf = ANNF(pdac.pnnf);
@@ -372,7 +379,7 @@ void heuristic_uniform_sampling(PDAC const& pdac, int const N, int const k) {
     random_device rng;
 
     #pragma omp parallel for
-    for(int i = 0; i < N; i++) {
+    for(std::size_t i = 0; i < N; i++) {
         std::set<Literal> path;
         ANNF aunnf = ANNF(pdac.unnf);
 
@@ -437,7 +444,7 @@ void heuristic_uniform_sampling(PDAC const& pdac, int const N, int const k) {
     }
 }
 
-void ksampler(PDAC const& pdac, int const N, int const k) {
+void ksampler(PDAC const& pdac, std::size_t const N, std::size_t const k) {
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
     auto const pc = apnnf.mc(ROOT);

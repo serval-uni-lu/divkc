@@ -50,10 +50,18 @@ The executable used for approximate model counting is `build/appmc`.
 Runnin `build/appmc --help` gives:
 ```
 Allowed options:
-  -h [ --help ]         Display help message
-  --cnf arg             path to CNF file
-  --alpha arg (=0.01)   alpha value for the CLT
-  --nb arg (=10000)     the maximum number of samples to use
+  -h [ --help ]                       Display help message
+  --verbose                           Display all of the intermediate estimates
+                                      as well
+  --cnf arg                           path to CNF file
+  --alpha arg (=0.01)                 alpha value for the CLT
+  --nb arg (=10000)                   the maximum number of samples to use
+  --lnb arg (=0)                      the minimum number of samples to use, set
+                                      to 0 to disable early stopping (see 
+                                      --epsilon)
+  --epsilon arg (=1.1000000000000001) the algorithm stops early (before --nb 
+                                      samples have been reached) if (Y / 
+                                      epsilon) <= Yl and (Y * epsilon) >= Yh
 ```
 
 The `cnf` argument is the path to the CNF file.
@@ -61,8 +69,22 @@ The `alpha` parameter is the parameter used by the central limit theorem to comp
 the confidence interval and `nb` is the maximum number of samples to use before the algorithm
 stops.
 
+By default, early stopping is disabled and the algorithm will use the maximum number of samples
+as given to `--nb`.
+If early stopping is desired, the option `--lnb` controls the minimum number of samples to use
+before considering early stopping. If it is set to a non-zero value, then early stopping is enabled.
+The `--epsilon` option controls early stoppping.
+The model counter estimates the model coutn `Y` and uses the central limit theorem to estimate
+upper (`Yh`) and lower (`Yl`) bounds.
+If early stopping is enabled then the algorithm stop early if the number of samples is greater
+than `--lnb` and if `(Y / epsilon) <= Yl` and `(Y * epsilon >= Yh`.
+
+By default, the model counter only display the last estimate (and in case early stopping is enabled,
+the last estimate given by each thread of execution).
+If you wish to have all the estimates, you may use the `--verbose` option.
+
 This executable assumes that if the `cnf` parameter is set to `t.cnf`, there will be
-files called `t.cnf.log`, `t.cnf.pnnf` for the projected formula (`t.cnf.p`) compiled to d-DNNF
+files called `t.cnf.proj.log`, `t.cnf.pnnf` for the projected formula (`t.cnf.p`) compiled to d-DNNF
 and `t.cnf.unnf` for the upper bound (`t.cnf.pup`) compiled to d-DNNF.
 These files can be generated with the help of the version of `D4` shipped in this repository
 and the `projection` executable.

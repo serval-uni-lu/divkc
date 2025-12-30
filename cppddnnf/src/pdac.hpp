@@ -11,7 +11,7 @@ struct PDAC {
 
 
 PDAC pdac_from_file(std::string const& path);
-void appmc(PDAC const& pdac, int const N, double const alpha);
-void ksampler(PDAC const& pdac, int const N, int const k);
+void appmc(PDAC const& pdac, std::size_t const N, double const alpha, std::size_t const lN, double const epsilon, bool const verbose);
+void ksampler(PDAC const& pdac, std::size_t const N, std::size_t const k);
 
 #endif
