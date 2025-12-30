@@ -1,4 +1,16 @@
+Tables 1 to 4 have been generated with `appmc/gen_tables_md.py`.
+The script depends on `pandas`, `numpy`, and `mpmath`.
+
+Table 5 has been generated with `approxmc/accuracy_md.py`
+, and Table 6 has been generated with `approxmc/runtime_md.py`.
+
+The raw CSV files are available in the respective directories.
+
+The `urs` directory contains the raw results of the uniformity tests
+performed on `cppddnnf/build/sampler` (here called `ksampler`) and `cppddnnf/build/rsampler`.
+
 # Datasets
+
 ## Table 1: Dataset Summary
 |Dataset             | #F<sub>total</sub> | min(&#124;Var(F)&#124;) | max(&#124;Var(F)&#124;) | min(&#124;F&#124;) | max(&#124;F&#124;)|
 |------------------- | ------------------ | ----------------------- | ----------------------- | ------------------ | ------------------|
