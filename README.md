@@ -161,6 +161,8 @@ To compile a formula `t.cnf` by using the docker container you can either use th
 `docker_compile_formula.sh` bash script or you can run the individual commands
 manually to retain more control over the program options:
 
+A prebuilt image is available on [Zenodo](https://doi.org/10.5281/zenodo.18097437).
+
 ```
 docker run --rm -v "$(pwd):/work" -w "/work" divkc \
     /divkc/splitter --cnf "$1" > "$1.log"
