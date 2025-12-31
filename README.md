@@ -151,3 +151,52 @@ is terminated by `0`.
 
 `./cppddnnf/build/rsampler` can be used instead of `./cppddnnf/build/sampler`.
 More details can be found in `cppddnnf/README.md`.
+
+# Docker
+
+A Dockerfile is also provided.
+The image can be build with `docker build -t divkc .`.
+The executable files are then available in `/divkc` on the container.
+To compile a formula `t.cnf` by using the docker container you can either use the provided
+`docker_compile_formula.sh` bash script or you can run the individual commands
+manually to retain more control over the program options:
+
+```
+docker run --rm -v "$(pwd):/work" -w "/work" divkc \
+    /divkc/splitter --cnf "$1" > "$1.log"
+
+cat "$1.log" "$1" > "$1.proj"
+
+docker run --rm -v "$(pwd):/work" -w "/work" divkc \
+    /divkc/projection --cnf "$1.proj"
+
+docker run --rm -v "$(pwd):/work" -w "/work" divkc \
+    /divkc/wrap 16000 3600 \
+    /divkc/d4 -dDNNF "$1.proj.p" -out="$1.pnnf"
+
+docker run --rm -v "$(pwd):/work" -w "/work" divkc \
+    /divkc/wrap 16000 3600 \
+    /divkc/d4 -dDNNF "$1.proj.pup" -out="$1.unnf"
+```
+
+In this example we use `/divkc/wrap` to limit `D4`.
+With the parameters in the example, `wrap` will kill the call to `D4` if it exceeds `16000` MB of memory
+or if the execution takes longer than `3600` seconds.
+
+Once the compilation has been done, we can perform approximate model counting as follows:
+```
+docker run --rm -v "$(pwd):/work" -w "/work" divkc \
+    /divkc/appmc --cnf t.cnf
+```
+
+Similarily, we can perform random sampling with `/divkc/sampler`:
+```
+docker run --rm -v "$(pwd):/work" -w "/work" divkc \
+    /divkc/sampler --cnf t.cnf --nb 10 --k 50
+```
+
+Alternatively with `/divkc/rsampler`:
+```
+docker run --rm -v "$(pwd):/work" -w "/work" divkc \
+    /divkc/rsampler --cnf t.cnf --nb 10 --k 50000
+```
