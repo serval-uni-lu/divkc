@@ -20,32 +20,29 @@ COPY projection/ ./projection/
 COPY D4/d4/ ./d4/
 COPY D4/wrapper/ ./wrapper/
 
-RUN cd /divkc_build/cppddnnf && \
-    g++ gen.cpp -o gen && \
+WORKDIR /divkc_build/cppddnnf
+RUN g++ gen.cpp -o gen && \
     ./gen && \
     ninja clean && \
-    ninja build/appmc build/sampler build/rsampler && \
-    cd ..
+    ninja build/appmc build/sampler build/rsampler
 
-RUN cd /divkc_build/splitter && \
-    g++ gen.cpp -o gen && \
+WORKDIR /divkc_build/splitter
+RUN g++ gen.cpp -o gen && \
     ./gen && \
     ninja clean && \
-    ninja && \
-    cd ..
+    ninja
 
-RUN cd /divkc_build/projection && \
-    g++ gen.cpp -o gen && \
+WORKDIR /divkc_build/projection
+RUN g++ gen.cpp -o gen && \
     ./gen && \
     ninja clean && \
-    ninja && \
-    cd ..
+    ninja
 
-RUN cd /divkc_build/wrapper && \
-    make clean && make -j && cd ..
+WORKDIR /divkc_build/wrapper
+RUN make clean && make -j
 
-RUN cd /divkc_build/d4 && \
-    make clean && make -j && cd ..
+WORKDIR /divkc_build/d4
+RUN make clean && make -j
 
 WORKDIR /divkc
 
