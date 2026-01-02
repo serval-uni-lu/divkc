@@ -6,11 +6,11 @@ RUN apt-get update && apt-get install -y \
     make \
     zlib1g-dev \
     libboost-dev \
-    libgmp-dev \
+    libgmp10-dev \
     libgmpxx4ldbl \
     ninja-build \
-    libboost-program-options-dev \
-    libboost-random-dev \
+    libboost-program-options1.83-dev \
+    libboost-random1.83-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /divkc_build
