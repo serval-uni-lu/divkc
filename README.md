@@ -16,7 +16,7 @@ varables in the generated .nnf file therefore simplifying further
 usage of the d-DNNF.
 
 The current implementation in `cppddnnf` requires this modification to function.
-Therefore, to replace `D4` by different compiler, either the compiler
+Therefore, to replace `D4` by a different compiler, either the compiler
 or the implementation in `cppddnnf` has to be modified.
 
 ## Usage

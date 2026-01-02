@@ -89,6 +89,10 @@ and `t.cnf.unnf` for the upper bound (`t.cnf.pup`) compiled to d-DNNF.
 These files can be generated with the help of the version of `D4` shipped in this repository
 and the `projection` executable.
 
+The current implementation requires our modified version of `D4` to function.
+Therefore, to replace `D4` by a different compiler, either the compiler
+or the implementation in `cppddnnf` has to be modified.
+
 ### Sampler
 
 The executable used for sampling is `build/sampler`.
@@ -112,6 +116,10 @@ files called `t.cnf.log`, `t.cnf.pnnf` for the projected formula (`t.cnf.p`) com
 and `t.cnf.unnf` for the upper bound (`t.cnf.pup`) compiled to d-DNNF.
 These files can be generated with the help of the version of `D4` shipped in this repository
 and the `projection` executable.
+
+The current implementation requires our modified version of `D4` to function.
+Therefore, to replace `D4` by a different compiler, either the compiler
+or the implementation in `cppddnnf` has to be modified.
 
 ### RSampler
 
