@@ -15,6 +15,10 @@ The modification is only present to also include the unconstrained
 varables in the generated .nnf file therefore simplifying further
 usage of the d-DNNF.
 
+The current implementation in `cppddnnf` requires this modification to function.
+Therefore, to replace `D4` by different compiler, either the compiler
+or the implementation in `cppddnnf` has to be modified.
+
 ## Usage
 
 To use our approach, the `cppddnnf`, `splitter`, `projection`, and `D4` projects will need to be compiled
