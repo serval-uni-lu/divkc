@@ -164,21 +164,21 @@ manually to retain more control over the program options:
 A prebuilt image is available on [Zenodo](https://doi.org/10.5281/zenodo.18097437).
 
 ```
-docker run --rm -v "$(pwd):/work" -w "/work" divkc \
-    /divkc/splitter --cnf "$1" > "$1.log"
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
+    /divkc/splitter --cnf "t.cnf" > "t.cnf.log"
 
-cat "$1.log" "$1" > "$1.proj"
+cat "t.cnf.log" "t.cnf" > "t.cnf.proj"
 
-docker run --rm -v "$(pwd):/work" -w "/work" divkc \
-    /divkc/projection --cnf "$1.proj"
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
+    /divkc/projection --cnf "t.cnf.proj"
 
-docker run --rm -v "$(pwd):/work" -w "/work" divkc \
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
     /divkc/wrap 16000 3600 \
-    /divkc/d4 -dDNNF "$1.proj.p" -out="$1.pnnf"
+    /divkc/d4 -dDNNF "t.cnf.proj.p" -out="t.cnf.pnnf"
 
-docker run --rm -v "$(pwd):/work" -w "/work" divkc \
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
     /divkc/wrap 16000 3600 \
-    /divkc/d4 -dDNNF "$1.proj.pup" -out="$1.unnf"
+    /divkc/d4 -dDNNF "t.cnf.proj.pup" -out="t.cnf.unnf"
 ```
 
 In this example we use `/divkc/wrap` to limit `D4`.
@@ -187,18 +187,18 @@ or if the execution takes longer than `3600` seconds.
 
 Once the compilation has been done, we can perform approximate model counting as follows:
 ```
-docker run --rm -v "$(pwd):/work" -w "/work" divkc \
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
     /divkc/appmc --cnf t.cnf
 ```
 
 Similarily, we can perform random sampling with `/divkc/sampler`:
 ```
-docker run --rm -v "$(pwd):/work" -w "/work" divkc \
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
     /divkc/sampler --cnf t.cnf --nb 10 --k 50
 ```
 
 Alternatively with `/divkc/rsampler`:
 ```
-docker run --rm -v "$(pwd):/work" -w "/work" divkc \
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
     /divkc/rsampler --cnf t.cnf --nb 10 --k 50000
 ```

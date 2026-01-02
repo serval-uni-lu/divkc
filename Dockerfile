@@ -1,4 +1,5 @@
-FROM ubuntu:24.04
+# ---------- Stage 1: Build ----------
+FROM ubuntu:24.04 AS builder
 
 RUN apt-get update && apt-get install -y \
     g++ \
@@ -20,37 +21,54 @@ COPY projection/ ./projection/
 COPY D4/d4/ ./d4/
 COPY D4/wrapper/ ./wrapper/
 
-WORKDIR /divkc_build/cppddnnf
-RUN g++ gen.cpp -o gen && \
-    ./gen && \
-    ninja clean && \
-    ninja build/appmc build/sampler build/rsampler
-
-WORKDIR /divkc_build/splitter
-RUN g++ gen.cpp -o gen && \
-    ./gen && \
-    ninja clean && \
-    ninja
-
-WORKDIR /divkc_build/projection
-RUN g++ gen.cpp -o gen && \
-    ./gen && \
-    ninja clean && \
-    ninja
-
-WORKDIR /divkc_build/wrapper
-RUN make clean && make -j
-
-WORKDIR /divkc_build/d4
-RUN make clean && make -j
-
 WORKDIR /divkc
 
-RUN cp /divkc_build/cppddnnf/build/appmc ./ && \
-    cp /divkc_build/cppddnnf/build/sampler ./ && \
-    cp /divkc_build/cppddnnf/build/rsampler ./ && \
-    cp /divkc_build/splitter/build/splitter ./ && \
-    cp /divkc_build/projection/build/projection ./ && \
-    cp /divkc_build/wrapper/wrap ./ && \
-    cp /divkc_build/d4/d4 ./ && \
-    rm -rf /divkc_build
+RUN cd /divkc_build/cppddnnf && \
+    g++ gen.cpp -o gen && \
+    ./gen && \
+    ninja clean && \
+    ninja build/appmc build/sampler build/rsampler && \
+    cp /divkc_build/cppddnnf/build/appmc /divkc/ && \
+    cp /divkc_build/cppddnnf/build/sampler /divkc/ && \
+    cp /divkc_build/cppddnnf/build/rsampler /divkc/ && \
+    rm -rf /divkc_build/cppddnnf
+
+RUN cd /divkc_build/splitter && \
+    g++ gen.cpp -o gen && \
+    ./gen && \
+    ninja clean && \
+    ninja && \
+    cp /divkc_build/splitter/build/splitter /divkc/ && \
+    rm -rf /divkc_build/splitter
+
+RUN cd /divkc_build/projection && \
+    g++ gen.cpp -o gen && \
+    ./gen && \
+    ninja clean && \
+    ninja && \
+    cp /divkc_build/projection/build/projection /divkc/ && \
+    rm -rf /divkc_build/projection
+
+RUN cd /divkc_build/wrapper && \
+    make clean && make -j && \
+    cp /divkc_build/wrapper/wrap /divkc/ && \
+    rm -rf /divkc_build/wrapper
+
+RUN cd /divkc_build/d4 && \
+    make clean && make -j && \
+    cp /divkc_build/d4/d4 /divkc/ && \
+    rm -rf /divkc_build/d4
+
+# ---------- Stage 2: Runtime ----------
+FROM ubuntu:24.04
+
+RUN apt-get update && apt-get install -y \
+    libboost-program-options1.83.0 \
+    libboost-random1.83.0 \
+    libgmp10 \
+    libgmpxx4ldbl \
+    libgomp1 \
+    zlib1g \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /divkc/ /divkc
