@@ -18,7 +18,7 @@
 namespace po = boost::program_options;
 
 /**
- * \returns the boost datastructure representing the program CLI arguments
+ * \returns The boost datastructure representing the program CLI arguments
  */
 po::options_description get_program_options() {
     po::options_description desc("Allowed options");
@@ -89,7 +89,7 @@ void compute_clause_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::ve
 }
 
 /**
- * \returns an array, with array_index -> partition index.
+ * \returns An array, with array_index -> partition index.
  *
  * In other words, array indices (nodes in the hypergraph)
  * are object ids and they map to partition indices.

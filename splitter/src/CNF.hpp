@@ -15,7 +15,7 @@ struct Literal;
 struct Variable;
 
 /**
- * \brief represents a Literal such as -1 or 1.
+ * \brief Represents a Literal such as -1 or 1.
  * \details
  * Literals are represented as integers with the low significant bit representing the sign.
  * There for the literal '1' is encoded as '0' and '-1' is encoded as '1'.
@@ -31,19 +31,19 @@ struct Literal {
 
     public:
     /**
-     * \brief converts the input variable to a positive literal
+     * \brief Converts the input variable to a positive literal
      */
     Literal (Variable v);
 
     /**
-     * \brief converts the input variable to a literal with the given sign
+     * \brief Converts the input variable to a literal with the given sign
      * \param v
      * \param sign either 1 or -1
      */
     Literal (Variable v, int sign);
 
     /**
-     * \brief converts the input literal in DIMACS format to our internal representation
+     * \brief Converts the input literal in DIMACS format to our internal representation
      */
     Literal (int i);
 
@@ -54,17 +54,17 @@ struct Literal {
     Literal& operator= (Literal && p) = default;
 
     /**
-     * \return the sign (-1 or 1) of this literal
+     * \returns The sign (-1 or 1) of this literal
      */
     inline int sign() const { return l & 1 ? -1 : 1; }
 
     /**
-     * \return this literal in DIMACS format
+     * \returns This literal in DIMACS format
      */
     inline int to_int() const { return sign() * ((l >> 1) + 1); }
 
     /**
-     * \return the internal representation as an int for use as
+     * \returns The internal representation as an int for use as
      *  an array index
      */
     inline int get() const { return l; }
@@ -85,7 +85,7 @@ struct Literal {
 };
 
 /**
- * \returns the logical negation of this literal
+ * \returns The logical negation of this literal
  * \relates Literal
  */
 inline Literal operator ~ (Literal p) {
@@ -94,7 +94,7 @@ inline Literal operator ~ (Literal p) {
 }
 
 /**
- * \brief prints this literal in DIMACS format to the stream
+ * \brief Prints this literal in DIMACS format to the stream
  * \relates Literal
  */
 inline std::ostream & operator<<(std::ostream & out, Literal const& l) {
@@ -104,7 +104,7 @@ inline std::ostream & operator<<(std::ostream & out, Literal const& l) {
 }
 
 /**
- * \brief represents a variable
+ * \brief Represents a variable
  * \details
  * Variables are encoded as integers starting at 0.
  * A DIMACS literal a is converted to (abs(a) - 1).
@@ -182,62 +182,62 @@ struct Clause {
     Clause& operator=(Clause && c) = default;
 
     /**
-     * \brief add a literal to the clause if it is not already present
+     * \brief Add a literal to the clause if it is not already present
      */
     void push(Literal const& l);
 
     /**
-     * \brief remove the literal from the clause
+     * \brief Remove the literal from the clause
      */
     void remove(Literal const& l);
 
     /**
-     * \brief remove every occurence of the varliable v from the clause
+     * \brief Remove every occurence of the varliable v from the clause
      * \details
-     * removes the literals v and ~v from the clause;
+     * Removes the literals v and ~v from the clause;
      */
     void remove(Variable const& v);
 
     /**
-     * \returns true if the clause contains l
+     * \returns True if the clause contains l
      */
     bool contains(Literal const& l) const;
 
     /**
-     * \returns true if the clause contains very literal in the clause cls
+     * \returns True if the clause contains very literal in the clause cls
      */
     bool contains(Clause const& cls) const;
 
     /**
-     * \returns an iterator to the beginning of the clause
+     * \returns An iterator to the beginning of the clause
      */
     inline auto begin() const {
         return c.begin();
     }
 
     /**
-     * \returns an iterator to the end of the clause (past the end iterator)
+     * \returns An iterator to the end of the clause (past the end iterator)
      */
     inline auto end() const {
         return c.end();
     }
 
     /**
-     * \returns the number of literals in the clause
+     * \returns The number of literals in the clause
      */
     inline std::size_t size() const {
         return c.size();
     }
 
     /**
-     * \returns a reference to the literal at index i
+     * \returns A reference to the literal at index i
      */
     inline auto& operator[](std::size_t const& i) {
         return c[i];
     }
 
     /**
-     * \returns a constant reference to the literal at index i
+     * \returns A constant reference to the literal at index i
      */
     inline auto const& operator[](std::size_t const& i) const {
         return c[i];
@@ -257,7 +257,7 @@ inline std::ostream & operator<<(std::ostream & out, Clause const& c) {
 }
 
 /**
- * \brief represents a propositional formula in CNF form
+ * \brief Represents a propositional formula in CNF form
  */
 class CNF {
     private:
@@ -275,8 +275,8 @@ class CNF {
         CNF() = default;
 
         /**
-         * \brief reads a formula from a DIMACS file located at path
-         * \param path path to the file containing the formula in DIMACS format
+         * \brief Reads a formula from a DIMACS file located at path
+         * \param Path path to the file containing the formula in DIMACS format
          */
         CNF(char const* path);
         CNF(CNF const& c) = default;
@@ -286,18 +286,18 @@ class CNF {
         CNF& operator=(CNF && c) = default;
 
         /**
-         * \brief computes the set of unconstrained variables (i.e., that do no appear in the formula syntactically)
-         * \details the result is stored in a class member
+         * \brief Computes the set of unconstrained variables (i.e., that do no appear in the formula syntactically)
+         * \details The result is stored in a class member
          */
         void compute_free_vars();
 
         /**
-         * \brief applies boolean constraint propagation to the formula
+         * \brief Applies boolean constraint propagation to the formula
          */
         void simplify();
 
         /**
-         * \brief removes clauses based on subsumption
+         * \brief Removes clauses based on subsumption
          * \details
          * If we have two clauses A and B, and we have A.contains(B), then we know that A is a logical implication of B.
          *
@@ -314,7 +314,7 @@ class CNF {
          * \details
          * Because of simplify() and subsumption(), not every clause id refers to an active id.
          * \pre i must satisfy 0 <= i < nb_clauses()
-         * \returns true if the clause id refers to an active clause, false otherwise
+         * \returns True if the clause id refers to an active clause, false otherwise
          */
         inline bool is_active(std::size_t i) const { return active[i]; }
 
@@ -335,60 +335,60 @@ class CNF {
 
         /**
          * \pre i must satisfy 0 <= i < nb_clauses()
-         * \returns the clause corresponding to id i
+         * \returns The clause corresponding to id i
          */
         inline Clause const& clause(std::size_t i) const { return clauses[i]; }
 
         /**
          * \pre l must be a valid literal for the formula (0 <= l.get() < nb_vars() * 2)
-         * \returns the set of clause ids that contain the literal l
+         * \returns The set of clause ids that contain the literal l
          */
         inline std::set<std::size_t> const& get_idx(Literal l) const { return idx[l.get()]; }
 
         /**
-         * \returns the number of variables 
+         * \returns The number of variables 
          */
         inline std::size_t nb_vars() const { return vars.size(); }
 
         /**
-         * \returns the number of variables that do not appear syntactically in the formula
+         * \returns The number of variables that do not appear syntactically in the formula
          * if compute_free_vars() has been called before
          */
         inline std::size_t nb_free_vars() const { return free.size(); }
 
         /**
-         * \returns the number of unit clauses (containing only one literal)
+         * \returns The number of unit clauses (containing only one literal)
          * if simplify() has been called before
          */
         inline std::size_t nb_units() const { return units.size(); }
 
         /**
-         * \returns the number of variables that appear syntactically in the formula
+         * \returns The number of variables that appear syntactically in the formula
          * if compute_free_vars() has been called before
          */
         inline std::size_t nb_c_vars() const { return nb_vars() - nb_free_vars(); }
 
         /**
-         * \returns the total number of clauses
+         * \returns The total number of clauses
          */
         inline std::size_t nb_clauses() const { return clauses.size(); }
 
         /**
-         * \returns the number of clauses that are active
+         * \returns The number of clauses that are active
          */
         inline std::size_t nb_active_clauses() const { return nb_active; }
 
         /**
-         * \returns the clauses that have all their variables in the set v
+         * \returns The clauses that have all their variables in the set v
          *
-         * clause length has to be >= m_len to be included
+         * Clause length has to be >= m_len to be included
          */
         std::vector<Clause> get_clauses_by_vars(std::set<Variable> const& v, std::size_t m_len) const;
 
         /**
-         * \returns the clauses that have at least one of their variables in the set v
+         * \returns The clauses that have at least one of their variables in the set v
          *
-         * clause length has to be >= m_len to be included
+         * Clause length has to be >= m_len to be included
          */
         std::vector<Clause> get_clauses_by_vars_wide(std::set<Variable> const& v, std::size_t m_len) const;
 
