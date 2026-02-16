@@ -19,6 +19,9 @@ namespace po = boost::program_options;
 using boost::multiprecision::mpf_float;
 using boost::multiprecision::mpz_int;
 
+/**
+ * \returns The boost datastructure representing the program CLI arguments
+ */
 po::options_description get_program_options() {
     po::options_description desc("Allowed options");
     desc.add_options()
@@ -30,7 +33,7 @@ po::options_description get_program_options() {
 }
 
 /*
- * generate a random int in [0, R - 1]
+ * \returns A random int in [0, R - 1]
  */
 mpz_int gen_random_int(xoshiro512plusplus & g, mpz_int const& R) {
     std::size_t const needed = msb(R) + 1;
@@ -84,6 +87,10 @@ mpz_int compute_geomeric(xoshiro512plusplus & gen, mpz_int const& N, mpz_int con
     }
 }
 
+/**
+ * \brief A more involved reservoir sampling approach than the one available
+ * in rsampler.cpp
+ */
 void reservoir_heuristic(PDAC const& pdac, std::size_t const N) {
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();

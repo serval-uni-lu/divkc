@@ -19,6 +19,20 @@
 using namespace boost::random;
 using boost::multiprecision::mpf_float;
 
+/**
+ * \brief An implementation of an algorithm which computes a lower bound to the true model count.
+ * \details
+ * \verbatim
+   @inproceedings{gomes2007sampling,
+      title={From Sampling to Model Counting.},
+      author={Gomes, Carla P and Hoffmann, J{\"o}rg and Sabharwal, Ashish and Selman, Bart},
+      booktitle={IJCAI},
+      volume={2007},
+      pages={2293--2299},
+      year={2007}
+   }
+ \endverbatim
+ */
 mpf_float lmca(PDAC const& pdac, int const N, int const k, double const alpha) {
     mpf_float res = -1;
 
@@ -59,42 +73,10 @@ mpf_float lmca(PDAC const& pdac, int const N, int const k, double const alpha) {
     return res;
 }
 
-// mpf_float lmc(PDAC const& pdac, int const N, double const alpha) {
-//     mpf_float res = -1;
-// 
-//     ANNF apnnf = ANNF(pdac.pnnf);
-//     apnnf.annotate_pc();
-//     auto const pc = apnnf.mc(ROOT);
-// 
-//     random_device rng;
-//     mt19937 mt(rng);
-//     uniform_int_distribution<mpz_int> ui(1, pc);
-// 
-//     #pragma omp parallel for
-//     for(int i = 0; i < N; i++) {
-//         std::set<Literal> path;
-//         ANNF aunnf = ANNF(pdac.unnf);
-//         auto l = ui(mt);
-// 
-//         path.clear();
-//         apnnf.get_path(l, path);
-//         aunnf.set_assumps(path);
-//         aunnf.annotate_mc();
-//         mpf_float ai = (aunnf.mc(ROOT) * pc);
-//         ai *= pow(2, -1 * alpha);
-// 
-//         #pragma omp critical
-//         if(res == -1 || ai < res) {
-//             res = ai;
-//         }
-//     }
-//     return res;
-// }
-
 int main(int argc, char** argv) {
     if(argc != 5) {
         std::cerr << "usage:\n";
-        std::cerr << "appmc <cnf file> <number of tries> <number of samples per try> <alpha>\n";
+        std::cerr << "lmc <cnf file> <number of tries> <number of samples per try> <alpha>\n";
         exit(0);
     }
     std::string const cnf_path(argv[1]);

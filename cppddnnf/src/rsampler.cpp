@@ -19,6 +19,9 @@
 
 namespace po = boost::program_options;
 
+/**
+ * \returns The boost datastructure representing the program CLI arguments
+ */
 po::options_description get_program_options() {
     po::options_description desc("Allowed options");
     desc.add_options()
@@ -34,6 +37,15 @@ using namespace boost::random;
 using boost::multiprecision::mpf_float;
 using boost::multiprecision::mpz_int;
 
+/**
+ * \brief The heuristic-based sampling algorithm similar to reservoir sampling.
+ * This is an alternative to the algorithm described in
+ * DivKC: A Divide-and-Conquer Approach to Knowledge Compilation.
+ *
+ *
+ * \param N The number of models to generate
+ * \param k The buffer size to use for the heuristic-based algorithm
+ */
 void reservoir_heuristic(PDAC const& pdac, std::size_t const N, std::size_t const k) {
     std::cout << "c heuristic based uniformity\n";
 
@@ -121,6 +133,12 @@ void reservoir_heuristic(PDAC const& pdac, std::size_t const N, std::size_t cons
     }
 }
 
+/**
+ * \brief The classical uniform sampling algorithm form d-DNNFs (based on reservoir sampling).
+ *
+ *
+ * \param N The number of models to generate
+ */
 void reservoir_exact(PDAC const& pdac, std::size_t const N) {
     std::cout << "c true uniformity\n";
 
@@ -199,6 +217,13 @@ void reservoir_exact(PDAC const& pdac, std::size_t const N) {
     }
 }
 
+/**
+ * \brief Counts the number of paths, if the number of paths is smaller than k,
+ * then the exact algorithm is used. Otherwise the heuristic-based algorithm is used.
+ *
+ * \param N The number of models to generate
+ * \param k The buffer size to use for the heuristic-based algorithm
+ */
 void rsampler(PDAC const& pdac, std::size_t const N, std::size_t const k) {
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
