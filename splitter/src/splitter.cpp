@@ -17,6 +17,9 @@
 
 namespace po = boost::program_options;
 
+/**
+ * \returns the boost datastructure representing the program CLI arguments
+ */
 po::options_description get_program_options() {
     po::options_description desc("Allowed options");
     desc.add_options()
@@ -27,6 +30,11 @@ po::options_description get_program_options() {
     return desc;
 }
 
+/**
+ * \details
+ * Converts the CNF formula into the variable incidence hypergraph
+ * in a format suitable fro patoh.
+ */
 void compute_var_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vector<int> & pins) {
     for(std::size_t j = 0; j < cnf.nb_clauses(); j++) {
         if(cnf.is_active(j)) {
@@ -46,6 +54,11 @@ void compute_var_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vecto
     xpins.push_back(pins.size());
 }
 
+/**
+ * \details
+ * Converts the CNF formula into the clause incidence hypergraph
+ * in a format suitable fro patoh.
+ */
 void compute_clause_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::vector<int> & pins) {
     for(int i = 1; i < static_cast<int>(cnf.nb_vars() + 1); i++) {
         std::set<int> ids;
@@ -75,6 +88,12 @@ void compute_clause_hypergraph(CNF const& cnf, std::vector<int> & xpins, std::ve
     xpins.push_back(pins.size());
 }
 
+/**
+ * \returns an array, with array_index -> partition index.
+ *
+ * In other words, array indices (nodes in the hypergraph)
+ * are object ids and they map to partition indices.
+ */
 std::vector<int> split(CNF const& cnf, int const nb_part, int & cost) {
     PaToH_Parameters pargs;
     // D4 does QUALITY if nb hyperedges >= 200
