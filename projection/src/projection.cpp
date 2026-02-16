@@ -8,6 +8,9 @@
 
 namespace po = boost::program_options;
 
+/**
+ * \returns The boost datastructure representing the program CLI arguments
+ */
 po::options_description get_program_options() {
     po::options_description desc("Allowed options");
     desc.add_options()
@@ -18,6 +21,9 @@ po::options_description get_program_options() {
     return desc;
 }
 
+/**
+ * \brief prints some basic syntactical statistics about the CNF formula
+ */
 void print_stats(std::string const& path, CNF & cnf) {
     cnf.simplify();
     cnf.compute_free_vars();
