@@ -356,10 +356,6 @@ std::vector<std::set<Variable> > CNF::get_vars_by_clause_len() const {
     return res;
 }
 
-/**
- * returns the clauses that have all their variables in the set v
- * clause length has to be >= m_len to be included
- */
 std::vector<Clause> CNF::get_clauses_by_vars(std::set<Variable> const& v, std::size_t m_len) const {
     std::vector<Clause> res;
 
@@ -383,10 +379,6 @@ std::vector<Clause> CNF::get_clauses_by_vars(std::set<Variable> const& v, std::s
     return res;
 }
 
-/**
- * returns the clauses that have any of their variables in the set v
- * clause length has to be >= m_len to be included
- */
 std::vector<Clause> CNF::get_clauses_by_vars_wide(std::set<Variable> const& v, std::size_t m_len) const {
     std::vector<Clause> res;
 
