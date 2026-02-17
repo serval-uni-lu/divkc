@@ -63,12 +63,15 @@ RUN cd /divkc_build/d4 && \
 FROM ubuntu:24.04
 
 RUN apt-get update && apt-get install -y \
-    libboost-program-options1.83.0 \
-    libboost-random1.83.0 \
-    libgmp10 \
+    g++ \
+    make \
+    zlib1g-dev \
+    libboost-dev \
+    libgmp10-dev \
     libgmpxx4ldbl \
-    libgomp1 \
-    zlib1g \
+    ninja-build \
+    libboost-program-options1.83-dev \
+    libboost-random1.83-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /divkc/ /divkc
