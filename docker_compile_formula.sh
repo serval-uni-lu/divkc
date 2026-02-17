@@ -24,3 +24,23 @@ echo "cnf.bound.csv: $1, $gp_mc, $gu_mc"
 echo ""
 echo "             file,#v,#c"
 echo "cnf.cls.csv: $1, $nbv, $nbc"
+
+t=$(echo "$gp" | grep -E "^/divkc/d4" | sed 's/\/divkc\/d4 -dDNNF .* -out=//g;s/.pnnf//g')
+echo ""
+echo "          file, state, mem, time"
+echo "pnnf.csv: $t"
+
+t=$(echo "$gu" | grep -E "^/divkc/d4" | sed 's/\/divkc\/d4 -dDNNF .* -out=//g;s/.pnnf//g')
+echo ""
+echo "          file, state, mem, time"
+echo "unnf.csv: $t"
+
+t=$(echo "$splt" | grep -E "^/divkc/splitter --cnf " | sed 's/^\/divkc\/splitter --cnf //g')
+echo ""
+echo "           file, state, mem, time"
+echo "split.csv: $t"
+
+t=$(echo "$prj" | grep -E "^/divkc/projection --cnf " | sed 's/\/divkc\/projection --cnf //g')
+echo ""
+echo "          file, state, mem, time"
+echo "proj.csv: $t"

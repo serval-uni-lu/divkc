@@ -1,0 +1,105 @@
+# Reproduction
+
+This folder contains the scripts necessary to generate Table
+5 (`accuraccy.py` or `accuraccy_md.py`) and Table 6 (`runtime.py`
+or `runtime_md.py`) of our paper.
+
+## Data
+
+The `csv` folder contains multiple files, which we describe here.
+
+The `mc.csv` file contains the true model count of the formulae for which
+we managed to run `D4` within 64GB of memory and 5 hours.
+The model counts for a formula `t.cnf` can be computed with
+(within a 64GB and 5 hours limit imposed with a call to `/divkc/wrap 64000 18000`,
+memory expressed in MB and time expressed in seconds respectively):
+```
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
+    /divkc/wrap 64000 18000 /divkc/d4 -mc "t.cnf" 2>&1 \
+    | grep -E "^s " | sed 's/^s //g'
+```
+
+
+The `total.csv` file contains a summary of the datasets.
+The first column is the actual folder containing the formulae.
+The second column is the number of formulae in the folder
+and the last column (`map`) is the text to be used for the
+LaTeX table generation.
+
+The results for approxmc are stored in files called
+`approxmc_e{epsilon}d{delta}.run.csv` where the `epsilon` and `delta`
+values are parameters given to approxmc.
+The first column is the file name.
+The second column (`amc`) is the approximate model count returned by
+approxmc. The third column (`state`), fourth column (`mem`) and fith
+column (`time`) represent the state of the program, the maximum amount
+of memory used in kB and the execution time in seconds.
+The `state`, `mem` and `time` columnd can be obtained by wrapping the call
+to `approxmc` with our wrapper located in `D4/wrapper`.
+
+As an example, we ran approxmc with a limit of 64GB of memory and 5 hours
+a value of `0.2` for `delta` and `0.1` for `epsilon`:
+```
+wrap 64000 18000 /path/to/approxmc -d 0.2 -e 0.1 -s "$RANDOM" "t.cnf"
+```
+For our usual example we get the following output:
+```
+...
+s SATISFIABLE
+s mc 26208
+
+./approxmc -d 0.2 -e 0.1 -s 27266 cnf/plazar/FeatureModels/FM-3.6.1-refined.cnf, done, 20877, 0.10312
+```
+
+Now we follow with the files in the `n{#samples}.seps{epsilon}` and
+`n{#samples}.ns`.
+The folder `n{#samples}.seps{epsilon}` designates a run of our approximate model counter
+with at most `#samples` and early stopping enabled with the `epsilon` parameter set
+to `epsilon`.
+The folder `n{#samples}.ns` is similar but early stopping is disabled and the algorithm
+will use the all `#samples` samples.
+
+Each `n{#samples}.seps{epsilon}` folder contains multiple files:
+```
+clt.run.csv
+pnnf.csv
+proj.csv
+split.csv
+unnf.csv
+```
+
+The `clt.run.csv` file contains the data related to the run of the approximate model
+counting algorithm described in our paper.
+The file contains the `N, Y, Yl, Yh` columns printed by our approximate counting algorithm
+which represents the number of sampels used, the estimated model count, the lower bound
+for the confidence interval, and the upper bound for the confidence interval respectively.
+The last columns are `state, mem, time` which are obtained by wrapping the call
+to `appmc` with our wrapper as shown above for approx mc.
+
+The contents for `pnnf.csv` and `unnf.csv` can be generated with our
+`docker_compile_formula.sh` script as follows:
+```
+bash docker_compile_formula.sh t.sh
+```
+prints:
+```
+...
+          file, state, mem, time
+pnnf.csv: t.cnf, done, 579751, 0.0174753
+
+          file, state, mem, time
+unnf.csv: t.cnf.unnf, done, 584146, 0.0163802
+```
+
+The contents for `split.csv` and `proj.csv` are also printed by the
+`docker_compile_formula.sh` script:
+```
+...
+           file, state, mem, time
+split.csv: t.cnf, done, 7540, 0.00225897
+
+          file, state, mem, time
+proj.csv: t.cnf.proj, done, 4, 0.00236412
+```
+
+
