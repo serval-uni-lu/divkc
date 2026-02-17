@@ -49,7 +49,7 @@ po::options_description get_program_options() {
 void appmc(PDAC const& pdac, std::size_t const N, double const alpha, std::size_t const lN, double const epsilon, bool const verbose) {
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
-    auto const pc = apnnf.mc(ROOT);
+    auto const pc = apnnf.mc(NNF::ROOT);
 
     random_device rng;
     mt19937 mt(rng);
@@ -78,7 +78,7 @@ void appmc(PDAC const& pdac, std::size_t const N, double const alpha, std::size_
         apnnf.get_path(l, path);
         aunnf.set_assumps(path);
         aunnf.annotate_mc();
-        auto const ai = aunnf.mc(ROOT) * pc;
+        auto const ai = aunnf.mc(NNF::ROOT) * pc;
 
         #pragma omp critical
         {

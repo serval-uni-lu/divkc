@@ -81,19 +81,30 @@ namespace std {
  *
  * as an example we have in DIMACS format:
  * 1 < -1 < 2 < -2 < 3 < -3 < ...
+ *
+ * \relates Literal
  */
 inline bool operator<(Literal const& a, Literal const& b) {
     return a.get() < b.get();
 }
 
+/**
+ * \relates Literal
+ */
 inline bool operator>(Literal const& a, Literal const& b) {
     return a.get() > b.get();
 }
 
+/**
+ * \relates Literal
+ */
 inline bool operator==(Literal const& a, Literal const& b) {
     return a.get() == b.get();
 }
 
+/**
+ * \relates Literal
+ */
 inline bool operator>=(Literal const& a, Literal const& b) {
     return a > b || a == b;
 }
@@ -101,11 +112,16 @@ inline bool operator>=(Literal const& a, Literal const& b) {
 /**
  * \returns
  * true if a.get() <= b.get().
+ *
+ * \relates Literal
  */
 inline bool operator<=(Literal const& a, Literal const& b) {
     return a < b || a == b;
 }
 
+/**
+ * \relates Literal
+ */
 inline bool operator!=(Literal const& a, Literal const& b) {
     return a.get() != b.get();
 }
@@ -168,15 +184,6 @@ struct Variable {
      * as an array index.
      */
     inline int get() const { return v; }
-
-    bool operator == (Variable const& p) const;
-    bool operator != (Variable const& p) const;
-
-    /**
-     * \returns
-     * true if this.to_int() < p.to_int()
-     */
-    bool operator <  (Variable const& p) const;
 };
 
 namespace std {
@@ -186,6 +193,54 @@ namespace std {
             return std::hash<int>()(v.get());
         }
     };
+}
+
+/**
+ * \returns
+ * true if a.get() < b.get().
+ *
+ * \relates Variable
+ */
+inline bool operator<(Variable const& a, Variable const& b) {
+    return a.get() < b.get();
+}
+
+/**
+ * \relates Variable
+ */
+inline bool operator>(Variable const& a, Variable const& b) {
+    return a.get() > b.get();
+}
+
+/**
+ * \relates Variable
+ */
+inline bool operator==(Variable const& a, Variable const& b) {
+    return a.get() == b.get();
+}
+
+/**
+ * \relates Variable
+ */
+inline bool operator>=(Variable const& a, Variable const& b) {
+    return a > b || a == b;
+}
+
+/**
+ * \returns
+ * true if a.get() <= b.get().
+ *
+ * \relates Variable
+ */
+inline bool operator<=(Variable const& a, Variable const& b) {
+    return a < b || a == b;
+}
+
+/**
+ * \relates Variable
+ */
+inline bool operator!=(Variable const& a, Variable const& b) {
+    return a.get() != b.get();
 }
 
 /**

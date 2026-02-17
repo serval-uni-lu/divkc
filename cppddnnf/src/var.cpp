@@ -15,18 +15,6 @@ Variable::Variable(int i) : v(std::abs(i) - 1) {
 Variable::Variable(Literal l) : v(l.get() >> 1) {
 }
 
-bool Variable::operator == (Variable const& p) const {
-    return v == p.v;
-}
-
-bool Variable::operator != (Variable const& p) const {
-    return v != p.v;
-}
-
-bool Variable::operator <  (Variable const& p) const {
-    return v < p.v;
-}
-
 LitSet::LitSet(std::size_t const nb_lits) : set(nb_lits, 0) {
 }
 

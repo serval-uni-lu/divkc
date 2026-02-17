@@ -43,7 +43,7 @@ PDAC pdac_from_file(std::string const& path) {
 mpz_int exact_mc(PDAC const& pdac) {
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
-    auto const pc = apnnf.mc(ROOT);
+    auto const pc = apnnf.mc(NNF::ROOT);
 
     std::set<Literal> path;
     ANNF aunnf = ANNF(pdac.unnf);
@@ -55,7 +55,7 @@ mpz_int exact_mc(PDAC const& pdac) {
 
         aunnf.set_assumps(path);
         aunnf.annotate_mc();
-        auto const ai = aunnf.mc(ROOT);
+        auto const ai = aunnf.mc(NNF::ROOT);
 
         tmc += ai;
     }

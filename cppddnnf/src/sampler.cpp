@@ -36,7 +36,7 @@ void exact_uniform_sampling(PDAC const& pdac, std::size_t const N) {
 
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
-    auto const pc = apnnf.mc(ROOT);
+    auto const pc = apnnf.mc(NNF::ROOT);
     std::size_t const ipc = static_cast<std::size_t>(pc);
 
     // auto const tmc = exact_mc(pdac);
@@ -51,7 +51,7 @@ void exact_uniform_sampling(PDAC const& pdac, std::size_t const N) {
 
         aunnf.set_assumps(path);
         aunnf.annotate_mc();
-        auto const ai = aunnf.mc(ROOT);
+        auto const ai = aunnf.mc(NNF::ROOT);
 
         #pragma omp critical
         {
@@ -120,7 +120,7 @@ void heuristic_uniform_sampling(PDAC const& pdac, std::size_t const N, std::size
 
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
-    auto const pc = apnnf.mc(ROOT);
+    auto const pc = apnnf.mc(NNF::ROOT);
 
     random_device rng;
 
@@ -148,7 +148,7 @@ void heuristic_uniform_sampling(PDAC const& pdac, std::size_t const N, std::size
             apnnf.get_path(vpids[j], path);
             aunnf.set_assumps(path);
             aunnf.annotate_mc();
-            auto const& ai = aunnf.mc(ROOT);
+            auto const& ai = aunnf.mc(NNF::ROOT);
 
             mc_vpids.push_back(ai);
             tmc += ai;
@@ -200,7 +200,7 @@ void heuristic_uniform_sampling(PDAC const& pdac, std::size_t const N, std::size
 void ksampler(PDAC const& pdac, std::size_t const N, std::size_t const k) {
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
-    auto const pc = apnnf.mc(ROOT);
+    auto const pc = apnnf.mc(NNF::ROOT);
 
     if(pc <= k) {
         exact_uniform_sampling(pdac, N);

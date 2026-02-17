@@ -51,7 +51,7 @@ void reservoir_heuristic(PDAC const& pdac, std::size_t const N, std::size_t cons
 
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
-    auto const pc = apnnf.mc(ROOT);
+    auto const pc = apnnf.mc(NNF::ROOT);
 
     random_device rng;
     mt19937 mt(rng);
@@ -79,7 +79,7 @@ void reservoir_heuristic(PDAC const& pdac, std::size_t const N, std::size_t cons
         apnnf.get_path(l, path);
         aunnf.set_assumps(path);
         aunnf.annotate_mc();
-        auto const ai = aunnf.mc(ROOT);
+        auto const ai = aunnf.mc(NNF::ROOT);
 
         #pragma omp critical
         {
@@ -114,7 +114,7 @@ void reservoir_heuristic(PDAC const& pdac, std::size_t const N, std::size_t cons
         apnnf.get_path(l, path);
         aunnf.set_assumps(path);
         aunnf.annotate_mc();
-        auto const ai = aunnf.mc(ROOT);
+        auto const ai = aunnf.mc(NNF::ROOT);
 
         uniform_int_distribution<mpz_int> ui(1, ai);
         mpz_int id = -1;
@@ -144,7 +144,7 @@ void reservoir_exact(PDAC const& pdac, std::size_t const N) {
 
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
-    auto const pc = apnnf.mc(ROOT);
+    auto const pc = apnnf.mc(NNF::ROOT);
     std::size_t const ipc = static_cast<std::size_t>(pc);
 
     random_device rng;
@@ -162,7 +162,7 @@ void reservoir_exact(PDAC const& pdac, std::size_t const N) {
         apnnf.get_path(l, path);
         aunnf.set_assumps(path);
         aunnf.annotate_mc();
-        auto const ai = aunnf.mc(ROOT);
+        auto const ai = aunnf.mc(NNF::ROOT);
 
 
         #pragma omp critical
@@ -197,7 +197,7 @@ void reservoir_exact(PDAC const& pdac, std::size_t const N) {
         apnnf.get_path(l, path);
         aunnf.set_assumps(path);
         aunnf.annotate_mc();
-        auto const ai = aunnf.mc(ROOT);
+        auto const ai = aunnf.mc(NNF::ROOT);
 
         uniform_int_distribution<mpz_int> ui(1, ai);
 
@@ -227,7 +227,7 @@ void reservoir_exact(PDAC const& pdac, std::size_t const N) {
 void rsampler(PDAC const& pdac, std::size_t const N, std::size_t const k) {
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
-    auto const pc = apnnf.mc(ROOT);
+    auto const pc = apnnf.mc(NNF::ROOT);
 
     if(pc > k) {
         reservoir_heuristic(pdac, N, k);

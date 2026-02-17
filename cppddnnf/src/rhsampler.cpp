@@ -94,7 +94,7 @@ mpz_int compute_geomeric(xoshiro512plusplus & gen, mpz_int const& N, mpz_int con
 void reservoir_heuristic(PDAC const& pdac, std::size_t const N) {
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
-    mpz_int const pc = apnnf.mc(ROOT);
+    mpz_int const pc = apnnf.mc(NNF::ROOT);
 
     std::random_device rdevice;
     xoshiro512plusplus prng(rdevice);
@@ -111,12 +111,12 @@ void reservoir_heuristic(PDAC const& pdac, std::size_t const N) {
     apnnf.get_path(ipath, path);
     aunnf.set_assumps(path);
     aunnf.annotate_mc();
-    cmc += aunnf.mc(ROOT);
+    cmc += aunnf.mc(NNF::ROOT);
     c_count += 1;
 
     while(ipath <= pc) {
-        if(isol > aunnf.mc(ROOT)) {
-            isol -= aunnf.mc(ROOT);
+        if(isol > aunnf.mc(NNF::ROOT)) {
+            isol -= aunnf.mc(NNF::ROOT);
 
             if(c_count < 1000 || isol < (cmc / c_count)) {
                 ipath += 1;
@@ -126,7 +126,7 @@ void reservoir_heuristic(PDAC const& pdac, std::size_t const N) {
                     apnnf.get_path(ipath, path);
                     aunnf.set_assumps(path);
                     aunnf.annotate_mc();
-                    cmc += aunnf.mc(ROOT);
+                    cmc += aunnf.mc(NNF::ROOT);
                     c_count += 1;
                 }
             }
@@ -140,7 +140,7 @@ void reservoir_heuristic(PDAC const& pdac, std::size_t const N) {
                     apnnf.get_path(ipath, path);
                     aunnf.set_assumps(path);
                     aunnf.annotate_mc();
-                    cmc += aunnf.mc(ROOT);
+                    cmc += aunnf.mc(NNF::ROOT);
                     c_count += 1;
                 }
             }
@@ -154,7 +154,7 @@ void reservoir_heuristic(PDAC const& pdac, std::size_t const N) {
 
             isol += 1;
             if(reservoir.size() == N) {
-                mpz_int const imc = cmc - aunnf.mc(ROOT) + isol + 1;
+                mpz_int const imc = cmc - aunnf.mc(NNF::ROOT) + isol + 1;
                 isol += compute_geomeric(prng, imc, reservoir.size(), false);
             }
         }
@@ -166,7 +166,7 @@ void reservoir_heuristic(PDAC const& pdac, std::size_t const N) {
             std::size_t const r = dist(prng);
             reservoir[r] = sol;
 
-            mpz_int const imc = cmc - aunnf.mc(ROOT) + isol + 1;
+            mpz_int const imc = cmc - aunnf.mc(NNF::ROOT) + isol + 1;
             isol += 1;
             isol += compute_geomeric(prng, imc, reservoir.size(), false);
         }

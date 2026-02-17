@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
 
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
-    auto const pc = apnnf.mc(ROOT);
+    auto const pc = apnnf.mc(NNF::ROOT);
 
     std::cout << pc << "\n";
 

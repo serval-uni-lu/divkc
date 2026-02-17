@@ -13,7 +13,7 @@
 #include <map>
 #include <cmath>
 
-std::pmr::unsynchronized_pool_resource MEM_POOL;
+std::pmr::unsynchronized_pool_resource Edge::MEM_POOL;
 
 NNF::NNF(std::string const& path) {
     std::set<Variable> pvar;
@@ -35,7 +35,7 @@ void NNF::init(std::string const& path, bool project, std::set<Variable> const& 
 
     std::string line;
     Node t;
-    t.type = True;
+    t.type = NodeType::True;
     nodes.push_back(t);
 
     while(getline(f, line)) {
@@ -45,27 +45,27 @@ void NNF::init(std::string const& path, bool project, std::set<Variable> const& 
 
         if(tag == "t") {
             Node n;
-            n.type = True;
+            n.type = NodeType::True;
             nodes.push_back(n);
         }
         else if(tag == "f") {
             Node n;
-            n.type = False;
+            n.type = NodeType::False;
             nodes.push_back(n);
         }
         else if(tag == "a") {
             Node n;
-            n.type = And;
+            n.type = NodeType::And;
             nodes.push_back(n);
         }
         else if(tag == "o") {
             Node n;
-            n.type = Or;
+            n.type = NodeType::Or;
             nodes.push_back(n);
         }
         else if(tag == "u") {
             Node n;
-            n.type = Unary;
+            n.type = NodeType::Unary;
             nodes.push_back(n);
         }
         else {
@@ -134,7 +134,7 @@ void NNF::compute_ordering() {
     std::vector<std::size_t> stack;
     std::set<std::size_t> visited;
 
-    stack.push_back(ROOT);
+    stack.push_back(NNF::ROOT);
 
     while(stack.size() > 0) {
         auto num = stack[stack.size() - 1];
@@ -198,19 +198,19 @@ void ANNF::annotate_mc() {
         Node const& n = nnf[nid];
         mcv[nid] = 0;
 
-        if(n.type == True) {
+        if(n.type == NodeType::True) {
             mcv[nid] = 1;
         }
-        else if(n.type == False) {
+        else if(n.type == NodeType::False) {
             mcv[nid] = 0;
         }
-        else if(n.type == And) {
+        else if(n.type == NodeType::And) {
             mcv[nid] = 1;
             for(auto const& i : n.children) {
                 mcv[nid] *= get_mc(i);
             }
         }
-        else if(n.type == Or || n.type == Unary) {
+        else if(n.type == NodeType::Or || n.type == NodeType::Unary) {
             for(auto const& i : n.children) {
                 mcv[nid] += get_mc(i);
             }
@@ -223,19 +223,19 @@ void ANNF::annotate_pc() {
         Node const& n = nnf[nid];
         mcv[nid] = 0;
 
-        if(n.type == True) {
+        if(n.type == NodeType::True) {
             mcv[nid] = 1;
         }
-        else if(n.type == False) {
+        else if(n.type == NodeType::False) {
             mcv[nid] = 0;
         }
-        else if(n.type == And) {
+        else if(n.type == NodeType::And) {
             mcv[nid] = 1;
             for(auto const& i : n.children) {
                 mcv[nid] *= get_pc(i);
             }
         }
-        else if(n.type == Or || n.type == Unary) {
+        else if(n.type == NodeType::Or || n.type == NodeType::Unary) {
             for(auto const& i : n.children) {
                 mcv[nid] += get_pc(i);
             }
@@ -255,7 +255,7 @@ void ANNF::set_assumps(std::vector<Literal> const& a) {
 
 void ANNF::get_path(mpz_int const& id, std::set<Literal> & s) const {
     std::vector<std::pair<mpz_int, std::size_t> > stack;
-    stack.push_back(std::pair(id, ROOT));
+    stack.push_back(std::pair(id, NNF::ROOT));
 
     while(stack.size() > 0) {
         auto lid = std::get<0>(stack[stack.size() - 1]);
@@ -263,7 +263,7 @@ void ANNF::get_path(mpz_int const& id, std::set<Literal> & s) const {
         stack.pop_back();
 
         Node const& n = nnf[nid];
-        if(n.type == And) {
+        if(n.type == NodeType::And) {
             auto const tmc = mc(nid);
             if(lid > tmc) {
                 std::cerr << "get_path :: a " << lid << " <= " << tmc << "\n";
@@ -279,7 +279,7 @@ void ANNF::get_path(mpz_int const& id, std::set<Literal> & s) const {
                 lid = y;
             }
         }
-        else if(n.type == Or || n.type == Unary) {
+        else if(n.type == NodeType::Or || n.type == NodeType::Unary) {
             if(lid > mc(nid)) {
                 std::cerr << "get_path :: o " << lid << " <= " << mc(nid) << "\n";
             }
@@ -305,7 +305,7 @@ void ANNF::get_path(mpz_int const& id, std::set<Literal> & s) const {
 
 void ANNF::get_solution(mpz_int const& id, std::set<Literal> & s) const {
     std::vector<std::pair<mpz_int, std::size_t> > stack;
-    stack.push_back(std::pair(id, ROOT));
+    stack.push_back(std::pair(id, NNF::ROOT));
 
     while(stack.size() > 0) {
         auto lid = std::get<0>(stack[stack.size() - 1]);
@@ -313,7 +313,7 @@ void ANNF::get_solution(mpz_int const& id, std::set<Literal> & s) const {
         stack.pop_back();
 
         Node const& n = nnf[nid];
-        if(n.type == And) {
+        if(n.type == NodeType::And) {
             auto const tmc = mc(nid);
             if(lid > tmc) {
                 std::cerr << "get_solution :: a " << lid << " <= " << tmc << "\n";
@@ -329,7 +329,7 @@ void ANNF::get_solution(mpz_int const& id, std::set<Literal> & s) const {
                 lid = y;
             }
         }
-        else if(n.type == Or || n.type == Unary) {
+        else if(n.type == NodeType::Or || n.type == NodeType::Unary) {
             if(lid > mc(nid)) {
                 std::cerr << "get_solution :: o " << lid << " <= " << mc(nid) << "\n";
             }

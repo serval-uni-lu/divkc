@@ -16,15 +16,6 @@
 
 using boost::multiprecision::mpz_int;
 
-/**
- * \brief The memory pool used for free variables and units on Edges
- */
-extern std::pmr::unsynchronized_pool_resource MEM_POOL;
-
-/**
- * \brief The id of the ROOT node in an NNF
- */
-std::size_t constexpr ROOT = 1;
 
 /**
  * \brief NNF Node type
@@ -35,7 +26,7 @@ std::size_t constexpr ROOT = 1;
  * True and False are special nodes without children that represent the
  * true and false constants.
  */
-enum NodeType {
+enum class NodeType {
     And,
     Or,
     Unary,
@@ -47,6 +38,11 @@ enum NodeType {
  * \brief an Edge object connecting NNF Nodes
  */
 struct Edge {
+    /**
+     * \brief The memory pool used for free variables and units on Edges
+     */
+    static std::pmr::unsynchronized_pool_resource MEM_POOL;
+
     /**
      * \brief id_dst contains the node id of the target node for this edge.
      */
@@ -91,6 +87,12 @@ private:
 
     void compute_ordering();
 public:
+
+    /**
+     * \brief The id of the ROOT node in an NNF
+     */
+    static std::size_t constexpr ROOT = 1;
+
     NNF() = default;
     /**
      * \brief Construct the NNF object from a file.

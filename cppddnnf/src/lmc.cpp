@@ -38,7 +38,7 @@ mpf_float lmca(PDAC const& pdac, int const N, int const k, double const alpha) {
 
     ANNF apnnf = ANNF(pdac.pnnf);
     apnnf.annotate_pc();
-    auto const pc = apnnf.mc(ROOT);
+    auto const pc = apnnf.mc(NNF::ROOT);
 
     random_device rng;
     mt19937 mt(rng);
@@ -59,7 +59,7 @@ mpf_float lmca(PDAC const& pdac, int const N, int const k, double const alpha) {
             apnnf.get_path(l, path);
             aunnf.set_assumps(path);
             aunnf.annotate_mc();
-            mpf_float ai = (aunnf.mc(ROOT) * pc);
+            mpf_float ai = (aunnf.mc(NNF::ROOT) * pc);
             // ai *= pow(2, alpha);
             mean = mean + ((ai - mean) / (j + 1));
         }
