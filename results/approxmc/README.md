@@ -50,6 +50,8 @@ s mc 26208
 
 ./approxmc -d 0.2 -e 0.1 -s 27266 cnf/plazar/FeatureModels/FM-3.6.1-refined.cnf, done, 20877, 0.10312
 ```
+The python scripts expect the computation time to be the total time required to
+do 4 runs of approxmc. That sum is then multiplied by 5 to simulate 20 runs.
 
 Now we follow with the files in the `n{#samples}.seps{epsilon}` and
 `n{#samples}.ns`.
@@ -102,4 +104,23 @@ split.csv: t.cnf, done, 7540, 0.00225897
 proj.csv: t.cnf.proj, done, 4, 0.00236412
 ```
 
+The `clt.run.csv` file contains the result and runtime of the `appmc` procedure
+descriped in pour paper.
+Similarily to `approxmc`, the scripts expect the runtimes to be the sum
+of four runs which get multiplied by five by the `runtime.py` script to
+simulate 20 runs. Since compilation only need to be done once even for
+multiple calls to an approximate model counter, only the call to `appmc` needs to be repeated.
+The data to populate `clt.run.csv` is obtained by running
+```
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
+    /divkc/wrap 64000 18000 \
+    /divkc/appmc --epsilon 1.1 --nb 10000 --cnf t.cnf
+```
+Which prints:
+```
+N,Y,Yl,Yh
+10000, 26379.6, 25804.5, 26954.7
+
+/divkc/appmc --epsilon 1.1 --nb 10000 --cnf t.cnf, done, 536424, 0.0198274
+```
 
