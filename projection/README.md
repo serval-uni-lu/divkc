@@ -36,7 +36,8 @@ Allowed options:
 ```
 
 The `cnf` argument expects a path to a CNF file in DIMACS format.
-The `timeout` argument expects a positive integer which is the maximum time in seconds (default is one hour).
+The `timeout` argument expects a positive integer which is the maximum time
+in seconds (default is one hour).
 
 Running the program on a cnf file as follows:
 ```

@@ -4,7 +4,8 @@
 
 On Ubuntu and Debian-based systems:
 ```
-sudo apt install ninja-build libboost-dev libgmp-dev libboost-random-dev libboost-program-options-dev g++
+sudo apt install ninja-build libboost-dev libgmp-dev \
+    libboost-random-dev libboost-program-options-dev g++
 ```
 
 ## Building
@@ -72,20 +73,20 @@ stops.
 By default, early stopping is disabled and the algorithm will use the maximum number of samples
 as given to `--nb`.
 If early stopping is desired, the option `--lnb` controls the minimum number of samples to use
-before considering early stopping. If it is set to a non-zero value, then early stopping is enabled.
-The `--epsilon` option controls early stoppping.
+before considering early stopping. If it is set to a non-zero value, then early
+stopping is enabled. The `--epsilon` option controls early stoppping.
 The model counter estimates the model coutn `Y` and uses the central limit theorem to estimate
 upper (`Yh`) and lower (`Yl`) bounds.
 If early stopping is enabled then the algorithm stop early if the number of samples is greater
 than `--lnb` and if `(Y / epsilon) <= Yl` and `(Y * epsilon >= Yh`.
 
-By default, the model counter only display the last estimate (and in case early stopping is enabled,
-the last estimate given by each thread of execution).
+By default, the model counter only display the last estimate (and in case early
+stopping is enabled, the last estimate given by each thread of execution).
 If you wish to have all the estimates, you may use the `--verbose` option.
 
 This executable assumes that if the `cnf` parameter is set to `t.cnf`, there will be
-files called `t.cnf.proj.log`, `t.cnf.pnnf` for the projected formula (`t.cnf.p`) compiled to d-DNNF
-and `t.cnf.unnf` for the upper bound (`t.cnf.pup`) compiled to d-DNNF.
+files called `t.cnf.proj.log`, `t.cnf.pnnf` for the projected formula (`t.cnf.p`)
+compiled to d-DNNF and `t.cnf.unnf` for the upper bound (`t.cnf.pup`) compiled to d-DNNF.
 These files can be generated with the help of the version of `D4` shipped in this repository
 and the `projection` executable.
 

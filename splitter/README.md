@@ -43,7 +43,8 @@ Running the program on a cnf file as follows:
 ```
 ./build/splitter --cnf t.cnf
 ```
-returns the line `c p show 21 25 28 0` which is to be included in the cnf file passed to the projection executable (in this repository).
+returns the line `c p show 21 25 28 0` which is to be included in the cnf file
+passed to the projection executable (in this repository).
 
 ## Apptainer
 

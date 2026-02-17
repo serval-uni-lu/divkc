@@ -203,7 +203,7 @@ The image can be loaded with
 docker load -i divkc_docker_image.tar.gz
 ```
 
-The individual commands in to run are as follows:
+The individual commands to run are as follows:
 ```
 docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
     /divkc/splitter --cnf "t.cnf" > "t.cnf.log"
