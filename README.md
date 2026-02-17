@@ -46,7 +46,7 @@ by following the instructions in the respective folders.
 
 The dependencies on Debian-based systems can be installed as follows:
 ```
-apt install g++ make zlib1g-dev libboost-dev libgmp-dev libgmpxx4ldbl
+apt install g++ make zlib1g-dev libboost-dev libgmp-dev libgmpxx4ldbl \
     ninja-build libboost-program-options-dev libboost-random-dev
 ```
 
@@ -179,7 +179,7 @@ by spaces. Each solution is terminated by `0`.
 `./cppddnnf/build/rsampler` can be used instead of `./cppddnnf/build/sampler`.
 More details can be found in `cppddnnf/README.md`.
 
-# Docker
+## Docker
 
 A Dockerfile is also provided.
 The image can be build with
@@ -198,6 +198,10 @@ bash docker_compile_formula.sh t.cnf
 ```
 
 A prebuilt image is available on [Zenodo](https://doi.org/10.5281/zenodo.18097437).
+The image can be loaded with
+```
+docker load -i divkc_docker_image.tar.gz
+```
 
 The individual commands in to run are as follows:
 ```
