@@ -43,6 +43,19 @@ std::string gen_ld_rule(SourceFile const& s, std::vector<SourceFile> const& deps
     return res;
 }
 
+std::string gen_test_rule(SourceFile const& s, std::vector<SourceFile> const& deps) {
+    std::string res;
+    res += "build " + s.elf_path + ": build_test " + s.src_path;
+    for(auto const& c : deps) {
+        if(c.elf_path == "") {
+            res += " " + c.obj_path;
+        }
+    }
+    res += "\n";
+
+    return res;
+}
+
 std::string gen_variable(std::string const& var, std::vector<std::string> const& vals) {
     std::string res = var + " =";
     for(auto const& v : vals) {
@@ -56,9 +69,12 @@ private:
     std::set<std::string> obj_folders;
 
     std::vector<SourceFile> src;
+    std::vector<SourceFile> test;
     std::vector<std::string> headers;
     std::vector<std::string> cc_options;
     std::vector<std::string> ld_options;
+
+    std::vector<std::string> defines;
 
     std::vector<std::string> cc_r_options;
     std::vector<std::string> ld_r_options;
@@ -68,10 +84,21 @@ private:
 
 public:
     void add_source_folder(std::string const& path, std::set<std::string> const& extensions) {
+        add_compile_option("-I" + path);
         for(auto const& f : fs::recursive_directory_iterator(path)) {
             if(f.is_regular_file()) {
                 if(extensions.find(f.path().extension()) != extensions.end()) {
                     add_source_file(f.path());
+                }
+            }
+        }
+    }
+
+    void add_test_folder(std::string const& path, std::set<std::string> const& extensions) {
+        for(auto const& f : fs::recursive_directory_iterator(path)) {
+            if(f.is_regular_file()) {
+                if(extensions.find(f.path().extension()) != extensions.end()) {
+                    add_test_file(f.path());
                 }
             }
         }
@@ -86,6 +113,13 @@ public:
         }
         src.push_back(f);
         obj_folders.insert(fs::path(f.obj_path).parent_path());
+    }
+
+    void add_test_file(std::string const& path, bool const is_main = false) {
+        SourceFile f;
+        f.src_path = path;
+        f.elf_path = "build/test/" + fs::path(path).stem().string();
+        test.push_back(f);
     }
 
     void set_main_property(std::string const& path, bool const is_main = true) {
@@ -129,11 +163,16 @@ public:
         ld_d_options.push_back(o);
     }
 
+    void add_define(std::string const& v) {
+        defines.push_back(v);
+    }
+
     void gen_makefile() {
         std::ofstream out("build.ninja");
 
         out << "cxx = g++\n";
         out << "cc = gcc\n";
+        out << gen_variable("defines", defines) << "\n";
         out << gen_variable("cxxflags", cc_options) << "\n";
         out << gen_variable("ldflags", ld_options) << "\n";
         out << gen_variable("cxxflagsrel", cc_r_options) << "\n";
@@ -142,11 +181,11 @@ public:
         out << gen_variable("ldflagsdebug", ld_d_options) << "\n\n";
 
         out << "rule compile\n";
-        out << "    command = $cxx -fdiagnostics-color=always $cxxflags $cxxflagsrel -c $in -o $out\n";
+        out << "    command = $cxx -fdiagnostics-color=always $defines $cxxflags $cxxflagsrel -c $in -o $out\n";
         out << "    description = Compiling $in\n\n";
 
         out << "rule compile_debug\n";
-        out << "    command = $cxx -fdiagnostics-color=always $cxxflags $cxxflagsdebug -c $in -o $out\n";
+        out << "    command = $cxx -fdiagnostics-color=always $defines $cxxflags $cxxflagsdebug -c $in -o $out\n";
         out << "    description = Compiling (DEBUG) $in\n\n";
 
         out << "rule link\n";
@@ -165,12 +204,21 @@ public:
         out << "    command = $cxx -fdiagnostics-color=always gen.cpp -o gen && ./gen\n";
         out << "    description = Generating build.ninja\n\n";
 
+        out << "rule build_test\n";
+        out << "    command = $cxx -fdiagnostics-color=always $defines $cxxflags $in -o $out $ldflags -lboost_unit_test_framework && $out\n";
+        out << "    description = Compiling $out\n\n";
+
         for(auto const& cpp : src) {
             out << gen_rule(cpp);
 
             if(cpp.elf_path != "") {
                 out << gen_ld_rule(cpp, src);
             }
+            out << "\n";
+        }
+
+        for(auto const& cpp : test) {
+            out << gen_test_rule(cpp, src);
             out << "\n";
         }
 
@@ -190,12 +238,19 @@ public:
         }
         out << "\n";
 
+        out << "build all_test: phony";
+        for(auto const& f : test) {
+            out << " " << f.elf_path;
+        }
+        out << "\n";
+
         out << "build all: phony all_release all_debug\n";
         out << "build clean: clean\n";
         out << "build generate: generate\n";
         out << "default all_release\n";
     }
 };
+
 
 int main(void) {
     Project prj;
@@ -215,6 +270,7 @@ int main(void) {
     prj.add_linker_option("-std=c++14");
 
     prj.add_source_folder("src", {".cpp"});
+    prj.add_test_folder("test", {".cpp"});
 
     prj.set_main_property("src/splitter.cpp");
 
