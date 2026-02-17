@@ -37,7 +37,7 @@ void Clause::remove(Variable const& v) {
     //Literal l(v);
     //c.erase(l);
     //c.erase(~l);
-    auto it = std::remove_if(c.begin(), c.end(), [&](auto const& l) {
+    auto it = std::remove_if(c.begin(), c.end(), [v](auto const& l) {
           return Variable(l) == v;
           });
     c.erase(it, c.end());

@@ -13,9 +13,15 @@ Clause::Clause() {
 }
 
 void Clause::push(Literal const& l) {
-    for(auto const& i : c) {
-        if(i == l)
+    //c.insert(l);
+    for(auto it = c.begin(); it != c.end(); it++) {
+        if(*it == l) {
             return;
+        }
+        else if(*it > l) {
+            c.insert(it, l);
+            return;
+        }
     }
     c.push_back(l);
 }
@@ -34,13 +40,34 @@ void Clause::remove(Variable const& v) {
 }
 
 bool Clause::contains(Literal const& l) const {
-    return std::find(c.begin(), c.end(), l) != c.end();
+    for(std::size_t i = 0; i < c.size(); i++) {
+        if(l == c[i]) {
+            return true;
+        }
+        else if(l < c[i]) {
+            return false;
+        }
+    }
+    return false;
 }
 
 bool Clause::contains(Clause const& cls) const {
-    return std::all_of(cls.c.begin(), cls.c.end(), [this](auto const& l) {
-        return contains(l);
-    });
+    auto itl = begin();
+    auto itcls = cls.begin();
+
+    while(itl != end() && itcls != cls.end()) {
+        if(*itl == *itcls) {
+            itl++;
+            itcls++;
+        }
+        else if(*itcls < *itl) {
+            return false;
+        }
+        else {
+            itl++;
+        }
+    }
+    return itcls == cls.end();
 }
 
 std::string mtrim(std::string const& s) {

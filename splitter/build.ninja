@@ -56,9 +56,11 @@ build build/test/variable: build_test test/variable.cpp build/obj/src/uf.cpp.o b
 
 build build/test/litset: build_test test/litset.cpp build/obj/src/uf.cpp.o build/obj/src/CNF.cpp.o build/obj/src/var.cpp.o
 
+build build/test/clause: build_test test/clause.cpp build/obj/src/uf.cpp.o build/obj/src/CNF.cpp.o build/obj/src/var.cpp.o
+
 build all_release: phony build/splitter
 build all_debug: phony build/splitter_debug
-build all_test: phony build/test/literal build/test/variable build/test/litset
+build all_test: phony build/test/literal build/test/variable build/test/litset build/test/clause
 build all: phony all_release all_debug
 build clean: clean
 build generate: generate

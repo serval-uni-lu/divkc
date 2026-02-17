@@ -80,6 +80,13 @@ struct Clause {
     }
 
     /**
+     * \returns A reference to the literal at index i
+     */
+    inline auto& operator[](std::size_t const& i) {
+        return c[i];
+    }
+
+    /**
      * \returns A constant reference to the literal at index i
      */
     inline auto const& operator[](std::size_t i) const {
