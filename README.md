@@ -37,19 +37,20 @@ as more detailed versions of the tables available in the article.
 The `splitter` folder contains the implementation of the splitting procedure
 presented in the paper.
 
-## Usage
+# Usage
 
 To use our approach, the `cppddnnf`, `splitter`, `projection`, and `D4` projects will need to be compiled
 by following the instructions in the respective folders.
 
-### Dependencies
+## Dependencies
 
 The dependencies on Debian-based systems can be installed as follows:
 ```
-apt install g++ make zlib1g-dev libboost-dev libgmp-dev libgmpxx4ldbl ninja-build libboost-program-options-dev libboost-random-dev
+apt install g++ make zlib1g-dev libboost-dev libgmp-dev libgmpxx4ldbl
+    ninja-build libboost-program-options-dev libboost-random-dev
 ```
 
-### Building
+## Building
 
 These commands should build the individual projects. Detailed instructions are
 given in each subdirectory.
