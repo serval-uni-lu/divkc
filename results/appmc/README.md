@@ -52,7 +52,8 @@ The model counts for a formula `t.cnf` can be computed with
 memory expressed in MB and time expressed in seconds respectively):
 ```
 docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
-    /divkc/wrap 64000 18000 /divkc/d4 -mc "t.cnf"
+    /divkc/wrap 64000 18000 /divkc/d4 -mc "t.cnf" 2>&1 \
+    | grep -E "^s " | sed 's/^s //g'
 ```
 
 
