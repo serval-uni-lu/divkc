@@ -1,6 +1,7 @@
 cxx = g++
 cc = gcc
-cxxflags = -Wall -Wextra -Wpedantic -fopenmp -pthread
+defines =
+cxxflags = -Wall -Wextra -Wpedantic -fopenmp -pthread -Isrc
 ldflags = -lboost_program_options -fopenmp -pthread
 cxxflagsrel = -O3
 ldflagsrel =
@@ -8,11 +9,11 @@ cxxflagsdebug = -g
 ldflagsdebug =
 
 rule compile
-    command = $cxx -fdiagnostics-color=always $cxxflags $cxxflagsrel -c $in -o $out
+    command = $cxx -fdiagnostics-color=always $defines $cxxflags $cxxflagsrel -c $in -o $out
     description = Compiling $in
 
 rule compile_debug
-    command = $cxx -fdiagnostics-color=always $cxxflags $cxxflagsdebug -c $in -o $out
+    command = $cxx -fdiagnostics-color=always $defines $cxxflags $cxxflagsdebug -c $in -o $out
     description = Compiling (DEBUG) $in
 
 rule link
@@ -31,16 +32,30 @@ rule generate
     command = $cxx -fdiagnostics-color=always gen.cpp -o gen && ./gen
     description = Generating build.ninja
 
+rule build_test
+    command = $cxx -fdiagnostics-color=always $defines $cxxflags $in -o $out $ldflags -lboost_unit_test_framework && $out
+    description = Compiling $out
+
 build build/obj/src/projection.cpp.o: compile src/projection.cpp
 build build/obj/src/projection.cpp.od: compile_debug src/projection.cpp
-build build/projection: link build/obj/src/projection.cpp.o build/obj/src/CNF.cpp.o
-build build/projection_debug: link_debug build/obj/src/projection.cpp.od build/obj/src/CNF.cpp.od
+build build/projection: link build/obj/src/projection.cpp.o build/obj/src/CNF.cpp.o build/obj/src/var.cpp.o
+build build/projection_debug: link_debug build/obj/src/projection.cpp.od build/obj/src/CNF.cpp.od build/obj/src/var.cpp.od
 
 build build/obj/src/CNF.cpp.o: compile src/CNF.cpp
 build build/obj/src/CNF.cpp.od: compile_debug src/CNF.cpp
 
+build build/obj/src/var.cpp.o: compile src/var.cpp
+build build/obj/src/var.cpp.od: compile_debug src/var.cpp
+
+build build/test/literal: build_test test/literal.cpp build/obj/src/CNF.cpp.o build/obj/src/var.cpp.o
+
+build build/test/variable: build_test test/variable.cpp build/obj/src/CNF.cpp.o build/obj/src/var.cpp.o
+
+build build/test/litset: build_test test/litset.cpp build/obj/src/CNF.cpp.o build/obj/src/var.cpp.o
+
 build all_release: phony build/projection
 build all_debug: phony build/projection_debug
+build all_test: phony build/test/literal build/test/variable build/test/litset
 build all: phony all_release all_debug
 build clean: clean
 build generate: generate
