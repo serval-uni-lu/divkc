@@ -6,12 +6,12 @@ from statistics import mean
 
 mp.pretty = True
 
-mc = pd.read_csv("cnf.mc.csv", skipinitialspace = True, index_col = 'file')
-clt = pd.read_csv("cnf.clt.csv", skipinitialspace = True, index_col = 'file')
-# glmc = pd.read_csv("cnf.lmc.csv", skipinitialspace = True, index_col = 'file')
-bounds = pd.read_csv("cnf.bounds.csv", skipinitialspace = True, index_col = 'file')
-cls = pd.read_csv("cnf.cls.csv", skipinitialspace = True, index_col = 'file')
-total = pd.read_csv("total.csv", skipinitialspace = True)
+mc = pd.read_csv("csv/cnf.mc.csv", skipinitialspace = True, index_col = 'file')
+clt = pd.read_csv("csv/cnf.clt.csv", skipinitialspace = True, index_col = 'file')
+# glmc = pd.read_csv("csv/cnf.lmc.csv", skipinitialspace = True, index_col = 'file')
+bounds = pd.read_csv("csv/cnf.bounds.csv", dtype = str, skipinitialspace = True, index_col = 'file')
+cls = pd.read_csv("csv/cnf.cls.csv", skipinitialspace = True, index_col = 'file')
+total = pd.read_csv("csv/total.csv", skipinitialspace = True)
 
 mc.dropna(inplace = True)
 clt.dropna(inplace = True)

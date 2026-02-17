@@ -152,3 +152,4 @@ performed on `cppddnnf/build/sampler` (here called `ksampler`) and `cppddnnf/bui
 | ↪↪ V7 | 0 | 0 |   0.4 | - | - | - |
 | ↪↪ unsorted | 28 | 6 |  -3.2 |   0.6 |   0.5 |   0.3 |
 | ↪ Sundermann  | 13 | 11 |  -0.6 | 15904.5 |  29.6 |   5.3 |
+
