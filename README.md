@@ -199,7 +199,7 @@ The `docker_compile_formula.sh` script is used as follows:
 bash docker_compile_formula.sh t.cnf
 ```
 
-A prebuilt image is available on [Zenodo](https://doi.org/10.5281/zenodo.18097437).
+A prebuilt image is available on [Zenodo](https://doi.org/10.5281/zenodo.18711011).
 The image can be loaded with
 ```
 docker load -i divkc_docker_image.tar.gz
