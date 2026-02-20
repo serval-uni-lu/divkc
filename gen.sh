@@ -90,6 +90,14 @@ function run {
     rm "$1.csv.r"
     tr=$(cat "$1.csv.clt")
     echo "$tr,$amcr" > "$1.csv.clt.run"
+
+
+    orig=$(docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
+        /divkc/wrap "16000" "3600" \
+        /divkc/d4 -mc "$1" 2>&1)
+
+    tmc=$(echo "$orig" | grep -E "^s " | sed 's/^s //g')
+    echo "$1, $tmc" > "$1.csv.mc"
 }
 export -f run
 
@@ -114,3 +122,4 @@ collect "$1" "file, state, mem, time" "unnf.csv" "csv.gu"
 collect "$1" "file,low,high" "bounds.csv" "csv.bounds"
 collect "$1" "file,N,Y,Yl,Yh" "clt.csv" "csv.clt"
 collect "$1" "file, N, Y, Yl, Yh, state, mem, time" "clt.run.csv" "csv.clt.run"
+collect "$1" "file, mc" "mc.csv" "csv.mc"
