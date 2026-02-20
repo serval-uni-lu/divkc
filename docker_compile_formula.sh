@@ -18,29 +18,35 @@ nbc=$(cat "$1" | grep -E "^p cnf " | head -n 1 | cut -d ' ' -f 4)
 gp_mc=$(echo "$gp" | grep -E "^s " | sed 's/^s //g')
 gu_mc=$(echo "$gu" | grep -E "^s " | sed 's/^s //g')
 
+echo "Exact lower and upper bounds to the true model count:"
 echo "               file,low,high"
 echo "cnf.bound.csv: $1, $gp_mc, $gu_mc"
 
 echo ""
+echo "The number of variables and the number of clauses in the formula"
 echo "             file,#v,#c"
 echo "cnf.cls.csv: $1, $nbv, $nbc"
 
 t=$(echo "$gp" | grep -E "^/divkc/d4" | sed 's/\/divkc\/d4 -dDNNF .* -out=//g;s/.pnnf//g')
 echo ""
+echo "The time (s) and memory (KB) usage of the d-DNNF compilation for G_P"
 echo "          file, state, mem, time"
 echo "pnnf.csv: $t"
 
 t=$(echo "$gu" | grep -E "^/divkc/d4" | sed 's/\/divkc\/d4 -dDNNF .* -out=//g;s/.pnnf//g')
 echo ""
+echo "The time (s) and memory (KB) usage of the d-DNNF compilation for G_U"
 echo "          file, state, mem, time"
 echo "unnf.csv: $t"
 
 t=$(echo "$splt" | grep -E "^/divkc/splitter --cnf " | sed 's/^\/divkc\/splitter --cnf //g')
 echo ""
+echo "The time (s) and memory (KB) usage of the splitting procedure"
 echo "           file, state, mem, time"
 echo "split.csv: $t"
 
 t=$(echo "$prj" | grep -E "^/divkc/projection --cnf " | sed 's/\/divkc\/projection --cnf //g')
 echo ""
+echo "The time (s) and memory (KB) usage of the projection procedure"
 echo "          file, state, mem, time"
 echo "proj.csv: $t"

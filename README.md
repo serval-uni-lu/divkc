@@ -5,36 +5,26 @@ the article 'DivKC: A Divide-and-Conquer Approach to Knowledge Compilation'.
 
 # Contents
 
-## cppddnnf
-
-The `cppddnnf` folder contains the implementation of the algorithms presented
+- The `cppddnnf` folder contains the implementation of the algorithms presented
 in the paper that operate on the compiled form. The implemented algorithms
 allow for approximate model counting and random sampling.
 
-## D4
+  The folder `D4` contains a slightly modified version of the D4 compiler.
+  The modification is only present to also include the unconstrained
+  variables in the generated .nnf file therefore simplifying further
+  usage of the d-DNNF.
 
-The folder `D4` contains a slightly modified version of the D4 compiler.
-The modification is only present to also include the unconstrained
-variables in the generated .nnf file therefore simplifying further
-usage of the d-DNNF.
-
-The current implementation in `cppddnnf` requires this modification to function.
+- The current implementation in `cppddnnf` requires this modification to function.
 Therefore, to replace `D4` by a different compiler, either the compiler
 or the implementation in `cppddnnf` has to be modified.
 
-## projection
-
-The `projection` folder contains the code necessary to project a CNF
+- The `projection` folder contains the code necessary to project a CNF
 formula on a subset of its variables.
 
-## Results
-
-The `results` folder contains the raw results that are presented in the article as well
+- The `results` folder contains the raw results that are presented in the article as well
 as more detailed versions of the tables available in the article.
 
-## splitter
-
-The `splitter` folder contains the implementation of the splitting procedure
+- The `splitter` folder contains the implementation of the splitting procedure
 presented in the paper.
 
 # Usage
@@ -92,25 +82,21 @@ apptainer build --fakeroot d4.sif d4.def
 ```
 
 The resulting container (`d4.sif`) can be used just like the native executable.
+Instructions on how to install `apptainer` are available on [apptainer.org](https://apptainer.org/).
 
-### Splitter
+## Basic components of DivKC
 
-The folder `splitter` contains the used splitting heuristic.
-A singularity script is also provided in the folder.
+- The folder `splitter` contains the used splitting heuristic.
+  A singularity script is also provided in the folder.
 
-### Projection
+- The folder `projection` contains the program used for CNF projection.
+  A singularity script is also provided in the folder.
 
-The folder `projection` contains the program used for CNF projection.
-A singularity script is also provided in the folder.
+- The folder `cppddnnf` contains the C++ utilities necessary to work with our compiled form.
 
-### Approximate Algorithms
+## Example Usage
 
-The folder `cppddnnf` contains the C++ utilities necessary to work with our compiled form.
-
-
-### Example Usage
-
-#### Compiling a Formula
+### Compiling a Formula
 
 First, we need to compute a projection set for the formula `t.cnf` by using the `splitter`.
 ```
@@ -149,7 +135,7 @@ Usage:
 bash compile_formula.sh t.cnf
 ```
 
-#### Approximate Model Counting
+### Approximate Model Counting
 
 Once the formula has been compiled, you can perform approximate model counting as follows:
 ```
@@ -160,7 +146,7 @@ This will output the estimates in CSV format with the header: `N,Y,Yl,Yh`
 , where `N` is the number of solutions used, `Y` is the estimate and `Yl` and `Yh` are
 the estimated lower and upper bounds computed with the central limit theorem.
 
-#### Approximate Uniform Random Sampling
+### Approximate Uniform Random Sampling
 
 Once the formula has been compiled, you can perform approximate model counting as follows:
 ```
@@ -225,6 +211,10 @@ docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
 In this example we use `/divkc/wrap` to limit `D4`.
 With the parameters in the example, `wrap` will kill the call to `D4` if it
 exceeds `16000` MB of memory or if the execution takes longer than `3600` seconds.
+Moreover, the `wrap` command prints a summary of the used resources on exit.
+The summary is printed in CSV format with the following columns:
+the used command, the exit status (`done`, `err`, `mem`, `mem err`, `timeout` or `timeout err`),
+the used memory in KB, the execution time in seconds.
 
 Once the compilation has been done, we can perform approximate model counting as follows:
 ```
@@ -243,3 +233,106 @@ Alternatively with `/divkc/rsampler`:
 docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
     /divkc/rsampler --cnf t.cnf --nb 10 --k 50000
 ```
+
+### Example with outputs
+
+Running the following command `bash docker_compile_formula.sh t.cnf`
+produced the following output:
+```
+Exact lower and upper bounds to the true model count:
+               file,low,high
+cnf.bound.csv: t.cnf, 2, 54000
+
+The number of variables and the number of clauses in the formula
+             file,#v,#c
+cnf.cls.csv: t.cnf, 45, 104
+
+The time (s) and memory (KB) usage of the d-DNNF compilation for G_P
+          file, state, mem, time
+pnnf.csv: t.cnf, done, 51265, 0.0246568
+
+The time (s) and memory (KB) usage of the d-DNNF compilation for G_U
+          file, state, mem, time
+unnf.csv: t.cnf.unnf, done, 584142, 0.0247177
+
+The time (s) and memory (KB) usage of the splitting procedure
+           file, state, mem, time
+split.csv: t.cnf, done, 7249, 0.00236592
+
+The time (s) and memory (KB) usage of the projection procedure
+          file, state, mem, time
+proj.csv: t.cnf.proj, done, 6926, 0.00233837
+```
+
+We can see that the splitting procedure terminated successfully because we find
+`split.csv, ..., done, ...`. Similarily for the projection procedure
+(`proj.csv, ..., done, ...`), the compilation of G_U (`unnf.csv`) and the compilation
+of G_P (`pnnf.csv`). This compilation showed us that the true model count
+lies between 2 and 54000 as is shown by the line `cnf.bound.csv: t.cnf, 2, 54000`.
+
+We may then run the approximate model counting procedure as follows:
+```
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
+    /divkc/appmc --cnf t.cnf
+```
+
+And we get:
+```
+N,Y,Yl,Yh
+10000, 25989, 25414, 26564.1
+```
+
+We see that the algorithm used the full `10000` samples because early stopping
+is disabled by default. The estimate (`Y`) is 25989 and the confidence interval
+([`Yl`, `Yh`]) is [`25414`, `26564.1`].
+If we use `D4` to compute the true model count we find that the formula has
+exaclty `26256` solutions.
+
+If we run the sampling procedure:
+```
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
+    /divkc/sampler --cnf t.cnf --nb 10 --k 50
+```
+
+We get:
+```
+c true uniformity
+1 2 3 -4 -5 -6 -7 8 9 -10 11 12 -13 14 15 -16 17 -18 -19 20 21 -22 23 -24 25 -26 -27 28 -29 -30 31 -32 -33 -34 -35 -36 -37 38 -39 40 41 42 43 44 -45 0
+1 2 3 -4 -5 -6 -7 8 9 -10 11 12 13 14 15 16 17 -18 -19 20 21 22 -23 -24 25 -26 -27 28 -29 -30 -31 32 -33 -34 35 36 -37 -38 -39 40 41 42 43 -44 45 0
+1 2 3 -4 -5 -6 -7 8 9 -10 11 12 -13 14 -15 -16 -17 -18 19 20 21 -22 23 -24 25 -26 -27 28 -29 -30 31 -32 -33 -34 35 36 -37 -38 -39 40 41 42 43 -44 45 0
+1 -2 -3 -4 -5 -6 -7 8 -9 10 11 12 -13 14 15 -16 -17 18 -19 20 21 -22 23 -24 25 -26 -27 28 -29 -30 31 -32 -33 -34 35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 2 -3 4 -5 -6 -7 8 9 -10 11 12 13 14 15 16 17 -18 -19 20 21 22 -23 -24 25 -26 -27 28 29 -30 -31 -32 -33 34 -35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 2 3 -4 -5 -6 -7 8 9 -10 11 12 -13 14 -15 16 17 18 -19 20 21 -22 -23 24 25 -26 -27 28 29 -30 -31 -32 -33 34 35 -36 37 -38 -39 40 41 42 43 -44 45 0
+1 2 3 -4 -5 -6 -7 8 -9 10 11 12 -13 14 -15 16 17 -18 -19 20 21 -22 -23 24 25 -26 -27 28 -29 30 -31 -32 -33 -34 35 36 -37 -38 -39 40 41 42 43 -44 45 0
+1 2 -3 4 -5 -6 -7 8 9 -10 11 12 13 14 15 16 -17 18 -19 20 21 -22 -23 24 25 -26 -27 28 29 -30 -31 -32 33 -34 35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 2 3 -4 -5 -6 -7 8 -9 10 11 12 13 14 15 -16 17 -18 -19 20 21 22 -23 -24 25 -26 -27 28 -29 -30 -31 32 -33 -34 35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 2 -3 4 -5 -6 -7 8 -9 10 11 12 -13 14 -15 -16 17 -18 19 20 21 22 -23 -24 25 -26 -27 28 -29 -30 -31 32 -33 -34 -35 -36 -37 38 -39 40 41 42 43 44 -45 0
+```
+
+The `c true uniformity` indicates that the path count of G_P is low enough for the
+procedure to use the exact uniform random sampling procedure. Therefore, the heuristic-based
+algorithm is not used here.
+
+If we run (notice the value for `--k 1`):
+```
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
+    /divkc/sampler --cnf t.cnf --nb 10 --k 1
+```
+
+We get:
+```
+c heuristic based uniformity
+1 -2 -3 -4 -5 -6 -7 8 -9 10 11 12 -13 14 15 -16 -17 -18 -19 20 -21 -22 -23 -24 -25 -26 27 -28 -29 -30 -31 -32 -33 -34 -35 -36 -37 -38 39 40 41 42 43 44 -45 0
+1 2 3 -4 -5 -6 -7 8 9 -10 11 12 13 14 15 -16 -17 -18 -19 20 21 -22 -23 24 25 -26 -27 28 -29 30 -31 -32 -33 -34 -35 36 -37 -38 -39 40 41 42 43 -44 45 0
+1 2 -3 4 -5 -6 -7 8 -9 10 11 12 -13 14 15 16 -17 18 19 20 21 -22 23 -24 25 -26 -27 28 -29 -30 31 -32 -33 -34 35 36 -37 -38 -39 40 41 42 43 -44 45 0
+1 -2 -3 -4 5 6 -7 8 9 -10 11 12 -13 14 -15 -16 -17 18 -19 20 -21 -22 -23 -24 -25 26 -27 -28 -29 -30 -31 -32 -33 -34 -35 -36 -37 38 -39 -40 41 42 -43 -44 -45 0
+1 2 3 -4 -5 -6 -7 8 9 -10 11 12 13 14 -15 16 17 18 -19 20 21 -22 -23 24 25 -26 -27 28 -29 30 -31 -32 -33 -34 -35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 -2 -3 -4 -5 -6 -7 8 9 -10 11 12 -13 14 -15 16 17 -18 19 20 -21 -22 -23 -24 -25 -26 27 -28 -29 -30 -31 -32 -33 -34 -35 -36 -37 -38 39 40 41 42 43 44 -45 0
+1 -2 -3 -4 -5 -6 -7 8 -9 10 11 12 -13 14 15 16 -17 18 19 20 21 -22 23 -24 25 -26 -27 28 29 -30 -31 -32 -33 34 -35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 -2 -3 -4 -5 -6 -7 8 9 -10 11 12 13 14 15 16 17 -18 19 20 21 22 -23 -24 25 -26 -27 28 29 -30 -31 -32 33 -34 35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 -2 -3 -4 -5 -6 -7 8 9 -10 11 12 -13 14 -15 16 -17 -18 -19 20 21 22 -23 -24 25 -26 -27 28 29 -30 -31 -32 -33 34 35 -36 -37 -38 39 40 41 42 43 44 -45 0
+1 -2 -3 -4 5 6 -7 8 -9 10 11 12 -13 14 -15 -16 -17 -18 19 20 -21 -22 -23 -24 -25 26 -27 -28 -29 -30 -31 -32 -33 -34 -35 -36 -37 -38 39 -40 41 42 -43 -44 -45 0
+```
+
+Notice the `c heuristic based uniformity` line indicating that the heuristic-based algirithm is
+used.
