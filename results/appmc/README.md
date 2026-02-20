@@ -6,6 +6,11 @@ generate the LaTeX tables.
 The `gen_tables_md.py` script can be used to generate the markdown versions of the
 tables.
 
+## Dependencies
+
+The python dependencies for the scripts can be installed with the following command:
+`pip install pandas numpy mpmath`
+
 ## Data
 
 The `csv` folder contains multiple files, which we describe here.

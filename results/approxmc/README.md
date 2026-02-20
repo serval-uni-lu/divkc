@@ -4,6 +4,11 @@ This folder contains the scripts necessary to generate Table
 5 (`accuraccy.py` or `accuraccy_md.py`) and Table 6 (`runtime.py`
 or `runtime_md.py`) of our paper.
 
+## Dependencies
+
+The python dependencies for the scripts can be installed with the following command:
+`pip install pandas numpy mpmath`
+
 ## Data
 
 The `csv` folder contains multiple files, which we describe here.
