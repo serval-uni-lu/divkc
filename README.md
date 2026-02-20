@@ -84,6 +84,22 @@ apptainer build --fakeroot d4.sif d4.def
 The resulting container (`d4.sif`) can be used just like the native executable.
 Instructions on how to install `apptainer` are available on [apptainer.org](https://apptainer.org/).
 
+## Doxygen
+
+The `cppddnnf`, `projection` and `splitter` folders contain `Doxyfiles`.
+The documentation of the code can be generated with
+[Doxygen](https://www.doxygen.nl/index.html)
+by running
+```
+doxygen Doxyfile
+```
+
+This generates html and LaTeX documentation in the `documentation/html` and `documentation/latex`
+folders respectively.
+The main page for the html documentation is located at `documentation/html/index.html`.
+The generated LaTeX folder will contain a makefile. Running the makefile
+will generate a file called `refman.pdf`.
+
 ## Basic components of DivKC
 
 - The folder `splitter` contains the used splitting heuristic.
