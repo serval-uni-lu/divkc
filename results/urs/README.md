@@ -64,6 +64,9 @@ The resulting table contains the following columns:
 - `Time (h)` is the time taken by the test, i.e., the sum of the execution times
   which were taken for each successful test on one formula.
 
+The raw csv files need to be generated with the testing tool available at
+[TURS](https://github.com/serval-uni-lu/urs_test).
+
 
 # References
 
