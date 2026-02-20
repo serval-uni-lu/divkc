@@ -82,25 +82,21 @@ apptainer build --fakeroot d4.sif d4.def
 ```
 
 The resulting container (`d4.sif`) can be used just like the native executable.
+Instructions on how to install `apptainer` are available on [apptainer.org](https://apptainer.org/).
 
-### Splitter
+## Basic components of DivKC
 
-The folder `splitter` contains the used splitting heuristic.
-A singularity script is also provided in the folder.
+- The folder `splitter` contains the used splitting heuristic.
+  A singularity script is also provided in the folder.
 
-### Projection
+- The folder `projection` contains the program used for CNF projection.
+  A singularity script is also provided in the folder.
 
-The folder `projection` contains the program used for CNF projection.
-A singularity script is also provided in the folder.
+- The folder `cppddnnf` contains the C++ utilities necessary to work with our compiled form.
 
-### Approximate Algorithms
+## Example Usage
 
-The folder `cppddnnf` contains the C++ utilities necessary to work with our compiled form.
-
-
-### Example Usage
-
-#### Compiling a Formula
+### Compiling a Formula
 
 First, we need to compute a projection set for the formula `t.cnf` by using the `splitter`.
 ```
@@ -139,7 +135,7 @@ Usage:
 bash compile_formula.sh t.cnf
 ```
 
-#### Approximate Model Counting
+### Approximate Model Counting
 
 Once the formula has been compiled, you can perform approximate model counting as follows:
 ```
@@ -150,7 +146,7 @@ This will output the estimates in CSV format with the header: `N,Y,Yl,Yh`
 , where `N` is the number of solutions used, `Y` is the estimate and `Yl` and `Yh` are
 the estimated lower and upper bounds computed with the central limit theorem.
 
-#### Approximate Uniform Random Sampling
+### Approximate Uniform Random Sampling
 
 Once the formula has been compiled, you can perform approximate model counting as follows:
 ```
@@ -215,6 +211,10 @@ docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
 In this example we use `/divkc/wrap` to limit `D4`.
 With the parameters in the example, `wrap` will kill the call to `D4` if it
 exceeds `16000` MB of memory or if the execution takes longer than `3600` seconds.
+Moreover, the `wrap` command prints a summary of the used resources on exit.
+The summary is printed in CSV format with the following columns:
+the used command, the exit status (`done`, `err`, `mem`, `mem err`, `timeout` or `timeout err`),
+the used memory in KB, the execution time in seconds.
 
 Once the compilation has been done, we can perform approximate model counting as follows:
 ```
