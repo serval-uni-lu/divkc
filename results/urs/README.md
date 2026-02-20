@@ -44,6 +44,27 @@ We obtain:
 |csv/omega_modbit_q8_b1000_c10_ksampler.csv   | 178 | 0.129 + |      1 |           0 |    3.205|
 |csv/omega_modbit_q8_b1000_c10_rsampler.csv   | 178 | 0.141 + |      2 |           0 |    0.919|
 
+The `+` symbols indicate that the p-value is above our alpha value of `0.01` and that
+therefore, the sampler is deemed uniform according to the statistical test.
+
+The `csv` files are named according to the following pattern:
+`{dataset}_{statistical test}_b{batch size}_c{minimum number of elements in each cell}_{sampler name}.csv`.
+In the case of the `modbit` test, we have an additional `q{val}` in the filename indicating
+the value of the `modbit` test parameter.
+
+The resulting table contains the following columns:
+
+- `#F` indicates on how many formulae the test has been performed.
+- `HMP` indicates the harmonic mean p-value of the test which is used to determine if the
+  sampler is uniform according to the test. If it is below a predefined threshold `alpha`
+  (often 1%) then the sampler is not uniform according to the test.
+- `#Fails` is the number of formulae for which the individual p-value
+  is below the `alpha` value of 1%.
+- `#Bonferroni` is similar to `#Fails` but with a Bonferroni correction.
+- `Time (h)` is the time taken by the test, i.e., the sum of the execution times
+  which were taken for each successful test on one formula.
+
+
 # References
 
 - TURS: Zeyen, Olivier, et al. "Testing Uniform Random Samplers: Methods, Datasets and Protocols." ACM Transactions on Software Engineering and Methodology (2025).
