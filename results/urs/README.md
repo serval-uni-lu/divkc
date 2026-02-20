@@ -10,6 +10,8 @@
 
 ## Usage
 
+The dependencies for the script can be installed with `pip install pandas numpy`.
+
 By running:
 ```
 python summary.py csv/*.csv
