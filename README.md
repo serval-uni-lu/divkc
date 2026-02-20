@@ -9,10 +9,10 @@ the article 'DivKC: A Divide-and-Conquer Approach to Knowledge Compilation'.
 in the paper that operate on the compiled form. The implemented algorithms
 allow for approximate model counting and random sampling.
 
-The folder `D4` contains a slightly modified version of the D4 compiler.
-The modification is only present to also include the unconstrained
-variables in the generated .nnf file therefore simplifying further
-usage of the d-DNNF.
+  The folder `D4` contains a slightly modified version of the D4 compiler.
+  The modification is only present to also include the unconstrained
+  variables in the generated .nnf file therefore simplifying further
+  usage of the d-DNNF.
 
 - The current implementation in `cppddnnf` requires this modification to function.
 Therefore, to replace `D4` by a different compiler, either the compiler
