@@ -233,3 +233,106 @@ Alternatively with `/divkc/rsampler`:
 docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
     /divkc/rsampler --cnf t.cnf --nb 10 --k 50000
 ```
+
+### Example with outputs
+
+Running the following command `bash docker_compile_formula.sh t.cnf`
+produced the following output:
+```
+Exact lower and upper bounds to the true model count:
+               file,low,high
+cnf.bound.csv: t.cnf, 2, 54000
+
+The number of variables and the number of clauses in the formula
+             file,#v,#c
+cnf.cls.csv: t.cnf, 45, 104
+
+The time (s) and memory (KB) usage of the d-DNNF compilation for G_P
+          file, state, mem, time
+pnnf.csv: t.cnf, done, 51265, 0.0246568
+
+The time (s) and memory (KB) usage of the d-DNNF compilation for G_U
+          file, state, mem, time
+unnf.csv: t.cnf.unnf, done, 584142, 0.0247177
+
+The time (s) and memory (KB) usage of the splitting procedure
+           file, state, mem, time
+split.csv: t.cnf, done, 7249, 0.00236592
+
+The time (s) and memory (KB) usage of the projection procedure
+          file, state, mem, time
+proj.csv: t.cnf.proj, done, 6926, 0.00233837
+```
+
+We can see that the splitting procedure terminated successfully because we find
+`split.csv, ..., done, ...`. Similarily for the projection procedure
+(`proj.csv, ..., done, ...`), the compilation of G_U (`unnf.csv`) and the compilation
+of G_P (`pnnf.csv`). This compilation showed us that the true model count
+lies between 2 and 54000 as is shown by the line `cnf.bound.csv: t.cnf, 2, 54000`.
+
+We may then run the approximate model counting procedure as follows:
+```
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
+    /divkc/appmc --cnf t.cnf
+```
+
+And we get:
+```
+N,Y,Yl,Yh
+10000, 25989, 25414, 26564.1
+```
+
+We see that the algorithm used the full `10000` samples because early stopping
+is disabled by default. The estimate (`Y`) is 25989 and the confidence interval
+([`Yl`, `Yh`]) is [`25414`, `26564.1`].
+If we use `D4` to compute the true model count we find that the formula has
+exaclty `26256` solutions.
+
+If we run the sampling procedure:
+```
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
+    /divkc/sampler --cnf t.cnf --nb 10 --k 50
+```
+
+We get:
+```
+c true uniformity
+1 2 3 -4 -5 -6 -7 8 9 -10 11 12 -13 14 15 -16 17 -18 -19 20 21 -22 23 -24 25 -26 -27 28 -29 -30 31 -32 -33 -34 -35 -36 -37 38 -39 40 41 42 43 44 -45 0
+1 2 3 -4 -5 -6 -7 8 9 -10 11 12 13 14 15 16 17 -18 -19 20 21 22 -23 -24 25 -26 -27 28 -29 -30 -31 32 -33 -34 35 36 -37 -38 -39 40 41 42 43 -44 45 0
+1 2 3 -4 -5 -6 -7 8 9 -10 11 12 -13 14 -15 -16 -17 -18 19 20 21 -22 23 -24 25 -26 -27 28 -29 -30 31 -32 -33 -34 35 36 -37 -38 -39 40 41 42 43 -44 45 0
+1 -2 -3 -4 -5 -6 -7 8 -9 10 11 12 -13 14 15 -16 -17 18 -19 20 21 -22 23 -24 25 -26 -27 28 -29 -30 31 -32 -33 -34 35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 2 -3 4 -5 -6 -7 8 9 -10 11 12 13 14 15 16 17 -18 -19 20 21 22 -23 -24 25 -26 -27 28 29 -30 -31 -32 -33 34 -35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 2 3 -4 -5 -6 -7 8 9 -10 11 12 -13 14 -15 16 17 18 -19 20 21 -22 -23 24 25 -26 -27 28 29 -30 -31 -32 -33 34 35 -36 37 -38 -39 40 41 42 43 -44 45 0
+1 2 3 -4 -5 -6 -7 8 -9 10 11 12 -13 14 -15 16 17 -18 -19 20 21 -22 -23 24 25 -26 -27 28 -29 30 -31 -32 -33 -34 35 36 -37 -38 -39 40 41 42 43 -44 45 0
+1 2 -3 4 -5 -6 -7 8 9 -10 11 12 13 14 15 16 -17 18 -19 20 21 -22 -23 24 25 -26 -27 28 29 -30 -31 -32 33 -34 35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 2 3 -4 -5 -6 -7 8 -9 10 11 12 13 14 15 -16 17 -18 -19 20 21 22 -23 -24 25 -26 -27 28 -29 -30 -31 32 -33 -34 35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 2 -3 4 -5 -6 -7 8 -9 10 11 12 -13 14 -15 -16 17 -18 19 20 21 22 -23 -24 25 -26 -27 28 -29 -30 -31 32 -33 -34 -35 -36 -37 38 -39 40 41 42 43 44 -45 0
+```
+
+The `c true uniformity` indicates that the path count of G_P is low enough for the
+procedure to use the exact uniform random sampling procedure. Therefore, the heuristic-based
+algorithm is not used here.
+
+If we run (notice the value for `--k 1`):
+```
+docker run --rm -v "$(pwd):/work:Z" -w "/work" divkc \
+    /divkc/sampler --cnf t.cnf --nb 10 --k 1
+```
+
+We get:
+```
+c heuristic based uniformity
+1 -2 -3 -4 -5 -6 -7 8 -9 10 11 12 -13 14 15 -16 -17 -18 -19 20 -21 -22 -23 -24 -25 -26 27 -28 -29 -30 -31 -32 -33 -34 -35 -36 -37 -38 39 40 41 42 43 44 -45 0
+1 2 3 -4 -5 -6 -7 8 9 -10 11 12 13 14 15 -16 -17 -18 -19 20 21 -22 -23 24 25 -26 -27 28 -29 30 -31 -32 -33 -34 -35 36 -37 -38 -39 40 41 42 43 -44 45 0
+1 2 -3 4 -5 -6 -7 8 -9 10 11 12 -13 14 15 16 -17 18 19 20 21 -22 23 -24 25 -26 -27 28 -29 -30 31 -32 -33 -34 35 36 -37 -38 -39 40 41 42 43 -44 45 0
+1 -2 -3 -4 5 6 -7 8 9 -10 11 12 -13 14 -15 -16 -17 18 -19 20 -21 -22 -23 -24 -25 26 -27 -28 -29 -30 -31 -32 -33 -34 -35 -36 -37 38 -39 -40 41 42 -43 -44 -45 0
+1 2 3 -4 -5 -6 -7 8 9 -10 11 12 13 14 -15 16 17 18 -19 20 21 -22 -23 24 25 -26 -27 28 -29 30 -31 -32 -33 -34 -35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 -2 -3 -4 -5 -6 -7 8 9 -10 11 12 -13 14 -15 16 17 -18 19 20 -21 -22 -23 -24 -25 -26 27 -28 -29 -30 -31 -32 -33 -34 -35 -36 -37 -38 39 40 41 42 43 44 -45 0
+1 -2 -3 -4 -5 -6 -7 8 -9 10 11 12 -13 14 15 16 -17 18 19 20 21 -22 23 -24 25 -26 -27 28 29 -30 -31 -32 -33 34 -35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 -2 -3 -4 -5 -6 -7 8 9 -10 11 12 13 14 15 16 17 -18 19 20 21 22 -23 -24 25 -26 -27 28 29 -30 -31 -32 33 -34 35 -36 -37 -38 39 40 41 42 43 -44 45 0
+1 -2 -3 -4 -5 -6 -7 8 9 -10 11 12 -13 14 -15 16 -17 -18 -19 20 21 22 -23 -24 25 -26 -27 28 29 -30 -31 -32 -33 34 35 -36 -37 -38 39 40 41 42 43 44 -45 0
+1 -2 -3 -4 5 6 -7 8 -9 10 11 12 -13 14 -15 -16 -17 -18 19 20 -21 -22 -23 -24 -25 26 -27 -28 -29 -30 -31 -32 -33 -34 -35 -36 -37 -38 39 -40 41 42 -43 -44 -45 0
+```
+
+Notice the `c heuristic based uniformity` line indicating that the heuristic-based algirithm is
+used.
