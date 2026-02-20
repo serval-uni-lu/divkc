@@ -81,6 +81,7 @@ produces the following files:
 - tmp.cls.csv
 - tmp.clt.csv
 - tmp.clt.run.csv
+
   Please note that early stopping is enabled in the `gen.sh` script
   Also, the approximate model counting procedure is run 4 times.
   The execution times are summed together and for the memory, we use the maximum.
