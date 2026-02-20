@@ -5,36 +5,26 @@ the article 'DivKC: A Divide-and-Conquer Approach to Knowledge Compilation'.
 
 # Contents
 
-## cppddnnf
-
-The `cppddnnf` folder contains the implementation of the algorithms presented
+- The `cppddnnf` folder contains the implementation of the algorithms presented
 in the paper that operate on the compiled form. The implemented algorithms
 allow for approximate model counting and random sampling.
-
-## D4
 
 The folder `D4` contains a slightly modified version of the D4 compiler.
 The modification is only present to also include the unconstrained
 variables in the generated .nnf file therefore simplifying further
 usage of the d-DNNF.
 
-The current implementation in `cppddnnf` requires this modification to function.
+- The current implementation in `cppddnnf` requires this modification to function.
 Therefore, to replace `D4` by a different compiler, either the compiler
 or the implementation in `cppddnnf` has to be modified.
 
-## projection
-
-The `projection` folder contains the code necessary to project a CNF
+- The `projection` folder contains the code necessary to project a CNF
 formula on a subset of its variables.
 
-## Results
-
-The `results` folder contains the raw results that are presented in the article as well
+- The `results` folder contains the raw results that are presented in the article as well
 as more detailed versions of the tables available in the article.
 
-## splitter
-
-The `splitter` folder contains the implementation of the splitting procedure
+- The `splitter` folder contains the implementation of the splitting procedure
 presented in the paper.
 
 # Usage
